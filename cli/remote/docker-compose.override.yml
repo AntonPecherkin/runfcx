@@ -1,0 +1,13 @@
+services:
+  snapchain:
+    ports: !override
+      - "127.0.0.1:3381:3381/tcp"
+      - "3382:3382/udp"
+      - "127.0.0.1:3383:3383/tcp"
+  statsd:
+    ports: !override
+      - "127.0.0.1:8125:8125/udp"
+      - "127.0.0.1:8126:8126"
+  grafana:
+    ports: !override
+      - "127.0.0.1:3000:3000"

@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+echo "$*" >> "$STUB_LOG"
+case "$*" in
+  *"/volumes?label_selector"*)   echo '{"volumes":[{"id":11}]}' ;;
+  *"/firewalls?label_selector"*) echo '{"firewalls":[{"id":22}]}' ;;
+  *) echo '{}' ;;
+esac
