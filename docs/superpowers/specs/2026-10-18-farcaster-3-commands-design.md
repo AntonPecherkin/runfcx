@@ -69,7 +69,7 @@ Open items to verify on day 1:
  (0) ./provision.sh  ── hcloud API ──▶     Ubuntu + Docker + 1.5 TB volume
  (1) ./node.sh       ── SSH ─────────▶     official snapchain bootstrap (pinned commit) → read node
  (2) npx fcx ...     ── SSH tunnel ──▶     HTTP :3381 (reads + submitMessage)
-     ~/.fcx/key                            gossip :3382/3383 ⇄ validators
+     ~/.fcx/key                            gossip :3382/udp ⇄ validators
 ```
 
 Quickstart:
@@ -94,7 +94,7 @@ Repo layout (MIT):
 ## 5. Infra (`infra/`)
 
 - `provision.sh`: creates a server (dedicated vCPU, 16 GB RAM class), a 1.5 TB volume, a firewall
-  (22 from the caller's IP only; 3382–3383 TCP+UDP open; **3381 not public**), SSH key auth only.
+  (22 from the caller's IP only; 3382/udp gossip open; **3381, 3383, Grafana and statsd bound to 127.0.0.1**), SSH key auth only.
   `--ttl` installs an on-server timer that deletes server + volume via the Hetzner API.
   `--host user@box` skips creation and only checks specs and ports.
 - `node.sh`: installs Docker, runs the official `snapchain-bootstrap.sh` pinned to a commit,
