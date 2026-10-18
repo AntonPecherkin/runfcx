@@ -189,23 +189,26 @@ Stretch (only if ahead by Thu): `fcx ui` web view → 59s vertical video → Chi
 ## 10. Testing
 
 - TDD unit tests: feed merge/filter, signer → app mapping, message building, retry/confirm.
-- Hetzner run 1: build + debug infra; stays up as the dev node while `fcx` is built.
-- Hetzner run 2: clean run of final scripts from zero, driven by an agent via `agent.md`.
-- Run 3 only if run 2 fails. Tester runs are logged as further tests.
+- No long-lived server. Every run uses `--ttl` and is destroyed after; each run also tests auto-destroy.
+- Hetzner run 1 (Sun): measure sync, verify open items, record real API responses as test fixtures. TTL ~10h.
+- Between runs: `fcx` built offline against fixtures + unit tests.
+- Hetzner run 2 (Tue): integration window — login, writes + confirm, live feed. TTL ~10h.
+- Hetzner run 3 (Wed): clean run of final scripts from zero, driven by an agent via `agent.md`.
+- Extra run only if run 3 fails. Tester runs are logged as further tests.
 
 ## 11. Timeline
 
 | Day | Build | Testers |
 |---|---|---|
-| Sun 18 | Run 1: measure sync, verify open items | Post call for testers |
-| Mon 19 | Infra scripts + TTL; `fcx` skeleton, tunnel, reads | Collect names |
-| Tue 20 | Login (both modes), writes + confirm, feed + filters | — |
-| Wed 21 | Run 2 (agent-driven, clean); site start | Beta to 1–2 testers |
+| Sun 18 | Run 1: measure sync, verify open items, record fixtures | Post call for testers |
+| Mon 19 | Infra scripts + TTL; `fcx` skeleton, reads, feed (offline, fixtures) | Collect names |
+| Tue 20 | Run 2: login (both modes), writes + confirm, live feed + filters | — |
+| Wed 21 | Run 3 (agent-driven, clean); site start | Beta to 1–2 testers |
 | Thu 22 | Site text + visuals; upstream doc PRs | Main test wave |
 | Fri 23 | Fixes, polish, stretch | Collect vouches |
 | Sat 24 | Submit by 10:00 UTC | Late vouches |
 
-Budget: Hetzner ~$30–45 total for us; testers ~$2–5 each.
+Budget: Hetzner ~$12–20 total for us (3 runs); testers ~$2–5 each.
 
 ## 12. Risks
 
