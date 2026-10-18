@@ -43,9 +43,19 @@ Clarifications from Balaji (cast `0x0a05d5c8`):
   `getGaslessSignedKeyRequestMetadata`, `GASLESS_KEY_ADD_EIP_712_TYPES`, `ViemWalletEip712Signer`,
   `makeKeyRemoveBodySelfRevoke`.
 - No feed endpoint exists. Client builds the feed itself.
+- Read nodes accept writes: they validate, gossip on the `mempool` topic, keep nothing. Success
+  means "accepted for relay", not "in a block" — hence confirm + resubmit.
+- Disk requirement conflicts upstream: README says 1.5 TB, getting-started and AWS guide say 2 TB
+  (upstream doc PR #1).
+- Why the disk peak is high (`src/storage/db/snapshot.rs`): all ~400 GB of chunks are downloaded
+  first, each shard is gunzipped into a `.tar` then unpacked, and chunks are deleted only at the
+  very end. Estimated peak ~1.1–1.3 TB, steady state ~0.5–0.6 TB (to be measured).
+- Can't reduce: syncing one shard (users split across shards 1 and 2), pruning (events only),
+  syncing without snapshot (slower, same size).
 
 Open items to verify on day 1:
-- Real download / unpack / catch-up time and peak disk use on Hetzner.
+- Real download / unpack / catch-up time, peak disk, steady-state disk and peak RAM on Hetzner
+  (and whether 8 GB RAM would be enough).
 - Hetzner volume I/O fast enough for unpacking; real hourly cost.
 - HTTP `signersByFid` exposes `currentUserNonce` (else use gRPC over the tunnel).
 - Farcaster app seed phrase uses `m/44'/60'/0'/0/0`.
@@ -185,6 +195,12 @@ Writing rules:
 - Real terminal output, real numbers. Human pass on every page.
 
 Stretch (only if ahead by Thu): `fcx ui` web view → 59s vertical video → Chinese translation.
+
+Upstream contributions (section "What we fixed upstream"):
+- Doc PR: reconcile 1.5 TB vs 2 TB, explain the disk peak with measured numbers.
+- Doc PR: hello-world guide → gasless `KEY_ADD`, own node, no Optimism tx.
+- Stretch code PR to `farcasterxyz/snapchain`: delete each shard's chunks right after unpacking
+  to cut peak disk by up to ~400 GB. Only after run 1 confirms the numbers.
 
 ## 10. Testing
 
