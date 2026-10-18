@@ -59,30 +59,31 @@ Open items to verify on day 1:
 - Hetzner volume I/O fast enough for unpacking; real hourly cost.
 - HTTP `signersByFid` exposes `currentUserNonce` (else use gRPC over the tunnel).
 - Farcaster app seed phrase uses `m/44'/60'/0'/0/0`.
-- Project name, GitHub owner and site URL (`<owner>/<repo>`, `<site>` below) — pick before
-  the first public post.
+- GitHub owner and site URL (`<owner>`, `<site>` below) — pick before the first public post.
+  Package / CLI name decided: npm `fcx-cli`, binary `fcx`.
 
 ## 4. Architecture
 
 ```
  LAPTOP                                    HETZNER SERVER (or your own box)
- (0) ./provision.sh  ── hcloud API ──▶     Ubuntu + Docker + 1.5 TB volume
- (1) ./node.sh       ── SSH ─────────▶     official snapchain bootstrap (pinned commit) → read node
- (2) npx fcx ...     ── SSH tunnel ──▶     HTTP :3381 (reads + submitMessage)
+ (0) fcx provision   ── Hetzner API ─▶    Ubuntu + Docker + 1.5 TB volume
+ (1) fcx node        ── SSH ─────────▶    official snapchain bootstrap (pinned commit) → read node
+ (2) fcx login/feed  ── SSH tunnel ──▶    HTTP :3381 (reads + submitMessage)
      ~/.fcx/key                            gossip :3382/udp ⇄ validators
 ```
 
-Quickstart:
+Quickstart — exactly three commands, only Node.js ≥ 20 required (no git clone, no hcloud CLI):
 ```bash
-git clone https://github.com/<owner>/<repo> && cd <repo>
-./provision.sh --ttl 8h     # (0)  or: --host user@your-box
-./node.sh                   # (1)  waits until synced
-npx fcx login --wallet      # (2)  then: fcx feed / cast / follow / like
+npx fcx-cli provision --ttl 8h   # (0)  or: --host user@your-box
+npx fcx-cli node                 # (1)  waits until synced
+npx fcx-cli login --wallet       # (2)  then: npx fcx-cli feed / cast / follow / like
 ```
+`npm i -g fcx-cli` gives the short `fcx` binary for daily use.
 
-Repo layout (MIT):
-- `infra/` — `provision.sh`, `node.sh`, `status.sh`, `destroy.sh` (bash + `hcloud`).
-- `client/` — `fcx` TypeScript CLI, published to npm.
+Repo layout (MIT, one repo `<owner>/fcx-cli`):
+- `cli/` — npm package `fcx-cli` (TypeScript). `src/infra/` drives the Hetzner API (plain `fetch`)
+  and the system `ssh`; `src/client/` is the Farcaster client. `remote/` holds the bash scripts
+  copied to the server (tested with bats).
 - `site/` — microsite, `agent.md`, `llms.txt`.
 - `docs-prs/` — log of upstream doc issues found and PRs opened.
 
@@ -91,17 +92,17 @@ Repo layout (MIT):
 - **Keep it running:** same scripts without TTL; tutorial section with monthly cost options
   (Hetzner, dedicated/auction, Contabo, any Ubuntu box via `--host`).
 
-## 5. Infra (`infra/`)
+## 5. Infra (`fcx provision | node | status | extend | allow-ip | destroy`)
 
-- `provision.sh`: creates a server (dedicated vCPU, 16 GB RAM class), a 1.5 TB volume, a firewall
+- `provision`: creates a server (dedicated vCPU, 16 GB RAM class), a 1.5 TB volume, a firewall
   (22 from the caller's IP only; 3382/udp gossip open; **3381, 3383, Grafana and statsd bound to 127.0.0.1**), SSH key auth only.
   `--ttl` installs an on-server timer that deletes server + volume via the Hetzner API.
   `--host user@box` skips creation and only checks specs and ports.
-- `node.sh`: installs Docker, runs the official `snapchain-bootstrap.sh` pinned to a commit,
+- `node`: installs Docker, runs the official `snapchain-bootstrap.sh` pinned to a commit,
   then polls `/v1/info` until `blockDelay ≈ 0`, printing phase, progress and ETA.
-- `status.sh [--json]`: phase (downloading / unpacking / catching up / ready), %, ETA, disk use,
+- `status [--json]`: phase (downloading / unpacking / catching up / ready), %, ETA, disk use,
   TTL left.
-- `destroy.sh`: deletes server, volume, firewall. Idempotent.
+- `destroy`: deletes server, volume, firewall. Idempotent.
 
 Security:
 - Trial mode requires a **dedicated Hetzner project** for the token stored on the box
@@ -109,10 +110,11 @@ Security:
 - Client reaches 3381 only through an SSH tunnel (encrypted, not public).
 - Bootstrap script pinned to a commit and shown in the tutorial.
 
-## 6. Client (`client/`, `fcx`)
+## 6. Client (`cli/src/client/`, `fcx`)
 
 Commands (all support `--json`):
 ```
+fcx provision | node | status | extend | allow-ip | destroy   (Section 5)
 fcx login [--wallet] | logout | whoami
 fcx feed [--limit N] [--only-client <fid>] [--exclude-client <fid>]
 fcx clients
@@ -131,6 +133,9 @@ Include/exclude by client: cast `signer` → `signersByFid(author).requestFid` (
 
 Writes: build + sign with app key → `POST /v1/submitMessage` → poll `*ById` until present →
 resubmit the same signed message after ~15s, up to 3 tries → clear error.
+
+Code is written to be read: the tutorial quotes it. Small files, short functions, comments where
+the protocol is non-obvious.
 
 Modules: `node-client` (HTTP + tunnel), `feed`, `signers`, `writer`, `keystore`, `login`, `cli`.
 Deps: `@farcaster/core`, `viem`, a small arg parser. Exact versions, lockfile.
@@ -160,8 +165,8 @@ Both require a TTY. Run by an agent, they refuse and tell the human to run it.
 User says: "Set up my own Farcaster node and client by following https://<site>/agent.md".
 
 Phases: check prerequisites → confirm cost + TTL with the human → provision → run node and poll
-`status.sh --json`, reporting progress → hand off to human for `fcx login` → verify with
-`fcx whoami --json` → demo commands → remind about destroy/TTL.
+`fcx status --json`, reporting progress → hand off to human for `fcx login` → verify with
+`fcx whoami --json` → demo commands → remind about `fcx destroy` / TTL.
 
 Hard rules: never ask for or handle seed phrases or the Hetzner token in chat; never post, follow
 or like without the human's OK; always state cost and TTL. Includes an error table
@@ -173,14 +178,24 @@ Static, GitHub Pages, mobile + desktop, light + dark, no heavy framework.
 
 Order:
 1. Quickstart: 3 commands, "or tell your agent" tab, measured cost/time box.
-2. Choose a path: Trial / Keep it running / I have a server.
+2. Before you start: Node.js ≥ 20, a Hetzner project + token, and a **test account** —
+   how to get one (create in the Farcaster app, find its seed phrase, check it has storage,
+   what storage costs).
+3. Choose a path: Trial / Keep it running / I have a server.
 3. Tutorial chapters (0) compute, (1) read node, (2) client — concepts explained where they
    come up: FIDs, custody, storage rent, app keys (gasless, scopes, TTL), messages and signatures,
    shards and snapshots, read node vs validator, relay and confirmation, feed building, app FIDs.
-4. Safety: seed phrases as `rm -rf`, test accounts, delegated signing, what each key can do,
+   Chapter (2) is a developer walkthrough: short real snippets from `cli/src/client/` for
+   reading the feed, signing `KEY_ADD`, signing + submitting a cast, confirming it — so readers can
+   build their own client, not only run ours.
+4. Operate your node: upgrades (upstream auto-upgrade cron in keep mode), logs, Grafana through
+   the tunnel, disk growth, restarts, monthly cost.
+5. What's different from the official docs: gasless keys, writes through read nodes, ports,
+   disk peak — each linked to our upstream PR.
+6. Safety: seed phrases as `rm -rf`, test accounts, delegated signing, what each key can do,
    our security choices.
-5. Troubleshooting. What we fixed upstream.
-6. Vouch: template the tester edits in their own words, posted from their own node via `fcx cast`.
+7. Troubleshooting. What we fixed upstream.
+8. Vouch: template the tester edits in their own words, posted from their own node via `fcx cast`.
 
 Visuals: architecture SVG that highlights per chapter; replayable "life of a cast" animation
 (sign → submit → relay → validator → block → confirmed); terminal replays from real runs;
@@ -202,7 +217,14 @@ Upstream contributions (section "What we fixed upstream"):
 - Stretch code PR to `farcasterxyz/snapchain`: delete each shard's chunks right after unpacking
   to cut peak disk by up to ~400 GB. Only after run 1 confirms the numbers.
 
-## 10. Testing
+## 10. Submission
+
+- Reply to cast `0x50184b62` with: (1) microsite URL, (2) GitHub repo URL, (3) voucher cast URL.
+  More vouch links can follow in later replies.
+- Before posting: the submitting Farcaster account has a public wallet address (payout in USDC).
+- Deadline 2026-10-24 14:47:30 UTC; target 10:00 UTC.
+
+## 11. Testing
 
 - TDD unit tests: feed merge/filter, signer → app mapping, message building, retry/confirm.
 - No long-lived server. Every run uses `--ttl` and is destroyed after; each run also tests auto-destroy.
@@ -212,7 +234,7 @@ Upstream contributions (section "What we fixed upstream"):
 - Hetzner run 3 (Wed): clean run of final scripts from zero, driven by an agent via `agent.md`.
 - Extra run only if run 3 fails. Tester runs are logged as further tests.
 
-## 11. Timeline
+## 12. Timeline
 
 | Day | Build | Testers |
 |---|---|---|
@@ -222,11 +244,11 @@ Upstream contributions (section "What we fixed upstream"):
 | Wed 21 | Run 3 (agent-driven, clean); site start | Beta to 1–2 testers |
 | Thu 22 | Site text + visuals; upstream doc PRs | Main test wave |
 | Fri 23 | Fixes, polish, stretch | Collect vouches |
-| Sat 24 | Submit by 10:00 UTC | Late vouches |
+| Sat 24 | Check wallet address; submit by 10:00 UTC | Late vouches |
 
 Budget: Hetzner ~$12–20 total for us (3 runs); testers ~$2–5 each.
 
-## 12. Risks
+## 13. Risks
 
 1. Sync slower than expected → measured day 1, timeline adjusted.
 2. Too few testers → recruit from day 1, personal asks.
@@ -234,7 +256,7 @@ Budget: Hetzner ~$12–20 total for us (3 runs); testers ~$2–5 each.
 4. Gossip drops writes → confirm + resubmit loop.
 5. Network volume I/O too slow → switch to a server type with local NVMe.
 
-## 13. Out of scope
+## 14. Out of scope
 
 MCP server, Farcaster-app QR approval (C2), WalletConnect, web UI (stretch only),
 running validators, creating new FIDs or buying storage.
