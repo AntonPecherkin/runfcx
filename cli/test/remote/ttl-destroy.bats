@@ -1,7 +1,8 @@
 setup() {
-  export FCX_ETC="$BATS_TMPDIR/etc"; mkdir -p "$FCX_ETC"
+  export FCX_ETC="$BATS_TMPDIR/etc"; rm -rf "$FCX_ETC"; mkdir -p "$FCX_ETC"
   export FCX_LIB="$BATS_TEST_DIRNAME/../../remote/lib.sh"
   echo SECRET123 > "$FCX_ETC/token"; echo trial1 > "$FCX_ETC/name"
+  export STUB_DIR="$BATS_TMPDIR/stub"; rm -rf "$STUB_DIR"; mkdir -p "$STUB_DIR"
   export PATH="$BATS_TEST_DIRNAME/stubs:$PATH" STUB_LOG="$BATS_TMPDIR/curl.log"
   export FCX_SERVER_ID=7 HCLOUD_API=https://api.test/v1 FCX_SLEEP=0
   : > "$STUB_LOG"; S="$BATS_TEST_DIRNAME/../../remote/ttl-destroy.sh"
@@ -22,3 +23,16 @@ setup() {
   [[ "${lines[-1]}" == *"-X DELETE https://api.test/v1/servers/7"* ]]
 }
 @test "token never printed" { echo 100 > "$FCX_ETC/deadline"; FCX_NOW=200 run bash "$S"; [[ "$output" != *SECRET123* ]]; }
+@test "volume list fails: server is kept so cron retries" {
+  echo 100 > "$FCX_ETC/deadline"; STUB_LIST_FAIL=1 FCX_NOW=200 run bash "$S"
+  [ "$status" -ne 0 ]; ! grep -q "servers/7" "$STUB_LOG"
+}
+@test "volume delete fails: server is kept so cron retries" {
+  echo 100 > "$FCX_ETC/deadline"; STUB_VOL_DELETE_FAIL=1 FCX_NOW=200 run bash "$S"
+  [ "$status" -ne 0 ]; ! grep -q "servers/7" "$STUB_LOG"
+  [[ "$output" == *"volume still there"* ]]
+}
+@test "expired but token not installed yet: fails loudly, no API calls" {
+  rm "$FCX_ETC/token"; echo 100 > "$FCX_ETC/deadline"; FCX_NOW=200 run bash "$S"
+  [ "$status" -ne 0 ]; [[ "$output" == *"no token"* ]]; [ ! -s "$STUB_LOG" ]
+}

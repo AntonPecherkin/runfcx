@@ -4,23 +4,31 @@ set -euo pipefail
 TAG=v0.14.3
 SHA=cdeb51daf31ac01f25b4be3857eeec41e2e4685ca6e77e5f52959cb8065f553a
 KEEP="${1:-no}"      # yes = persistent: keep upstream auto-upgrade cron
-HOST_DIR="${2:-}"    # host mode: data dir chosen by the user
+DATA_DIR="${2:-/mnt/fcx}"
+MODE="${3:-hetzner}" # hetzner: data must live on the attached volume
+# shellcheck source=/dev/null
+source /opt/fcx/lib.sh
 
 cloud-init status --wait >/dev/null 2>&1 || true
 command -v jq >/dev/null || { apt-get update -qq && apt-get install -y -qq jq curl; }
 
-if [[ ! -e /mnt/fcx && -n "$HOST_DIR" && "$HOST_DIR" != /mnt/fcx ]]; then
-  mkdir -p "$HOST_DIR" && ln -s "$HOST_DIR" /mnt/fcx
-fi
 if [[ ! -e /mnt/fcx ]]; then
-  vol=$(find /mnt -maxdepth 1 -name 'HC_Volume_*' | head -1)
-  if [[ -n "$vol" ]]; then ln -s "$vol" /mnt/fcx; else mkdir -p /mnt/fcx; fi
+  if [[ "$MODE" == hetzner ]]; then
+    # never fall back to the small root disk: the snapshot would fill it hours later
+    vol=$(find_volume /mnt 24 5) || { echo "The 1.5 TB volume is not mounted. Run: fcx destroy, then fcx provision again."; exit 1; }
+    ln -s "$vol" /mnt/fcx
+  elif [[ "$DATA_DIR" != /mnt/fcx ]]; then
+    mkdir -p "$DATA_DIR" && ln -s "$DATA_DIR" /mnt/fcx
+  else
+    mkdir -p /mnt/fcx
+  fi
 fi
 mkdir -p /mnt/fcx/snapchain
 [[ -e /root/snapchain ]] || ln -s /mnt/fcx/snapchain /root/snapchain
 cd /root/snapchain
 
 if docker ps --format '{{.Names}}' 2>/dev/null | grep -q snapchain; then echo "Node already running."; exit 0; fi
+if install_running; then echo "Install already in progress."; exit 0; fi
 
 curl -fsSL "https://raw.githubusercontent.com/farcasterxyz/snapchain/$TAG/scripts/snapchain.sh" -o snapchain.sh
 echo "$SHA  snapchain.sh" | sha256sum -c --quiet || { echo "snapchain.sh checksum mismatch"; exit 1; }

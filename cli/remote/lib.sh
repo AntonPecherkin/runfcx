@@ -35,3 +35,18 @@ info_ready() {
   echo "$worst"
   (( worst <= $2 ))
 }
+
+# Prints the mounted Hetzner volume under <root>. Waits up to <tries> x <sleep> seconds.
+find_volume() {
+  local root="$1" tries="$2" pause="$3" d i
+  for ((i = 0; i < tries; i++)); do
+    for d in "$root"/HC_Volume_*; do
+      [[ -d "$d" ]] && mountpoint -q "$d" && { echo "$d"; return 0; }
+    done
+    sleep "$pause"
+  done
+  return 1
+}
+
+# True while an upstream `snapchain.sh upgrade` is still running.
+install_running() { pgrep -f 'snapchain.sh upgrade' >/dev/null; }

@@ -3,15 +3,18 @@ import type { Ssh } from "./ssh.js";
 export interface NodeStatus { phase: string; shard: number | null; chunk: number | null;
   chunks: number | null; eta: string | null; max_block_delay: number | null;
   disk_used_gb: number; disk_free_gb: number; ram_used_gb: number; deadline: number;
-  ttl: string; ssh: "ok" | "blocked" }
+  ttl: string; ssh: "ok" | "blocked"; detail?: string }
 
 const REMOTE = "sudo FCX_LIB=/opt/fcx/lib.sh bash /opt/fcx/status-remote.sh";
 
 export async function getStatus(ssh: Ssh): Promise<NodeStatus> {
   const r = await ssh.run(REMOTE);
   if (r.code !== 0 || !r.stdout.trim().startsWith("{")) {
+    // ssh itself exits 255 when it cannot connect; anything else failed on the server
+    const blocked = r.code === 255;
     return { phase: "error", shard: null, chunk: null, chunks: null, eta: null, max_block_delay: null,
-      disk_used_gb: 0, disk_free_gb: 0, ram_used_gb: 0, deadline: 0, ttl: "none", ssh: "blocked" };
+      disk_used_gb: 0, disk_free_gb: 0, ram_used_gb: 0, deadline: 0, ttl: "none",
+      ssh: blocked ? "blocked" : "ok", detail: blocked ? undefined : (r.stderr || r.stdout).trim().split("\n").slice(-3).join("\n") };
   }
   return { ...JSON.parse(r.stdout), ssh: "ok" };
 }
@@ -26,6 +29,7 @@ export function formatLine(s: NodeStatus): string {
 
 export function formatHuman(s: NodeStatus): string {
   if (s.ssh === "blocked") return "SSH blocked. Your IP may have changed. Run: fcx allow-ip";
+  if (s.phase === "error") return `Status check failed on the server:\n${s.detail ?? "(no output)"}\nIf the node was never installed, run: fcx node`;
   const out = [`Phase:  ${s.phase}`];
   if (s.phase === "downloading") out.push(`Shard:  ${s.shard}  chunk ${s.chunk}/${s.chunks}  ETA ${s.eta ?? "?"}`);
   if (s.max_block_delay !== null) out.push(`Behind: ${s.max_block_delay} blocks`);

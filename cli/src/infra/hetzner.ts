@@ -33,8 +33,10 @@ export class Hetzner {
     return json as T;
   }
 
-  async listByLabel(kind: Kind, name: string) {
-    const r = await this.req("GET", `/${kind}?label_selector=${encodeURIComponent(`fcx=${name}`)}`);
+  // No name: every resource any fcx run created in this project.
+  async listByLabel(kind: Kind, name?: string) {
+    const sel = name === undefined ? "fcx" : `fcx=${name}`;
+    const r = await this.req("GET", `/${kind}?label_selector=${encodeURIComponent(sel)}`);
     return (r[kind] as any[]).map((x) => ({ id: x.id as number, name: x.name as string }));
   }
   async ensureSshKey(name: string, publicKey: string) {
@@ -48,18 +50,19 @@ export class Hetzner {
   async setFirewallRules(id: number, rules: Rule[]) {
     await this.req("POST", `/firewalls/${id}/actions/set_rules`, { rules });
   }
+  // The volume is attached at create time, so it is mounted before cloud-init runs.
   async createServer(o: { name: string; type: string; location: string; sshKey: string;
-    firewallId: number; label: string; userData: string }) {
+    firewallId: number; volumeId: number; label: string; userData: string }) {
     const r = await this.req("POST", "/servers", {
       name: o.name, server_type: o.type, image: "ubuntu-24.04", location: o.location,
-      ssh_keys: [o.sshKey], firewalls: [{ firewall: o.firewallId }], labels: { fcx: o.label },
-      user_data: o.userData,
+      ssh_keys: [o.sshKey], firewalls: [{ firewall: o.firewallId }], volumes: [o.volumeId], automount: true,
+      labels: { fcx: o.label }, user_data: o.userData,
     });
     return { id: r.server.id as number, ip: r.server.public_net.ipv4.ip as string };
   }
-  async createVolume(o: { name: string; serverId: number; label: string; sizeGb: number }) {
-    const r = await this.req("POST", "/volumes", { name: o.name, size: o.sizeGb, server: o.serverId,
-      automount: true, format: "ext4", labels: { fcx: o.label } });
+  async createVolume(o: { name: string; location: string; label: string; sizeGb: number }) {
+    const r = await this.req("POST", "/volumes", { name: o.name, size: o.sizeGb, location: o.location,
+      format: "ext4", labels: { fcx: o.label } });
     return r.volume.id as number;
   }
   async deleteServer(id: number) { await this.req("DELETE", `/servers/${id}`); }

@@ -36,23 +36,28 @@ describe("Hetzner", () => {
     const { f, calls } = fake({ "POST /v1/servers": { server: { id: 7, public_net: { ipv4: { ip: "1.2.3.4" } } } } });
     const h = new Hetzner("T", f, "https://api.test/v1");
     const r = await h.createServer({ name: "fcx-t1", type: "ccx23", location: "fsn1", sshKey: "fcx",
-      firewallId: 22, label: "t1", userData: "#cloud-config" });
+      firewallId: 22, volumeId: 11, label: "t1", userData: "#cloud-config" });
     expect(r).toEqual({ id: 7, ip: "1.2.3.4" });
     expect(calls[0].body).toEqual({ name: "fcx-t1", server_type: "ccx23", image: "ubuntu-24.04",
-      location: "fsn1", ssh_keys: ["fcx"], firewalls: [{ firewall: 22 }], labels: { fcx: "t1" },
-      user_data: "#cloud-config" });
+      location: "fsn1", ssh_keys: ["fcx"], firewalls: [{ firewall: 22 }], volumes: [11], automount: true,
+      labels: { fcx: "t1" }, user_data: "#cloud-config" });
   });
-  it("creates 1500 GB ext4 automounted volume", async () => {
+  it("creates a 1500 GB ext4 volume in the location, before the server", async () => {
     const { f, calls } = fake({ "POST /v1/volumes": { volume: { id: 11 } } });
     const h = new Hetzner("T", f, "https://api.test/v1");
-    expect(await h.createVolume({ name: "fcx-t1", serverId: 7, label: "t1", sizeGb: 1500 })).toBe(11);
-    expect(calls[0].body).toEqual({ name: "fcx-t1", size: 1500, server: 7, automount: true,
+    expect(await h.createVolume({ name: "fcx-t1", location: "fsn1", label: "t1", sizeGb: 1500 })).toBe(11);
+    expect(calls[0].body).toEqual({ name: "fcx-t1", size: 1500, location: "fsn1",
       format: "ext4", labels: { fcx: "t1" } });
+  });
+  it("listByLabel without a name finds every fcx run", async () => {
+    const { f, calls } = fake({ "GET /v1/volumes": { volumes: [] } });
+    await new Hetzner("T", f, "https://api.test/v1").listByLabel("volumes");
+    expect(calls[0].url).toBe("https://api.test/v1/volumes?label_selector=fcx");
   });
   it("API errors carry the message, never the token", async () => {
     const { f } = fake({ "POST /v1/volumes": { __status: 403, error: { code: "resource_limit_exceeded", message: "volume size limit" } } });
     const h = new Hetzner("SECRET123", f, "https://api.test/v1");
-    const err = await h.createVolume({ name: "x", serverId: 1, label: "x", sizeGb: 1500 }).catch((e) => e as Error);
+    const err = await h.createVolume({ name: "x", location: "fsn1", label: "x", sizeGb: 1500 }).catch((e) => e as Error);
     expect(err.message).toMatch(/volume size limit/);
     expect(err.message).not.toMatch(/SECRET123/);
   });

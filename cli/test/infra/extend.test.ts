@@ -13,17 +13,22 @@ describe("extend", () => {
     const { ran, s } = sshRec();
     const n = await extend(st, s, "4h", 1000);
     expect(n.deadline).toBe(1000 + 14400);
-    expect(ran[0]).toBe("echo 15400 | sudo tee /etc/fcx/deadline >/dev/null");
+    expect(ran).toContain("echo 15400 | sudo tee /etc/fcx/deadline >/dev/null");
     expect(loadState()!.deadline).toBe(15400);
   });
   it("0 turns auto-destroy off", async () => {
     const { ran, s } = sshRec();
     expect((await extend(st, s, "0", 1000)).deadline).toBe(0);
-    expect(ran[0]).toMatch(/^echo 0 /);
+    expect(ran.some((c) => /^echo 0 /.test(c))).toBe(true);
   });
   it("unreachable server → allow-ip hint, state unchanged", async () => {
     const { s } = sshRec(255);
     await expect(extend(st, s, "4h", 1000)).rejects.toThrow(/fcx allow-ip/);
+    expect(loadState()).toBeNull();
+  });
+  it("a --keep run has no auto-destroy installed → refuses instead of promising one", async () => {
+    const s = { run: async (c: string) => ({ code: c.startsWith("test -x") ? 1 : 0, stdout: "", stderr: "" }) } as any;
+    await expect(extend({ ...st, deadline: 0 }, s, "4h", 1000)).rejects.toThrow(/--keep/);
     expect(loadState()).toBeNull();
   });
   it("host mode has no TTL", async () => {

@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# Fake mountpoint: a dir counts as mounted if it holds a .mounted marker.
+[[ "$1" == -q ]] && shift
+[[ -f "$1/.mounted" ]]

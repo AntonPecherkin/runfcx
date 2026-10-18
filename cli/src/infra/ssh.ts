@@ -5,18 +5,21 @@ import { fcxHome } from "./paths.js";
 
 export interface ExecResult { code: number; stdout: string; stderr: string }
 export interface Ssh {
-  run(cmd: string, opts?: { inherit?: boolean }): Promise<ExecResult>;
+  run(cmd: string, opts?: { inherit?: boolean; input?: string }): Promise<ExecResult>;
   copy(localFiles: string[], remoteDir: string): Promise<void>;
   tunnel(localPort: number, remotePort: number): { close(): void };
 }
 
 export const sshKeyPath = () => join(fcxHome(), "ssh_ed25519");
-const OPTS = () => ["-i", sshKeyPath(), "-o", "StrictHostKeyChecking=accept-new",
+// Own known_hosts: Hetzner reuses IPs, and a stale entry in ~/.ssh/known_hosts would block SSH.
+const knownHosts = () => join(fcxHome(), "known_hosts");
+const OPTS = () => ["-i", sshKeyPath(), "-o", `UserKnownHostsFile=${knownHosts()}`, "-o", "StrictHostKeyChecking=accept-new",
   "-o", "ConnectTimeout=10", "-o", "BatchMode=yes", "-o", "ServerAliveInterval=30"];
 
-function exec(bin: string, args: string[], inherit = false): Promise<ExecResult> {
+function exec(bin: string, args: string[], inherit = false, input?: string): Promise<ExecResult> {
   return new Promise((resolve) => {
-    const p = spawn(bin, args, { stdio: inherit ? "inherit" : ["ignore", "pipe", "pipe"] });
+    const p = spawn(bin, args, { stdio: inherit ? "inherit" : [input === undefined ? "ignore" : "pipe", "pipe", "pipe"] });
+    if (input !== undefined) p.stdin?.end(input);
     let stdout = "", stderr = "";
     p.stdout?.on("data", (d) => (stdout += d)); p.stderr?.on("data", (d) => (stderr += d));
     p.on("close", (code) => resolve({ code: code ?? 1, stdout, stderr }));
@@ -32,9 +35,13 @@ export async function ensureKey(): Promise<string> {
   return readFileSync(`${k}.pub`, "utf8").trim();
 }
 
+export async function forgetHost(ip: string): Promise<void> {
+  await exec("ssh-keygen", ["-R", ip, "-f", knownHosts()]);
+}
+
 export function makeSsh(target: string): Ssh {
   return {
-    run: (cmd, o) => exec("ssh", [...OPTS(), target, cmd], o?.inherit),
+    run: (cmd, o) => exec("ssh", [...OPTS(), "--", target, cmd], o?.inherit, o?.input),
     async copy(files, dir) {
       const r = await exec("scp", ["-q", ...OPTS(), ...files, `${target}:${dir}/`]);
       if (r.code !== 0) throw new Error(`scp failed: ${r.stderr.trim()}`);

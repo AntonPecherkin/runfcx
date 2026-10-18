@@ -15,6 +15,11 @@ describe("status", () => {
     expect(s.phase).toBe("error"); expect(s.ssh).toBe("blocked");
     expect(formatHuman(s)).toMatch(/fcx allow-ip/);
   });
+  it("other remote failures are errors with detail, not 'IP changed'", async () => {
+    const s = await getStatus({ run: async () => ({ code: 127, stdout: "", stderr: "bash: /opt/fcx/status-remote.sh: No such file" }) } as any);
+    expect(s.ssh).toBe("ok"); expect(s.phase).toBe("error");
+    expect(formatHuman(s)).toMatch(/No such file/); expect(formatHuman(s)).not.toMatch(/allow-ip/);
+  });
   it("line for downloading", () => {
     expect(formatLine({ ...base, phase: "downloading", shard: 1, chunk: 120, chunks: 2671, eta: "7h6m", ssh: "ok" } as any))
       .toBe("downloading shard 1 120/2671 ETA 7h6m  disk 200G");

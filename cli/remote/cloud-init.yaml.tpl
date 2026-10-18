@@ -10,10 +10,6 @@ write_files:
     encoding: b64
     content: "@LIB_B64@"
   # TTL-BEGIN
-  - path: /etc/fcx/token
-    permissions: "0600"
-    encoding: b64
-    content: "@TOKEN_B64@"
   - path: /usr/local/bin/fcx-ttl-destroy
     permissions: "0755"
     encoding: b64

@@ -1,7 +1,13 @@
 #!/usr/bin/env bash
+# Fake Hetzner API. State lives in $STUB_DIR so deletes are remembered.
 echo "$*" >> "$STUB_LOG"
 case "$*" in
-  *"/volumes?label_selector"*)   echo '{"volumes":[{"id":11}]}' ;;
+  *"/volumes?label_selector"*)
+    [[ -n "${STUB_LIST_FAIL:-}" ]] && exit 22
+    if [[ -f "$STUB_DIR/vol11_gone" ]]; then echo '{"volumes":[]}'; else echo '{"volumes":[{"id":11}]}'; fi ;;
+  *"-X DELETE "*"/volumes/11"*)
+    [[ -n "${STUB_VOL_DELETE_FAIL:-}" ]] && exit 22
+    touch "$STUB_DIR/vol11_gone"; echo '{}' ;;
   *"/firewalls?label_selector"*) echo '{"firewalls":[{"id":22}]}' ;;
   *) echo '{}' ;;
 esac

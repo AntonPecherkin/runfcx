@@ -33,6 +33,20 @@ describe("node", () => {
     const { s } = ssh([], 255);
     await expect(startNode(st, s, { wait: true, pollMs: 0, ...quiet })).rejects.toThrow(/fcx allow-ip/);
   });
+  it("one transient status failure does not abort a multi-hour wait", async () => {
+    const cmds: string[] = []; let n = 0;
+    const s: any = { copy: async () => {}, run: async (c: string) => { cmds.push(c);
+      if (!c.includes("status-remote")) return { code: 0, stdout: "", stderr: "" };
+      n++; if (n === 1) return { code: 255, stdout: "", stderr: "timeout" };
+      return { code: 0, stdout: JSON.stringify({ phase: "ready", disk_used_gb: 1, disk_free_gb: 1, ram_used_gb: 1, deadline: 0, ttl: "none" }), stderr: "" }; } };
+    await startNode(st, s, { wait: true, pollMs: 0, ...quiet });
+    expect(n).toBe(2);
+  });
+  it("passes the mode so Hetzner runs insist on the volume", async () => {
+    const { s, cmds } = ssh(["ready"]);
+    await startNode(st, s, { wait: true, pollMs: 0, ...quiet });
+    expect(cmds.some((c) => c.includes("node-setup.sh no /mnt/fcx hetzner"))).toBe(true);
+  });
   it("--no-wait returns after setup", async () => {
     const { s, cmds } = ssh(["downloading"]);
     await startNode(st, s, { wait: false, pollMs: 0, ...quiet });
