@@ -1,0 +1,3 @@
+snapchain-1  | 2026-10-18T10:00:01Z INFO snapchain::storage::db::snapshot: Downloading snapshots (legacy method)
+snapchain-1  | 2026-10-18T10:00:05Z INFO snapchain::storage::db::snapshot: Downloading zipped snapshot chunk chunk_0001.bin for shard 1 (1/2671 chunks in shard) 
+snapchain-1  | 2026-10-18T10:20:05Z INFO snapchain::storage::db::snapshot: Downloading zipped snapshot chunk chunk_0120.bin for shard 1 (120/2671 chunks in shard) Shard ETA: 7h6m

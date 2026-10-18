@@ -1,0 +1,1 @@
+snapchain-1  | 2026-10-18T14:00:00Z INFO snapchain: Starting node

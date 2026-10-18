@@ -1,0 +1,22 @@
+{
+  "name": "fcx-cli",
+  "version": "0.1.0",
+  "description": "Your own Farcaster read node and client in three commands.",
+  "license": "MIT",
+  "type": "module",
+  "bin": { "fcx": "dist/cli.js", "fcx-cli": "dist/cli.js" },
+  "files": ["dist", "remote"],
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "build": "tsc -p .",
+    "prepack": "npm run build",
+    "test": "vitest run",
+    "test:remote": "bats test/remote",
+    "lint:remote": "shellcheck remote/*.sh"
+  },
+  "devDependencies": {
+    "@types/node": "22.9.0",
+    "typescript": "5.6.3",
+    "vitest": "2.1.4"
+  }
+}

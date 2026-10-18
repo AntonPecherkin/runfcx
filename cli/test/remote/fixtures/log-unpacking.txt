@@ -1,0 +1,1 @@
+snapchain-1  | 2026-10-18T12:30:00Z INFO snapchain::storage::db::snapshot: Unpacking snapshot file .rocks.snapshot/shard_1_snapshot.tar for shard 1

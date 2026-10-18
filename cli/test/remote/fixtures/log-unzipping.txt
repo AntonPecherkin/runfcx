@@ -1,0 +1,2 @@
+snapchain-1  | 2026-10-18T12:00:05Z INFO snapchain::storage::db::snapshot: Downloading zipped snapshot chunk chunk_2671.bin for shard 1 (2671/2671 chunks in shard) Shard ETA: 0h0m
+snapchain-1  | 2026-10-18T12:00:09Z INFO snapchain::storage::db::snapshot: Unzipping snapshot chunk .rocks.snapshot/shard-1/chunk_0042.bin for shard 1
