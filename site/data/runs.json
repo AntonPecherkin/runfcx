@@ -1,5 +1,6 @@
 {
   "terminal": {
+    "status-syncing": "$ fcx status\nPhase:  syncing\nBehind: 103161 blocks\nDisk:   571 GB used, 327 GB free\nRAM:    1 GB used",
     "status-downloading": "$ fcx status\nPhase:  downloading\nShard:  1  chunk 1156/2672  ETA 0h56m\nDisk:   108 GB used, 790 GB free\nRAM:    0 GB used"
   },
   "run1": {
@@ -11,6 +12,8 @@
     "shard1_chunks_gb": 222,
     "shard1_tar_gb": 261,
     "shard1_unpacked_gb": 261,
-    "peak_disk_est_gb": 1600
+    "peak_disk_est_gb": 1600,
+    "steady_disk_gb": 557,
+    "stream_unpack_shard2_min": 38
   }
 }
