@@ -6,5 +6,5 @@ test("phases and errors are covered", () => {
   assert.deepEqual(agentCoverage(md, ["downloading"], ["Can't reach your node. Run: fcx status"]), []);
   assert.deepEqual(agentCoverage(md, ["disk_full"], []), ["agent.md: phase disk_full not covered"]);
   assert.deepEqual(agentCoverage(md, [], ["Your node is still syncing. Run: fcx status"]),
-    ["agent.md: error not covered: Your node is still syncing. Run: f"]);
+    ["agent.md: error not covered: Your node is still syncing. Ru"]);
 });
