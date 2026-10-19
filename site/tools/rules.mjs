@@ -63,3 +63,12 @@ export function motion(js) {
   const animates = /setInterval|requestAnimationFrame|\.animate\(|setTimeout\([^,]+,\s*\d{2,}/.test(js);
   return animates && !/prefers-reduced-motion/.test(js) ? ["app.js animates without a prefers-reduced-motion check"] : [];
 }
+
+// agent.md must tell an agent what to do for every status phase and every error fcx can print.
+export function agentCoverage(md, phases, errors) {
+  const out = [];
+  for (const p of phases) if (!new RegExp(`\\|\\s*\`?${p}\`?\\s*\\|`).test(md)) out.push(`agent.md: phase ${p} not covered`);
+  const table = md.split("## Errors")[1] ?? "";
+  for (const e of errors) if (!table.includes(e.slice(0, 30))) out.push(`agent.md: error not covered: ${e.slice(0, 30)}`);
+  return out;
+}

@@ -3,7 +3,7 @@
 import { readFileSync, readdirSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { bannedPhrases, structure, cssTokens, links, placeholders, motion } from "./rules.mjs";
+import { bannedPhrases, structure, cssTokens, links, placeholders, motion, agentCoverage } from "./rules.mjs";
 import { loadAll, drift } from "./snippets.mjs";
 
 const site = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -18,6 +18,12 @@ const agent = readFileSync(join(site, "agent.md"), "utf8");
 problems.push(...bannedPhrases(agent).map((p) => `agent.md: ${p}`));
 problems.push(...cssTokens(readFileSync(join(site, "assets/style.css"), "utf8")).map((p) => `style.css: ${p}`));
 problems.push(...links(pages));
+// Every phase fcx status can report, and every error message fcx can print, needs a row in agent.md.
+const cli = join(site, "../cli");
+const phases = [...new Set([...readFileSync(join(cli, "remote/status-remote.sh"), "utf8").matchAll(/phase=([a-z_]+)/g)].map((m) => m[1])), "error", "stopped", "installing", "starting", "downloading", "unzipping", "unpacking", "running"];
+const srcFiles = (d) => readdirSync(d, { withFileTypes: true }).flatMap((e) => e.isDirectory() ? srcFiles(join(d, e.name)) : e.name.endsWith(".ts") ? [join(d, e.name)] : []);
+const errors = [...new Set(srcFiles(join(cli, "src")).flatMap((f) => [...readFileSync(f, "utf8").matchAll(/new Error\(\s*[`"]([^`"$]{12,})/g)].map((m) => m[1].split("\\n")[0])))];
+problems.push(...agentCoverage(agent, phases, errors));
 problems.push(...motion(readFileSync(join(site, "assets/app.js"), "utf8")));
 const snippets = loadAll(join(site, "../cli/src/client"));
 for (const [f, h] of pages) for (const name of drift(h, snippets)) problems.push(`${f}: snippet "${name}" differs from cli/src (run: node site/tools/snippets.mjs)`);
