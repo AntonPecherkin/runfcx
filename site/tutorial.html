@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>fcx · tutorial</title>
+<link rel="stylesheet" href="assets/style.css">
+<script src="assets/app.js" defer></script>
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="index.html"><span class="mark" aria-hidden="true"></span>fcx</a>
+  <nav><a href="server.html">Server</a><a href="tutorial.html">Tutorial</a><a href="operate.html">Operate</a><a href="safety.html">Safety</a><a href="notes.html">Notes</a><a href="https://github.com/{{OWNER}}/fcx-cli">GitHub</a></nav>
+</header>
+<main>
+<h1 id="top">How it works</h1>
+<p class="lede">Three commands, three chapters. Each one explains what just happened on your machine.</p>
+<nav class="toc"><a href="#compute">0 · Compute</a> · <a href="#node">1 · Read node</a> · <a href="#client">2 · Client</a> · <a href="#build-your-own">Build your own</a></nav>
+
+<section id="compute" data-chapter="compute">
+<h2>0 · Compute</h2>
+<pre>npx fcx-cli provision --ttl 8h</pre>
+<p>This rents one server with a 1.5 TB disk. Its firewall allows SSH from your IP and UDP 3382 from anywhere. Everything else stays closed.</p>
+<p>With <code>--ttl</code>, a timer on the server deletes the server and its disk when time is up. Your Hetzner token sits on that server for this reason only. <code>fcx extend 4h</code> moves the timer, <code>fcx destroy</code> ends it now.</p>
+</section>
+
+<section id="node" data-chapter="node">
+<h2>1 · Read node</h2>
+<pre>npx fcx-cli node</pre>
+<p><b>Read node or validator.</b> Validators agree on the order of messages and make blocks. A read node keeps a full copy and follows along. It can't make blocks. It can take your messages and gossip them to the validators.</p>
+<p><b>Shards.</b> The network splits users across shards 1 and 2. Shard 0 holds what everyone shares. Your node keeps all three.</p>
+<p><b>Snapshots.</b> Replaying from block 1 takes weeks. So the node downloads a snapshot first (about 400 GB), unpacks it, then catches up block by block.</p>
+<pre data-term="status-downloading">$ fcx status
+Phase:  downloading
+Shard:  1  chunk 1156/2672  ETA 0h56m
+Disk:   108 GB used, 790 GB free
+RAM:    0 GB used</pre>
+<p><b>Why 1.5 TB.</b> The node keeps every downloaded chunk until all shards are unpacked, so the disk peaks far above its final size.</p>
+<p><b>Ports.</b> Only gossip (3382/udp) is public. The API (3381) listens on the server itself. fcx reaches it through an SSH tunnel.</p>
+<p><b>If a shard starts from block 1.</b> A known bug (<a href="https://github.com/farcasterxyz/snapchain/issues/1044">snapchain#1044</a>) can skip shard 0's snapshot. <code>fcx status</code> says so and links the fix.</p>
+</section>
+
+<section id="client" data-chapter="client">
+<h2>2 · Client</h2>
+<pre>npx fcx-cli login --wallet</pre>
+<h3 id="fid">FID and custody address</h3>
+<p>Your account is a number, the FID. One Ethereum address owns it: the custody address. Whoever holds that key controls the account.</p>
+<h3 id="test-account">A test account</h3>
+<p>Make a second account in the Farcaster app for this. Its recovery phrase is in the app's settings. Use it only here.</p>
+<h3 id="storage">Storage</h3>
+<p>Every account rents storage for its casts, likes and follows. An account without storage can't post. New accounts in the app come with it.</p>
+<h3 id="app-keys">App keys</h3>
+<p>Apps never get your custody key. They get an app key: a separate key your custody address approves once. fcx makes one on your laptop and asks your wallet to sign two messages. No gas, no transaction.</p>
+<p>The key can only cast, like, recast and follow. It expires 30 days after its last use. <code>fcx logout</code> revokes it.</p>
+<h3 id="messages">Messages</h3>
+<p>A cast, a like or a follow is a small signed message. Your node checks the signature, then gossips it to the validators. fcx then watches for it to land in a block, and sends it again if it doesn't.</p>
+<h3 id="feed">The feed</h3>
+<p>Nodes have no home feed. fcx builds it: who you follow, what each of them posted lately, newest first.</p>
+<h3 id="apps">Which app posted it</h3>
+<p>Every app key records the FID of the app that asked for it. fcx reads that for each cast, so you can filter:</p>
+<pre>fcx clients
+fcx feed --only-client 9152
+fcx feed --exclude-client 9152</pre>
+</section>
+
+<section id="build-your-own" data-chapter="client">
+<h2>Build your own client</h2>
+<p>The code below is copied from fcx at build time.</p>
+<h3>Build a feed</h3>
+<pre data-snippet="feed-build">const fids = [...new Set([me, ...(await node.following(me))])];
+const per = await pool(fids, 8, (fid) =&gt; node.castsByFid(fid, { pageSize: o.limit, startTimestamp: Math.max(0, since) }));
+// Filter here too: not every node applies startTimestamp.
+const casts = per.flat().filter((c) =&gt; c.data.timestamp &gt;= since).sort((a, b) =&gt; b.data.timestamp - a.data.timestamp);</pre>
+<h3>Add an app key</h3>
+<pre data-snippet="key-add">const { privateKey, publicKey } = await newAppKey();
+const r = await makeKeyAddBody({ fid: BigInt(fid), key: Buffer.from(publicKey.slice(2), &quot;hex&quot;), scopes: SCOPES,
+  ttl: KEY_TTL, nonce, deadline: fcNow() + 3600 }, custody);
+if (r.isErr()) throw new Error(/reject|denied|4001/i.test(r.error.message) ? &quot;You rejected the request in your wallet. Nothing was added.&quot; : r.error.message);
+
+const k: AppKey = { fid, privateKey: bytesToHexString(privateKey)._unsafeUnwrap(), publicKey, requestFid: fid, addedAt: Math.floor(Date.now() / 1000) };
+// KEY_ADD is signed by the new key itself: proof we hold it.
+const m = await makeKeyAdd(r.value, net(fid), appSigner(k));
+if (m.isErr()) throw new Error(m.error.message);</pre>
+<h3>Sign a cast</h3>
+<pre data-snippet="cast-write">export async function castWrite(k: AppKey, text: string, o: { replyTo?: CastRef; channel?: string } = {}): Promise&lt;Write&gt; {
+  const size = Buffer.byteLength(text);
+  if (size &gt; 320) throw new Error(`Cast is too long (${size} bytes, max 320).`);
+  const message = await unwrap(makeCastAdd({ text, type: CastType.CAST, embeds: [], embedsDeprecated: [], mentions: [], mentionsPositions: [],
+    parentCastId: o.replyTo &amp;&amp; { fid: o.replyTo.fid, hash: bytes(o.replyTo.hash) }, parentUrl: o.channel }, opts(k), appSigner(k)));
+  return { what: &quot;cast&quot;, message, landed: async (n) =&gt; (await n.castById(k.fid, hashOf(message))) !== null };
+}</pre>
+<h3>Send it and confirm</h3>
+<pre data-snippet="submit-confirm">for (let t = 1; t &lt;= tries; t++) {
+  try { await node.submit(bytes); }
+  catch (e) {
+    if (!(e instanceof NodeError) || e.status &gt;= 500) throw e;
+    // On a resubmit, a refusal can just mean the first copy landed meanwhile.
+    if (!isDuplicate(e)) {
+      if (t &gt; 1 &amp;&amp; await w.landed(node)) return { hash: hashOf(w.message), tries: t };
+      throw new Error(`Your node rejected the ${w.what}: ${e.message}`);
+    }
+  }
+  for (let waited = 0; waited &lt;= waitMs; waited += pollMs) {
+    if (await w.landed(node)) return { hash: hashOf(w.message), tries: t };
+    await sleep(pollMs);
+  }
+}</pre>
+<h3>Find the app behind a cast</h3>
+<pre data-snippet="client-of-cast">export function requestFidOf(s: SignerInfo): number {
+  if (s.requestFid) return s.requestFid;
+  const meta = s.onChainEvent?.signerEventBody?.metadata;
+  if (!meta) return 0;
+  // Onchain keys carry the same struct, ABI-encoded and base64'd in the JSON.
+  try {
+    const [m] = decodeAbiParameters(GASLESS_SIGNED_KEY_REQUEST_METADATA_ABI, `0x${Buffer.from(meta, &quot;base64&quot;).toString(&quot;hex&quot;)}`);
+    return Number(m.requestFid);
+  } catch { return 0; } // metadata we can't read: show &quot;unknown app&quot; instead of failing the feed
+}</pre>
+<h3>Revoke the key</h3>
+<pre data-snippet="logout-revoke">// Self-revoke: the key signs its own removal. It uses the app nonce of the FID that requested it.
+const nonce = ((await node.signersByFid(k.fid, k.requestFid)).requesterFidNonces[String(k.requestFid)] ?? 0) + 1;
+const body = makeKeyRemoveBodySelfRevoke({ key: Buffer.from(k.publicKey.slice(2), &quot;hex&quot;), nonce, deadline: fcNow() + 3600 });
+if (body.isErr()) throw new Error(body.error.message);
+const m = await makeKeyRemove(body.value, net(k.fid), appSigner(k));
+if (m.isErr()) throw new Error(m.error.message);
+await submitAndConfirm(node, { what: &quot;KEY_REMOVE&quot;, message: m.value, landed: async (n) =&gt; (await n.signer(k.fid, k.publicKey)) === null }, o.write);</pre>
+</section>
+</main>
+<footer><span>MIT · <a href="https://github.com/{{OWNER}}/fcx-cli">fcx-cli</a></span><span>Built on Snapchain · no API keys</span></footer>
+</body>
+</html>

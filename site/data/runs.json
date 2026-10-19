@@ -1,0 +1,12 @@
+{
+  "terminal": {
+    "status-downloading": "$ fcx status\nPhase:  downloading\nShard:  1  chunk 1156/2672  ETA 0h56m\nDisk:   108 GB used, 790 GB free\nRAM:    0 GB used"
+  },
+  "run1": {
+    "provider": "vultr",
+    "plan": "vx1-g-4c-16g",
+    "server_usd_h": 0.12,
+    "disk_usd_h": 0.22,
+    "hourly_usd": 0.34
+  }
+}

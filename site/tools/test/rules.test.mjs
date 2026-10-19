@@ -39,3 +39,9 @@ test("internal links", () => {
 test("asset hrefs are not page links", () => {
   assert.deepEqual(links(new Map([["index.html", `<link rel="stylesheet" href="assets/style.css"><a href="agent.md">a</a>`]])), []);
 });
+
+import { placeholders } from "../rules.mjs";
+test("release blocks unfilled placeholders", () => {
+  assert.deepEqual(placeholders(`<b>$0.34</b>`), []);
+  assert.deepEqual(placeholders(`<span class="tbd">[sync time]</span> {{SITE}}`), ["unmeasured value [sync time]", "unfilled {{SITE}}"]);
+});

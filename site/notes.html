@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>fcx · notes</title>
+<link rel="stylesheet" href="assets/style.css">
+<script src="assets/app.js" defer></script>
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="index.html"><span class="mark" aria-hidden="true"></span>fcx</a>
+  <nav><a href="server.html">Server</a><a href="tutorial.html">Tutorial</a><a href="operate.html">Operate</a><a href="safety.html">Safety</a><a href="notes.html">Notes</a><a href="https://github.com/{{OWNER}}/fcx-cli">GitHub</a></nav>
+</header>
+<main>
+<h1 id="top">Notes</h1>
+<h2 id="differences">Where we differ from the official docs</h2>
+<ul>
+<li><b>App keys.</b> We use gasless keys (<code>KEY_ADD</code>). Most guides still show the onchain key registry.</li>
+<li><b>Writes.</b> We send through our own read node. It relays to validators.</li>
+<li><b>Ports.</b> We keep 3381 and 3383 private and use an SSH tunnel.</li>
+<li><b>Disk.</b> Official docs say 1.5 TB in one place and 2 TB in another. Our measured peak: <span class="tbd" data-num="run1.peak_disk_gb" data-suffix=" GB">[peak disk]</span>.</li>
+</ul>
+<h2 id="troubleshooting">Troubleshooting</h2>
+<p>Every message fcx can print, with the fix, is in the <a href="agent.md">agent runbook</a> under Errors.</p>
+<h2 id="upstream">What we sent upstream</h2>
+<p class="muted">Pull requests and issues appear here once they're opened.</p>
+</main>
+<footer><span>MIT · <a href="https://github.com/{{OWNER}}/fcx-cli">fcx-cli</a></span><span>Built on Snapchain · no API keys</span></footer>
+</body>
+</html>

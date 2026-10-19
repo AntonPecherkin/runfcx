@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>fcx · safety</title>
+<link rel="stylesheet" href="assets/style.css">
+<script src="assets/app.js" defer></script>
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="index.html"><span class="mark" aria-hidden="true"></span>fcx</a>
+  <nav><a href="server.html">Server</a><a href="tutorial.html">Tutorial</a><a href="operate.html">Operate</a><a href="safety.html">Safety</a><a href="notes.html">Notes</a><a href="https://github.com/{{OWNER}}/fcx-cli">GitHub</a></nav>
+</header>
+<main>
+<h1 id="top">Safety</h1>
+<p class="lede">Treat a seed phrase like <code>rm -rf /</code>.</p>
+<h2 id="keys">Three keys</h2>
+<ul>
+<li><b>Custody key.</b> Owns your account. Stays in your wallet. fcx asks it for two signatures, once.</li>
+<li><b>App key.</b> Lives in <code>~/.fcx/key</code> on your laptop. Can cast, like, recast and follow. Expires 30 days after last use.</li>
+<li><b>Server token.</b> Hetzner only. Lives in <code>~/.config/fcx</code>, and on the server in trial mode so it can delete itself.</li>
+</ul>
+<h2 id="wallet-first">Wallet first</h2>
+<p><code>fcx login --wallet</code> keeps your custody key in your wallet. The seed phrase mode exists for accounts whose key lives only in the Farcaster app. Use it with a test account.</p>
+<p>Approving app keys from inside the Farcaster app isn't possible yet. We <a href="notes.html#upstream">asked for it upstream</a>.</p>
+<h2 id="choices">What fcx does</h2>
+<ul>
+<li>The seed phrase is read hidden, kept in memory, never written or logged.</li>
+<li>Both login modes need a human at the keyboard. An agent can't run them.</li>
+<li>The wallet page listens on 127.0.0.1 only, behind a one-time link.</li>
+<li>The node's API is closed to the internet. fcx uses an SSH tunnel.</li>
+<li>Use a separate Hetzner project. Its token can't touch anything else.</li>
+</ul>
+</main>
+<footer><span>MIT · <a href="https://github.com/{{OWNER}}/fcx-cli">fcx-cli</a></span><span>Built on Snapchain · no API keys</span></footer>
+</body>
+</html>

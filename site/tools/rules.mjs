@@ -51,3 +51,10 @@ export function links(files) {
   }
   return out;
 }
+
+// Release gate: nothing ships with a value we haven't measured or a name we haven't chosen.
+export function placeholders(html) {
+  const out = [...html.matchAll(/class="tbd"[^>]*>([^<]*)</g)].map((m) => `unmeasured value ${m[1]}`);
+  for (const m of new Set(html.match(/\{\{[A-Z]+\}\}/g) ?? [])) out.push(`unfilled ${m}`);
+  return out;
+}

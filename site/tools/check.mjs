@@ -3,7 +3,7 @@
 import { readFileSync, readdirSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { bannedPhrases, structure, cssTokens, links } from "./rules.mjs";
+import { bannedPhrases, structure, cssTokens, links, placeholders } from "./rules.mjs";
 import { loadAll, drift } from "./snippets.mjs";
 
 const site = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -12,7 +12,7 @@ const pages = new Map(readdirSync(site).filter((f) => f.endsWith(".html")).map((
 const problems = [];
 for (const [f, h] of pages) {
   problems.push(...structure(h, f), ...bannedPhrases(h).map((p) => `${f}: ${p}`));
-  if (release && /\{\{(OWNER|SITE)\}\}/.test(h)) problems.push(`${f}: unfilled {{OWNER}}/{{SITE}}`);
+  if (release) problems.push(...placeholders(h).map((p) => `${f}: ${p}`));
 }
 const agent = readFileSync(join(site, "agent.md"), "utf8");
 problems.push(...bannedPhrases(agent).map((p) => `agent.md: ${p}`));
