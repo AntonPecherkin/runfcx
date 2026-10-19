@@ -31,5 +31,11 @@
   "dependencies": {
     "@farcaster/core": "0.20.0",
     "viem": "2.37.5"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AntonPecherkin/fcx-cli.git",
+    "directory": "cli"
+  },
+  "homepage": "https://antonpecherkin.github.io/fcx-cli/"
 }

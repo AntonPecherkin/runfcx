@@ -24,8 +24,8 @@ Ask which server the person wants:
   ```bash
   test -f ~/.config/fcx/hcloud-token && echo "token present"
   ```
-  If it is missing, send the person to https://{{SITE}}/server.html#hetzner and wait.
-- **Vultr or their own box.** They set up the server by hand: https://{{SITE}}/server.html#vultr. Ask them for the IP.
+  If it is missing, send the person to https://antonpecherkin.github.io/fcx-cli/server.html#hetzner and wait.
+- **Vultr or their own box.** They set up the server by hand: https://antonpecherkin.github.io/fcx-cli/server.html#vultr. Ask them for the IP.
 
 ## 2. Confirm the cost
 

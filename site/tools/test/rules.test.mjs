@@ -43,5 +43,5 @@ test("asset hrefs are not page links", () => {
 import { placeholders } from "../rules.mjs";
 test("release blocks unfilled placeholders", () => {
   assert.deepEqual(placeholders(`<b>$0.34</b>`), []);
-  assert.deepEqual(placeholders(`<span class="tbd">[sync time]</span> {{SITE}}`), ["unmeasured value [sync time]", "unfilled {{SITE}}"]);
+  assert.deepEqual(placeholders(`<span class="tbd">[sync time]</span> antonpecherkin.github.io/fcx-cli`), ["unmeasured value [sync time]", "unfilled antonpecherkin.github.io/fcx-cli"]);
 });
