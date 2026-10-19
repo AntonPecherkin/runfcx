@@ -30,10 +30,10 @@ Staging is deleted only after every shard is unpacked, so one large shard costs 
 The 1.5 TB figure in the README is too small; 2 TB works.
 
 ## Numbers so far
-Prices are Vultr list prices for this plan. Times are filled in when each phase ends.
+Prices are Vultr list prices for the recommended setup (2 TB NVMe block storage at $0.10/GB-month ≈ $0.27/h). This run used a 1000 GB disk. Times are filled in when each phase ends.
 
 ```fcx-numbers
-provider=vultr plan=vx1-g-4c-16g server_usd_h=0.12 disk_usd_h=0.22 hourly_usd=0.34 shard1_chunks_gb=222 shard1_tar_gb=261 shard1_unpacked_gb=261 peak_disk_est_gb=1600
+provider=vultr plan=vx1-g-4c-16g server_usd_h=0.12 disk_usd_h=0.27 hourly_usd=0.39 shard1_chunks_gb=222 shard1_tar_gb=261 shard1_unpacked_gb=261 peak_disk_est_gb=1600
 ```
 
 ## Terminal

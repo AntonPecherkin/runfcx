@@ -15,7 +15,7 @@ command -v jq >/dev/null || { apt-get update -qq && apt-get install -y -qq jq cu
 if [[ ! -e /mnt/fcx ]]; then
   if [[ "$MODE" == hetzner ]]; then
     # never fall back to the small root disk: the snapshot would fill it hours later
-    vol=$(find_volume /mnt 24 5) || { echo "The 1.5 TB volume is not mounted. Run: fcx destroy, then fcx provision again."; exit 1; }
+    vol=$(find_volume /mnt 24 5) || { echo "The 2 TB volume is not mounted. Run: fcx destroy, then fcx provision again."; exit 1; }
     ln -s "$vol" /mnt/fcx
   elif [[ "$DATA_DIR" != /mnt/fcx ]]; then
     mkdir -p "$DATA_DIR" && ln -s "$DATA_DIR" /mnt/fcx

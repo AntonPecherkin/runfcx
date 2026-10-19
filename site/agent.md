@@ -31,7 +31,7 @@ Ask which server the person wants:
 
 Tell the person, in one message:
 
-> This rents a 4-CPU, 16 GB server with a 1.5 TB disk. It costs about $0.34 an hour on our test run, and the sync takes a few hours. With Hetzner it deletes itself after 8 hours. OK to start?
+> This rents a 4-CPU, 16 GB server with a 2 TB disk. It costs about $0.39 an hour on our test run, and the sync takes a few hours. With Hetzner it deletes itself after 8 hours. OK to start?
 
 Wait for a yes.
 
@@ -119,7 +119,7 @@ Tell the person when the server deletes itself (`npx fcx-cli status`). If they w
 | Bad --host '<x>'. Use user@hostname. | invalid host | fix the flag |
 | Bad --data-dir '<x>'. Use an absolute path | invalid path | fix the flag |
 | bad TTL '<x>'. Use 90m, 8h, 2d or 0. | invalid TTL | fix the flag |
-| This server does not meet the requirements above. | under 4 CPU, 15 GB RAM or 1400 GB free disk | person picks a bigger server or disk |
+| This server does not meet the requirements above. | under 4 CPU, 15 GB RAM or 1800 GB free disk (the restore peaks near 1.6 TB) | person picks a bigger server or disk |
 | Server did not accept SSH in time. | server still booting, or firewall blocks SSH | wait 2 min and retry; check the firewall allows the person's IP |
 | Could not install auto-destroy on the server. Delete it now: fcx destroy | token push failed | `fcx destroy` with the person's OK |
 | Could not reach the server. Run: fcx allow-ip | SSH blocked | `fcx allow-ip` |

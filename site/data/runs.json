@@ -6,7 +6,11 @@
     "provider": "vultr",
     "plan": "vx1-g-4c-16g",
     "server_usd_h": 0.12,
-    "disk_usd_h": 0.22,
-    "hourly_usd": 0.34
+    "disk_usd_h": 0.27,
+    "hourly_usd": 0.39,
+    "shard1_chunks_gb": 222,
+    "shard1_tar_gb": 261,
+    "shard1_unpacked_gb": 261,
+    "peak_disk_est_gb": 1600
   }
 }
