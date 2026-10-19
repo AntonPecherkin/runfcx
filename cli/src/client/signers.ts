@@ -5,6 +5,7 @@ import { GASLESS_SIGNED_KEY_REQUEST_METADATA_ABI } from "@farcaster/core";
 import type { NodeClient, Hex, SignerInfo } from "./node-client.js";
 import { readCache, writeCache } from "./cache.js";
 
+// @snippet client-of-cast
 export function requestFidOf(s: SignerInfo): number {
   if (s.requestFid) return s.requestFid;
   const meta = s.onChainEvent?.signerEventBody?.metadata;
@@ -15,6 +16,7 @@ export function requestFidOf(s: SignerInfo): number {
     return Number(m.requestFid);
   } catch { return 0; } // metadata we can't read: show "unknown app" instead of failing the feed
 }
+// @end
 
 export class Clients {
   private map: Record<string, number>;

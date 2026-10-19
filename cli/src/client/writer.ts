@@ -13,6 +13,7 @@ export async function submitAndConfirm(node: NodeClient, w: Write,
   const tries = o.tries ?? 3, waitMs = o.waitMs ?? 15_000, pollMs = o.pollMs ?? 3_000;
   const sleep = o.sleep ?? ((ms) => new Promise<void>((r) => setTimeout(r, ms)));
   const bytes = Message.encode(w.message).finish();
+  // @snippet submit-confirm
   for (let t = 1; t <= tries; t++) {
     try { await node.submit(bytes); }
     catch (e) {
@@ -28,5 +29,6 @@ export async function submitAndConfirm(node: NodeClient, w: Write,
       await sleep(pollMs);
     }
   }
+  // @end
   throw new Error(`Sent the ${w.what} ${tries} times. Your node never showed it. Is it synced? Run: fcx status`);
 }

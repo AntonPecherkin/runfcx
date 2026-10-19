@@ -22,6 +22,7 @@ export async function addAppKey(node: NodeClient, custody: Eip712Signer, address
   const nonce = (await node.signersByFid(fid)).currentUserNonce + 1;
   log(`FID ${fid}. Asking the custody address to sign the new app key…`);
 
+  // @snippet key-add
   const { privateKey, publicKey } = await newAppKey();
   const r = await makeKeyAddBody({ fid: BigInt(fid), key: Buffer.from(publicKey.slice(2), "hex"), scopes: SCOPES,
     ttl: KEY_TTL, nonce, deadline: fcNow() + 3600 }, custody);
@@ -31,6 +32,7 @@ export async function addAppKey(node: NodeClient, custody: Eip712Signer, address
   // KEY_ADD is signed by the new key itself: proof we hold it.
   const m = await makeKeyAdd(r.value, net(fid), appSigner(k));
   if (m.isErr()) throw new Error(m.error.message);
+  // @end
   log("Sending KEY_ADD through your node…");
   await submitAndConfirm(node, { what: "KEY_ADD", message: m.value, landed: async (n) => (await n.signer(fid, publicKey)) !== null }, o.write);
   saveKey(k);
@@ -45,6 +47,7 @@ export async function logout(node: NodeClient, o: { write?: WriteOpts; forget?: 
   if ((await node.signer(k.fid, k.publicKey)) === null)
     throw new Error("Your node doesn't see this app key. Is it synced? Run: fcx status. To delete the local key anyway: fcx logout --forget");
   {
+    // @snippet logout-revoke
     // Self-revoke: the key signs its own removal. It uses the app nonce of the FID that requested it.
     const nonce = ((await node.signersByFid(k.fid, k.requestFid)).requesterFidNonces[String(k.requestFid)] ?? 0) + 1;
     const body = makeKeyRemoveBodySelfRevoke({ key: Buffer.from(k.publicKey.slice(2), "hex"), nonce, deadline: fcNow() + 3600 });
@@ -52,6 +55,7 @@ export async function logout(node: NodeClient, o: { write?: WriteOpts; forget?: 
     const m = await makeKeyRemove(body.value, net(k.fid), appSigner(k));
     if (m.isErr()) throw new Error(m.error.message);
     await submitAndConfirm(node, { what: "KEY_REMOVE", message: m.value, landed: async (n) => (await n.signer(k.fid, k.publicKey)) === null }, o.write);
+    // @end
   }
   clearKey();
   return "revoked";

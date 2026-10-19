@@ -14,6 +14,7 @@ async function unwrap(r: HubAsyncResult<Message>): Promise<Message> {
   const v = await r; if (v.isErr()) throw new Error(v.error.message); return v.value;
 }
 
+// @snippet cast-write
 export async function castWrite(k: AppKey, text: string, o: { replyTo?: CastRef; channel?: string } = {}): Promise<Write> {
   const size = Buffer.byteLength(text);
   if (size > 320) throw new Error(`Cast is too long (${size} bytes, max 320).`);
@@ -21,6 +22,7 @@ export async function castWrite(k: AppKey, text: string, o: { replyTo?: CastRef;
     parentCastId: o.replyTo && { fid: o.replyTo.fid, hash: bytes(o.replyTo.hash) }, parentUrl: o.channel }, opts(k), appSigner(k)));
   return { what: "cast", message, landed: async (n) => (await n.castById(k.fid, hashOf(message))) !== null };
 }
+// @end
 
 export async function reactionWrite(k: AppKey, kind: "like" | "recast", t: CastRef, remove: boolean): Promise<Write> {
   const body = { type: kind === "like" ? ReactionType.LIKE : ReactionType.RECAST, targetCastId: { fid: t.fid, hash: bytes(t.hash) } };

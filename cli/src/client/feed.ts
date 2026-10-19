@@ -20,10 +20,12 @@ export async function buildFeed(node: NodeClient, me: number,
   o: { limit: number; onlyClient?: number; excludeClient?: number; windowDays?: number; now?: number }): Promise<FeedItem[]> {
   const now = o.now ?? Math.floor(Date.now() / 1000);
   const since = now - FC_EPOCH - (o.windowDays ?? 3) * 86400;
+  // @snippet feed-build
   const fids = [...new Set([me, ...(await node.following(me))])];
   const per = await pool(fids, 8, (fid) => node.castsByFid(fid, { pageSize: o.limit, startTimestamp: Math.max(0, since) }));
   // Filter here too: not every node applies startTimestamp.
   const casts = per.flat().filter((c) => c.data.timestamp >= since).sort((a, b) => b.data.timestamp - a.data.timestamp);
+  // @end
 
   const names = new Names(node), clients = new Clients(node), kept: { c: Msg; appFid: number }[] = [];
   // Look up apps a batch at a time, in parallel, until we have enough casts that pass the filter.
