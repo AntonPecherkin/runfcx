@@ -73,3 +73,5 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;font-s
 #arch[data-on=compute] .g-compute .box,#arch[data-on=node] .g-node .box,#arch[data-on=client] .g-client .box{stroke:var(--accent);stroke-width:3}
 #arch[data-on=node] .g-gossip .link,#arch[data-on=client] .g-tunnel .link,#arch[data-on=compute] .g-tunnel .link{stroke:var(--accent)}
 .keys{color:var(--muted)}.keys .box{fill:var(--card);stroke:currentColor;stroke-width:1.5}.keys text{fill:var(--fg);font:14px system-ui,sans-serif}.keys .sub{fill:var(--muted);font-size:12px}.keys .link{stroke:currentColor;stroke-width:2;fill:none}.keys .hot{stroke:var(--accent)}
+.chat .replay{margin:-6px 0 0;align-self:flex-start;background:transparent;color:var(--chat-muted);border-color:var(--chat-2)}
+@media (max-width:520px){.prompt code{white-space:normal;overflow-wrap:anywhere}}
