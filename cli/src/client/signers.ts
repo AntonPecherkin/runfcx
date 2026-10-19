@@ -10,8 +10,10 @@ export function requestFidOf(s: SignerInfo): number {
   const meta = s.onChainEvent?.signerEventBody?.metadata;
   if (!meta) return 0;
   // Onchain keys carry the same struct, ABI-encoded and base64'd in the JSON.
-  const [m] = decodeAbiParameters(GASLESS_SIGNED_KEY_REQUEST_METADATA_ABI, `0x${Buffer.from(meta, "base64").toString("hex")}`);
-  return Number(m.requestFid);
+  try {
+    const [m] = decodeAbiParameters(GASLESS_SIGNED_KEY_REQUEST_METADATA_ABI, `0x${Buffer.from(meta, "base64").toString("hex")}`);
+    return Number(m.requestFid);
+  } catch { return 0; } // metadata we can't read: show "unknown app" instead of failing the feed
 }
 
 export class Clients {

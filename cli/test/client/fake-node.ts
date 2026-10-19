@@ -28,7 +28,7 @@ interface Key { key: Hex; fid: number; requestFid: number; source: string; metad
 export class FakeStore {
   accounts = new Map<number, Account>();
   casts: Msg[] = []; reactions: Msg[] = []; links: Msg[] = []; keys: Key[] = [];
-  submits = 0;
+  submits = 0; maxInFlight = 0;
   addAccount(a: { fid: number; custody: Hex; units?: number; username?: string }) {
     this.accounts.set(a.fid, { units: 1, username: `user${a.fid}`, nonce: 0, appNonces: {}, ...a });
   }
@@ -63,7 +63,9 @@ export class FakeStore {
 
 export function fakeNode() {
   const store = new FakeStore();
-  const knobs = { dropSubmits: 0, reject: undefined as string | undefined, duplicateOnResubmit: false, pageSize: 1000 };
+  const knobs = { dropSubmits: 0, reject: undefined as string | undefined, rejectFrom: 0, duplicateOnResubmit: false, pageSize: 1000,
+    blockDelay: 0, ignoreStartTimestamp: false, signerLatencyMs: 0 };
+  let inFlight = 0;
   const seen = new Set<string>();
   const ok = (body: unknown) => new Response(JSON.stringify(body), { status: 200, headers: { "content-type": "application/json" } });
   const notFound = () => new Response(JSON.stringify({ errCode: "not_found", details: "not found" }), { status: 400 });
@@ -75,9 +77,9 @@ export function fakeNode() {
   const f = async (input: string | URL | Request, init?: RequestInit): Promise<Response> => {
     const u = new URL(String(input)), q = u.searchParams, fid = Number(q.get("fid"));
     switch (u.pathname) {
-      case "/v1/info": return ok({ shardInfos: [{ shardId: 1, maxHeight: 10, blockDelay: 0 }] });
+      case "/v1/info": return ok({ shardInfos: [{ shardId: 1, maxHeight: 10, blockDelay: knobs.blockDelay }] });
       case "/v1/castsByFid": {
-        const start = Number(q.get("startTimestamp") ?? 0);
+        const start = knobs.ignoreStartTimestamp ? 0 : Number(q.get("startTimestamp") ?? 0);
         const mine = store.casts.filter((c) => c.data.fid === fid && c.data.timestamp >= start)
           .sort((a, b) => b.data.timestamp - a.data.timestamp);
         return ok({ messages: mine.slice(0, Number(q.get("pageSize") ?? 1000)), nextPageToken: "" });
@@ -109,6 +111,9 @@ export function fakeNode() {
       }
       case "/v1/storageLimitsByFid": return ok({ limits: [], units: store.accounts.get(fid)?.units ?? 0, unitDetails: [], tier_subscriptions: [] });
       case "/v1/signer": {
+        inFlight++; store.maxInFlight = Math.max(store.maxInFlight, inFlight);
+        await new Promise((r) => setTimeout(r, knobs.signerLatencyMs));
+        inFlight--;
         const k = store.keys.find((x) => x.fid === fid && x.key === q.get("signer"));
         return k ? ok({ signer: { key: k.key, keyType: 1, fid: k.fid, source: k.source, scopes: [],
           ...(k.source === "SIGNER_SOURCE_OFFCHAIN" ? { requestFid: k.requestFid } : { onChainEvent: { signerEventBody: { metadata: k.metadata } } }) } }) : notFound();
@@ -121,7 +126,7 @@ export function fakeNode() {
       }
       case "/v1/submitMessage": {
         store.submits++;
-        if (knobs.reject) return new Response(JSON.stringify({ errCode: "bad_request.validation_failure", details: knobs.reject }), { status: 400 });
+        if (knobs.reject && store.submits >= knobs.rejectFrom) return new Response(JSON.stringify({ errCode: "bad_request.validation_failure", details: knobs.reject }), { status: 400 });
         const bytes = new Uint8Array(await new Response(init!.body as BodyInit).arrayBuffer());
         const m = Message.decode(bytes), h = hex(m.hash);
         if (knobs.duplicateOnResubmit && seen.has(h))

@@ -74,3 +74,19 @@ describe("ambiguous refs", () => {
     expect(() => parseRef("0x00000000")).toThrow("Cast prefix '0x00000000' matches more than one cast. Use more characters.");
   });
 });
+
+describe("feed on real-world data", () => {
+  it("drops old casts even when the node ignores startTimestamp", async () => {
+    fake.knobs.ignoreStartTimestamp = true;
+    expect((await buildFeed(node, 1, { limit: 10, now: NOW })).map((x) => x.text)).toEqual(["cast 3", "cast 2", "cast 1"]);
+  });
+  it("looks up apps in parallel", async () => {
+    fake.knobs.signerLatencyMs = 20;
+    await buildFeed(node, 1, { limit: 10, now: NOW });
+    expect(fake.store.maxInFlight).toBeGreaterThan(1);
+  });
+  it("a malformed onchain signer does not break the feed", async () => {
+    fake.store.keys.find((x) => x.key === "0xc0")!.metadata = "AAAA";
+    expect((await buildFeed(node, 1, { limit: 10, now: NOW })).map((x) => x.app)).toEqual(["@farcaster", "unknown app", "@farcaster"]);
+  });
+});

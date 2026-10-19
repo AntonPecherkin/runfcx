@@ -49,3 +49,12 @@ describe("client commands", () => {
     await expect(CLIENT_COMMANDS.feed.run(["--only-client", "abc"], ctx)).rejects.toThrow("--only-client needs an app FID, e.g. 9152.");
   });
 });
+
+describe("logout --forget", () => {
+  it("refuses, then forgets on request", async () => {
+    fake.store.keys = [];
+    await expect(CLIENT_COMMANDS.logout.run([], ctx)).rejects.toThrow("fcx logout --forget");
+    await CLIENT_COMMANDS.logout.run(["--forget"], ctx);
+    expect(out[0]).toBe("Local app key deleted. It stays on your account until it expires, 30 days after its last use.");
+  });
+});

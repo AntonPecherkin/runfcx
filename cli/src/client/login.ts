@@ -37,10 +37,14 @@ export async function addAppKey(node: NodeClient, custody: Eip712Signer, address
   return k;
 }
 
-export async function logout(node: NodeClient, o: { write?: WriteOpts } = {}): Promise<"revoked" | "not-logged-in"> {
+export async function logout(node: NodeClient, o: { write?: WriteOpts; forget?: boolean } = {}): Promise<"revoked" | "not-logged-in" | "forgotten"> {
   const k = loadKey();
   if (!k) return "not-logged-in";
-  if ((await node.signer(k.fid, k.publicKey)) !== null) {
+  if (o.forget) { clearKey(); return "forgotten"; }
+  // Deleting the file without KEY_REMOVE would leave a live key we can no longer revoke.
+  if ((await node.signer(k.fid, k.publicKey)) === null)
+    throw new Error("Your node doesn't see this app key. Is it synced? Run: fcx status. To delete the local key anyway: fcx logout --forget");
+  {
     // Self-revoke: the key signs its own removal. It uses the app nonce of the FID that requested it.
     const nonce = ((await node.signersByFid(k.fid, k.requestFid)).requesterFidNonces[String(k.requestFid)] ?? 0) + 1;
     const body = makeKeyRemoveBodySelfRevoke({ key: Buffer.from(k.publicKey.slice(2), "hex"), nonce, deadline: fcNow() + 3600 });

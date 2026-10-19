@@ -69,3 +69,20 @@ describe("writes", () => {
     await expect(castWrite(k, "x".repeat(321))).rejects.toThrow("Cast is too long (321 bytes, max 320).");
   });
 });
+
+describe("resubmit edge cases", () => {
+  it("a resubmit refused after the message landed counts as success", async () => {
+    fake.knobs.dropSubmits = 1; fake.knobs.reject = "nonce already used"; fake.knobs.rejectFrom = 2;
+    const w = await castWrite(k, "gm");
+    // The first copy lands just as we resubmit; the node then refuses the second copy.
+    const racing = (async (u: string | URL | Request, init?: RequestInit) => {
+      if (String(u).endsWith("/v1/submitMessage") && fake.store.submits === 1) fake.store.merge(w.message);
+      return fake.fetch(u, init);
+    }) as typeof fetch;
+    expect((await submitAndConfirm(new NodeClient("http://node", racing), w, fast)).tries).toBe(2);
+  });
+  it("'already exists' on resubmit is not a rejection", async () => {
+    fake.knobs.dropSubmits = 99; fake.knobs.reject = "message already exists"; fake.knobs.rejectFrom = 2;
+    await expect(submitAndConfirm(node, await castWrite(k, "gm"), fast)).rejects.toThrow("Sent the cast 3 times");
+  });
+});

@@ -50,3 +50,22 @@ describe("openNode", () => {
     await expect(openNode({ waitMs: 0 })).rejects.toThrow(/fcx provision/);
   });
 });
+
+describe("reaching an unready node", () => {
+  it("openNode refuses a node that is still syncing", async () => {
+    process.env.FCX_NODE = "http://node"; fake.knobs.blockDelay = 500;
+    await expect(openNode({ waitMs: 300, fetch: fake.fetch })).rejects.toThrow("Your node is still syncing. Run: fcx status");
+    delete process.env.FCX_NODE;
+  });
+  it("openNode accepts a node within 10 blocks", async () => {
+    process.env.FCX_NODE = "http://node"; fake.knobs.blockDelay = 10;
+    expect((await openNode({ waitMs: 300, fetch: fake.fetch })).node.base).toBe("http://node");
+    delete process.env.FCX_NODE;
+  });
+  it("a stalled request times out", async () => {
+    const stall = ((_u: unknown, init?: RequestInit) => new Promise<Response>((_, rej) =>
+      init!.signal!.addEventListener("abort", () => rej(init!.signal!.reason)))) as typeof fetch;
+    const n = new NodeClient("http://node", stall, { timeoutMs: 50 });
+    await expect(n.info()).rejects.toThrow("Your node did not answer in time. Run: fcx status");
+  });
+});

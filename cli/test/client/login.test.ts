@@ -77,3 +77,15 @@ describe("seed phrase input", () => {
     expect(shown).not.toContain("secret");
   });
 });
+
+describe("logout safety", () => {
+  it("keeps the key when the node does not see it", async () => {
+    const k = await addAppKey(node, new ViemLocalEip712Signer(acct), acct.address, { write: fast });
+    fake.store.keys = []; // e.g. a fresh node that has not synced yet
+    await expect(logout(node, { write: fast })).rejects.toThrow(
+      "Your node doesn't see this app key. Is it synced? Run: fcx status. To delete the local key anyway: fcx logout --forget");
+    expect(loadKey()).toEqual(k);
+    expect(await logout(node, { write: fast, forget: true })).toBe("forgotten");
+    expect(loadKey()).toBeNull();
+  });
+});

@@ -8,7 +8,7 @@ const freePort = () => new Promise<number>((resolve) => {
 });
 
 // Port 3381 is bound to 127.0.0.1 on the server, so we reach it through an SSH tunnel.
-export async function openNode(o: { waitMs?: number } = {}): Promise<{ node: NodeClient; close(): void }> {
+export async function openNode(o: { waitMs?: number; fetch?: typeof fetch } = {}): Promise<{ node: NodeClient; close(): void }> {
   const waitMs = o.waitMs ?? 15_000;
   let close = () => {};
   let base = process.env.FCX_NODE;
@@ -19,11 +19,16 @@ export async function openNode(o: { waitMs?: number } = {}): Promise<{ node: Nod
     close = () => t.close();
     base = `http://127.0.0.1:${port}`;
   }
-  const node = new NodeClient(base);
+  const node = new NodeClient(base, o.fetch);
   if (waitMs === 0) return { node, close };
   const end = Date.now() + waitMs;
   while (Date.now() < end) {
-    try { await node.info(); return { node, close }; } catch { await new Promise((r) => setTimeout(r, 250)); }
+    let info;
+    try { info = await node.info(); } catch { await new Promise((r) => setTimeout(r, 250)); continue; }
+    // A node that is still catching up answers "not found" for things that exist. Refuse early.
+    const behind = Math.max(0, ...info.shardInfos.map((s) => s.blockDelay ?? 0));
+    if (behind > 10) { close(); throw new Error("Your node is still syncing. Run: fcx status"); }
+    return { node, close };
   }
   close();
   throw new Error("Can't reach your node. Run: fcx status");

@@ -74,9 +74,14 @@ export const CLIENT_COMMANDS: Record<string, Cmd> = {
     },
   },
   logout: {
-    summary: "Remove the app key from your account (no seed phrase needed)",
-    run: (argv, ctx = defaultCtx()) => withNode(ctx, async (node) =>
-      ctx.out((await logout(node, { write: ctx.write })) === "revoked" ? "App key removed. Logged out." : "Not logged in.")),
+    summary: "Remove the app key from your account (no seed phrase needed). --forget",
+    async run(argv, ctx = defaultCtx()) {
+      const { values } = parseArgs({ args: argv, options: { forget: { type: "boolean", default: false } } });
+      const msg = { revoked: "App key removed. Logged out.", "not-logged-in": "Not logged in.",
+        forgotten: "Local app key deleted. It stays on your account until it expires, 30 days after its last use." };
+      if (values.forget) { ctx.out(msg[await logout(null as never, { forget: true })]); return; }
+      await withNode(ctx, async (node) => ctx.out(msg[await logout(node, { write: ctx.write })]));
+    },
   },
   whoami: {
     summary: "Your FID and app key. --json",

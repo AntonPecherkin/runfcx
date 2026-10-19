@@ -22,16 +22,21 @@ export async function buildFeed(node: NodeClient, me: number,
   const since = now - FC_EPOCH - (o.windowDays ?? 3) * 86400;
   const fids = [...new Set([me, ...(await node.following(me))])];
   const per = await pool(fids, 8, (fid) => node.castsByFid(fid, { pageSize: o.limit, startTimestamp: Math.max(0, since) }));
-  const casts = per.flat().sort((a, b) => b.data.timestamp - a.data.timestamp);
+  // Filter here too: not every node applies startTimestamp.
+  const casts = per.flat().filter((c) => c.data.timestamp >= since).sort((a, b) => b.data.timestamp - a.data.timestamp);
 
-  const names = new Names(node), clients = new Clients(node), out: FeedItem[] = [];
-  for (const c of casts) {
-    if (out.length >= o.limit) break;
-    const appFid = await clients.appFid(c.data.fid, c.signer);
-    if (o.onlyClient !== undefined && appFid !== o.onlyClient) continue;
-    if (o.excludeClient !== undefined && appFid === o.excludeClient) continue;
-    out.push(await toItem(c, appFid, names));
+  const names = new Names(node), clients = new Clients(node), kept: { c: Msg; appFid: number }[] = [];
+  // Look up apps a batch at a time, in parallel, until we have enough casts that pass the filter.
+  for (let i = 0; i < casts.length && kept.length < o.limit; i += o.limit) {
+    const batch = casts.slice(i, i + o.limit);
+    const apps = await pool(batch, 8, (c) => clients.appFid(c.data.fid, c.signer));
+    batch.forEach((c, j) => {
+      if (o.onlyClient !== undefined && apps[j] !== o.onlyClient) return;
+      if (o.excludeClient !== undefined && apps[j] === o.excludeClient) return;
+      kept.push({ c, appFid: apps[j] });
+    });
   }
+  const out = await pool(kept.slice(0, o.limit), 8, ({ c, appFid }) => toItem(c, appFid, names));
   names.save(); clients.save(); rememberCasts(out);
   return out;
 }

@@ -16,7 +16,7 @@ export class NodeError extends Error {
 }
 
 export class NodeClient {
-  constructor(public base: string, private f: typeof fetch = fetch) {}
+  constructor(public base: string, private f: typeof fetch = fetch, private o: { timeoutMs?: number } = {}) {}
 
   private async call<T>(path: string, params: Params = {}, init?: RequestInit): Promise<T> {
     const u = new URL(path, this.base);
@@ -24,7 +24,14 @@ export class NodeClient {
       if (Array.isArray(v)) v.forEach((x) => u.searchParams.append(k, String(x)));
       else if (v !== undefined) u.searchParams.set(k, String(v));
     }
-    const r = await this.f(u, init);
+    // A stalled tunnel or a busy node must not hang the CLI. Writes get a little longer.
+    const ms = (this.o.timeoutMs ?? 10_000) * (init?.method === "POST" ? 1.5 : 1);
+    let r: Response;
+    try { r = await this.f(u, { ...init, signal: AbortSignal.timeout(ms) }); }
+    catch (e) {
+      if ((e as Error).name === "TimeoutError" || (e as Error).name === "AbortError") throw new Error("Your node did not answer in time. Run: fcx status");
+      throw e;
+    }
     const body = await r.json().catch(() => ({}));
     if (!r.ok) throw new NodeError(body.details ?? body.error_detail ?? body.error ?? `HTTP ${r.status}`, r.status);
     return body as T;

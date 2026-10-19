@@ -6,7 +6,7 @@ import { hashOf, type Write } from "./messages.js";
 
 export type WriteOpts = { tries?: number; waitMs?: number; pollMs?: number; sleep?: (ms: number) => Promise<void> };
 
-const isDuplicate = (e: NodeError) => /duplicate|already (been )?merged/i.test(e.message);
+const isDuplicate = (e: NodeError) => /duplicate|already (been )?merged|already exists/i.test(e.message);
 
 export async function submitAndConfirm(node: NodeClient, w: Write,
   o: WriteOpts = {}): Promise<{ hash: Hex; tries: number }> {
@@ -17,7 +17,11 @@ export async function submitAndConfirm(node: NodeClient, w: Write,
     try { await node.submit(bytes); }
     catch (e) {
       if (!(e instanceof NodeError) || e.status >= 500) throw e;
-      if (!isDuplicate(e)) throw new Error(`Your node rejected the ${w.what}: ${e.message}`);
+      // On a resubmit, a refusal can just mean the first copy landed meanwhile.
+      if (!isDuplicate(e)) {
+        if (t > 1 && await w.landed(node)) return { hash: hashOf(w.message), tries: t };
+        throw new Error(`Your node rejected the ${w.what}: ${e.message}`);
+      }
     }
     for (let waited = 0; waited <= waitMs; waited += pollMs) {
       if (await w.landed(node)) return { hash: hashOf(w.message), tries: t };
