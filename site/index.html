@@ -11,44 +11,40 @@
 <body>
 <header class="top">
   <a class="brand" href="#top"><span class="mark" aria-hidden="true"></span>fcx</a>
-  <nav><a href="#server">Server</a><a href="#todo">Steps</a><a href="#cast">How it works</a><a href="tutorial.html">Tutorial</a><a href="https://github.com/{{OWNER}}/fcx-cli">GitHub</a></nav>
+  <nav><a href="#server">Free server</a><a href="#you">What you do</a><a href="#wallet">Wallet</a><a href="tutorial.html">Tutorial</a><a href="https://github.com/{{OWNER}}/fcx-cli">GitHub</a></nav>
 </header>
 
 <main class="wide" id="top">
   <section class="split" id="hero" style="padding:40px 0 24px">
     <div>
-      <h1 class="hero">Your own Farcaster node<br><em>set up by your agent</em></h1>
-      <p class="lede">One line. No API keys.</p>
+      <h1 class="hero">Copy one line<br><em>Your agent does the rest</em></h1>
+      <p class="lede">Paste it into Claude Code or Codex. It sets up a Farcaster node of your own and a client that posts through it.</p>
       <div class="prompt">
         <code id="agent-line">Set up my Farcaster node with https://{{SITE}}/agent.md</code>
         <button type="button" data-copy="agent-line">Copy</button>
       </div>
-      <p class="muted" style="font-size:15px">Works in Claude Code, Codex, Cursor · <a href="#todo">or do it by hand</a></p>
+      <p class="muted" style="font-size:15px">No API keys · <a href="tutorial.html">prefer to type it yourself?</a></p>
     </div>
     <div class="chat" aria-label="What a session with your agent looks like">
       <div class="me">Set up my Farcaster node with {{SITE}}/agent.md</div>
-      <div>The server costs <span data-num="run1.hourly_usd" data-prefix="$" data-suffix="/h">$0.34/h</span> and deletes itself after 8 h. Start?</div>
+      <div>The server costs <span data-num="run1.hourly_usd" data-prefix="$" data-suffix="/h">$0.34/h</span>. Start?</div>
       <div class="me">go</div>
       <pre data-term="status-downloading">$ fcx status
 Phase:  downloading
 Shard:  1  chunk 1156/2672  ETA 0h56m
 Disk:   108 GB used, 790 GB free
 RAM:    0 GB used</pre>
-      <div class="turn"><b>Your turn</b> · run <code>fcx login --wallet</code></div>
+      <div class="turn"><b>Your turn</b> · sign in with your wallet</div>
     </div>
   </section>
 
   <section class="band split" id="server">
     <div>
-      <h2 class="big">The server is the only hard part</h2>
-      <ol class="tips">
-        <li><div><b>Rent by the hour</b><span>You need it for a few hours. A monthly plan wastes money.</span></div></li>
-        <li><div><b>4 CPU · 16 GB · 1.5 TB disk</b><span>Smaller runs out mid-sync.</span></div></li>
-        <li><div><b>Skip the extras</b><span>No backups, no DDoS add-on, no IPv6.</span></div></li>
-        <li><div><b>Delete the server and the disk</b><span>A stopped server still bills. So does a detached disk.</span></div></li>
-      </ol>
-      <a class="pill" href="https://www.vultr.com/?ref=9929634-9J" rel="sponsored noopener">$300 Vultr credit for new accounts · our referral link</a>
-      <p style="font-size:15px;margin-top:14px"><a href="server.html">Step by step for Hetzner, Vultr or your own box</a></p>
+      <p class="kicker">The server</p>
+      <h2 class="big">Run it for $0</h2>
+      <p class="band-lede">The node needs a rented server for a few hours. New Vultr accounts get $300 of credit, which covers it many times over.</p>
+      <a class="pill big-pill" href="https://www.vultr.com/?ref=9929634-9J" rel="sponsored noopener">Get $300 in server credit</a>
+      <p class="fine">Our referral link: we get a small bonus too. Then follow <a href="server.html#vultr">the 10-minute Vultr setup</a>, or use <a href="server.html#hetzner">Hetzner</a> for a fully automatic run.</p>
     </div>
     <div>
       <div class="receipt" aria-label="Cost of our test run">
@@ -58,30 +54,57 @@ RAM:    0 GB used</pre>
         <div class="row"><span>Disk</span><i></i><b data-num="run1.disk_usd_h" data-prefix="$" data-suffix="/h">$0.22/h</b></div>
         <div class="row"><span>API keys</span><i></i><b>$0</b></div>
         <div class="row"><span>Gas</span><i></i><b>$0</b></div>
-        <div class="row"><span>Wait</span><i></i><b><span class="tbd" data-num="run1.total_hours" data-suffix=" h">[sync time]</span></b></div>
-        <div class="row"><span>Seed phrases shared</span><i></i><b>0</b></div>
+        <div class="row"><span>Run total</span><i></i><b><span class="tbd" data-num="run1.total_cost_usd" data-prefix="$">[total]</span></b></div>
+        <div class="row"><span>Vultr credit</span><i></i><b>−$300</b></div>
         <hr>
-        <div class="total"><span>TOTAL</span><span class="tbd" data-num="run1.total_cost_usd" data-prefix="$">[total]</span></div>
+        <div class="total"><span>YOU PAY</span><span>$0</span></div>
         <small>MEASURED ON OUR RUN · OCT 2026</small>
       </div>
     </div>
   </section>
 
-  <section class="split" id="todo" style="align-items:flex-start">
+  <section id="you" class="split" style="align-items:flex-start">
     <div style="flex:1 1 280px">
-      <h2 class="big">Steps</h2>
-      <p class="muted"><span id="done-count">0</span> of 7 done</p>
-      <div class="bar"><i id="done-bar"></i></div>
+      <h2 class="big">You do three things</h2>
+      <p class="muted">The agent does everything else and tells you when it's your turn.</p>
     </div>
-    <ol class="steps" style="flex:2 1 520px" data-checklist="fcx-steps">
-      <li><label><input type="checkbox" value="node"><span><b>Install Node.js 20</b><code>node --version</code></span><em class="t">2 min</em></label></li>
-      <li><label><input type="checkbox" value="acct"><span><b>Have a test Farcaster account</b><code><a href="tutorial.html#test-account">with storage · not your main one</a></code></span><em class="t">5 min</em></label></li>
-      <li><label><input type="checkbox" value="srv"><span><b>Get a server account</b><code><a href="server.html">Hetzner, Vultr or your own box</a></code></span><em class="t">10 min</em></label></li>
-      <li><label><input type="checkbox" value="p"><span><b>Rent the server</b><code>npx fcx-cli provision --ttl 8h</code></span><em class="t">2 min</em></label></li>
-      <li><label><input type="checkbox" value="n"><span><b>Sync the node</b><code>npx fcx-cli node</code></span><em class="t"><span class="tbd" data-num="run1.total_hours" data-suffix=" h">[sync time]</span></em></label></li>
-      <li><label><input type="checkbox" value="l"><span><b>Sign in</b><code>npx fcx-cli login --wallet</code></span><em class="t">1 min</em></label></li>
-      <li><label><input type="checkbox" value="c"><span><b>Post your first cast</b><code>npx fcx-cli cast "gm from my own node"</code></span><em class="t">10 s</em></label></li>
-    </ol>
+    <div style="flex:2 1 520px">
+      <ol class="you">
+        <li><div><b>Paste the line</b><span>into Claude Code or Codex</span></div></li>
+        <li><div><b>Say yes to the price</b><span>it asks before renting anything</span></div></li>
+        <li><div><b>Sign in with your wallet</b><span>two clicks, <a href="#wallet">see how</a></span></div></li>
+      </ol>
+      <details class="agent-does">
+        <summary>What the agent does meanwhile</summary>
+        <ul>
+          <li>Rents and secures the server</li>
+          <li>Installs the node and waits for it to sync, with progress updates</li>
+          <li>Checks your sign-in worked and shows you your feed</li>
+          <li>Never sees your seed phrase, and posts nothing without asking</li>
+        </ul>
+      </details>
+    </div>
+  </section>
+
+  <section id="wallet" class="split">
+    <div>
+      <p class="kicker">Signing in</p>
+      <h2 class="big">Your wallet signs twice<br>Your key stays there</h2>
+      <ul class="facts">
+        <li><b>No gas</b><span>Two signatures, no transaction</span></li>
+        <li><b>A key with limits</b><span>It can cast, like and follow. Nothing else</span></li>
+        <li><b>On your computer only</b><span>The sign-in page runs on your laptop, behind a one-time link</span></li>
+        <li><b>Undo anytime</b><span><code>fcx logout</code> removes it</span></li>
+      </ul>
+    </div>
+    <div class="signflow" data-signflow aria-label="Signing in: fcx opens a page, your wallet asks twice, you're logged in">
+      <ol>
+        <li><span class="sf-term">$ fcx login --wallet</span><span class="sf-cap">fcx opens a page on your laptop</span></li>
+        <li><span class="sf-pop"><b>Signature request</b><em>Approve fcx as the app asking for a key</em><i>Approve</i></span><span class="sf-cap">Your wallet asks once</span></li>
+        <li><span class="sf-pop"><b>Signature request</b><em>Add a key that can cast, like and follow · 30 days</em><i>Approve</i></span><span class="sf-cap">and once more</span></li>
+        <li><span class="sf-term ok">Logged in as @you · try: fcx feed</span><span class="sf-cap">Done. No gas spent</span></li>
+      </ol>
+    </div>
   </section>
 
   <section id="cast" style="padding-top:72px">
@@ -93,7 +116,7 @@ RAM:    0 GB used</pre>
       <li><b>Your node</b><span>Sees it land</span></li>
       <li class="net"><b>Every feed</b><span>Anyone can read it</span></li>
     </ol>
-    <a href="tutorial.html" style="font-weight:600">Read the tutorial →</a>
+    <a href="tutorial.html" style="font-weight:600">How it works, step by step →</a>
   </section>
 </main>
 

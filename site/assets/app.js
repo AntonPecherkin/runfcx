@@ -87,3 +87,15 @@ if (chapters.length && "IntersectionObserver" in window) {
   }), { rootMargin: "-40% 0px -55% 0px" });
   chapters.forEach((c) => io.observe(c));
 }
+
+// Wallet sign-in: <div data-signflow> steps through its list on a loop while visible.
+document.querySelectorAll("[data-signflow]").forEach((box) => {
+  const steps = [...box.querySelectorAll("li")];
+  if (still || !("IntersectionObserver" in window)) return; // reduced motion: show every step at once
+  let i = 0, timer = null;
+  const show = () => { steps.forEach((s, j) => s.classList.toggle("on", j === i)); i = (i + 1) % steps.length; };
+  new IntersectionObserver(([e]) => {
+    if (e.isIntersecting && !timer) { box.classList.add("playing"); show(); timer = setInterval(show, 1800); }
+    if (!e.isIntersecting && timer) { clearInterval(timer); timer = null; }
+  }).observe(box);
+});
