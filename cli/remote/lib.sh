@@ -50,3 +50,40 @@ find_volume() {
 
 # True while an upstream `snapchain.sh upgrade` is still running.
 install_running() { pgrep -f 'snapchain.sh upgrade' >/dev/null; }
+
+# Waits for upstream `snapchain.sh upgrade` to finish. Fails fast if it exits without success.
+wait_upgrade() {
+  local log="$1" tries="$2" pause="$3" i
+  for ((i = 0; i < tries; i++)); do
+    grep -q "Upgrade complete" "$log" && return 0
+    if grep -qE "❌|checksum mismatch" "$log" || ! install_running; then
+      grep -q "Upgrade complete" "$log" && return 0
+      echo "The upstream installer stopped. Last lines:"; tail -20 "$log"; return 1
+    fi
+    sleep "$pause"
+  done
+  echo "Install did not finish in time. Last lines:"; tail -20 "$log"; return 1
+}
+
+# Upstream's own auto-upgrade schedule (a weekday, before 7am), keyed on <seed> so it is stable.
+# We install it ourselves: upstream's installer can't pick a day until the node has a peer ID.
+cron_line() {
+  local dir="$1" n
+  n=$(printf '%s' "$2" | cksum | cut -d' ' -f1)
+  echo "0 $((n % 7)) * * $((n % 5 + 1)) root $dir/snapchain.sh autoupgrade >> $dir/snapchain-autoupgrade.log 2>&1"
+}
+
+# Some images (Vultr's Ubuntu) ship with ufw on. Gossip needs 3382/udp in.
+open_gossip_port() {
+  command -v ufw >/dev/null || return 0
+  ufw status 2>/dev/null | grep -q "Status: active" && ufw allow 3382/udp >/dev/null
+  return 0
+}
+
+# Prints shards far further behind than a snapshot could leave them: they skipped the snapshot
+# and are syncing from block 1 (snapchain issue #1044). Exit 0 if any.
+stale_shard() {
+  local s
+  s=$(jq -r --argjson max "$2" '[.shardInfos[] | select(.blockDelay > $max) | .shardId] | join(" ")' "$1") || return 2
+  [[ -n "$s" ]] && echo "$s"
+}

@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# Records calls; STUB_UFW_ACTIVE=1 makes `ufw status` report active.
+echo "$*" >> "${STUB_DIR:-/tmp}/ufw.calls"
+[[ "$1" == status ]] && { [[ -n "${STUB_UFW_ACTIVE:-}" ]] && echo "Status: active" || echo "Status: inactive"; }
+exit 0

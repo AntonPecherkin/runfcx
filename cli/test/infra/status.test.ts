@@ -31,4 +31,9 @@ describe("status", () => {
   it("human shows TTL warning", () => {
     expect(formatHuman({ ...base, phase: "ready", ttl: "warn", ssh: "ok" } as any)).toMatch(/fcx extend/);
   });
+  it("explains a shard syncing from genesis", () => {
+    const t = formatHuman({ ...base, phase: "shard_from_genesis", stale_shard: 0, max_block_delay: 49212912, ssh: "ok" } as any);
+    expect(t).toContain("Shard 0 skipped its snapshot");
+    expect(t).toContain("https://github.com/farcasterxyz/snapchain/issues/1044");
+  });
 });

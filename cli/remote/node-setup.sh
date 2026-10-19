@@ -39,14 +39,15 @@ add() { grep -q "^$1=" .env || echo "$1=$2" >> .env; }
 add AGREE_NO_REWARDS_FOR_ME true
 add HUB_OPERATOR_FID 0
 add SKIP_SELF_UPGRADE true
-[[ "$KEEP" == yes ]] || add SKIP_CRONTAB true
+# Upstream can only schedule auto-upgrades once the node has a peer ID, so we always skip its
+# cron on install and add the same schedule ourselves after the node starts (keep mode).
+add SKIP_CRONTAB true
+open_gossip_port
 cp /opt/fcx/docker-compose.override.yml ./docker-compose.override.yml
 
 # upstream "upgrade" ends with `logs -f`; run it detached and wait for its success line
 nohup ./snapchain.sh upgrade </dev/null > install.log 2>&1 &
-for _ in $(seq 1 180); do
-  grep -q "Upgrade complete" install.log && { echo "Node started."; exit 0; }
-  grep -qE "❌|checksum mismatch" install.log && { tail -20 install.log; exit 1; }
-  sleep 5
-done
-echo "Install did not finish in 15 min. Last lines:"; tail -20 install.log; exit 1
+sleep 2
+wait_upgrade install.log 180 5 || exit 1
+[[ "$KEEP" == yes ]] && cron_line /root/snapchain "$(hostname)" > /etc/cron.d/fcx-autoupgrade
+echo "Node started."

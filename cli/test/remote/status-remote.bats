@@ -25,3 +25,7 @@ j() { echo "$output" | jq -r "$1"; }
   FCX_NOW=100 FCX_LOGS_CMD="cat $F/log-running.txt" FCX_INFO_CMD="cat $F/info-ready.json" run bash "$R"
   [ "$(j .ttl)" = warn ]
 }
+@test "shard from genesis" {
+  FCX_LOGS_CMD="cat $F/log-running.txt" FCX_INFO_CMD="cat $F/info-genesis.json" run bash "$R"
+  [ "$(j .phase)" = shard_from_genesis ]; [ "$(j .stale_shard)" = 0 ]
+}

@@ -38,3 +38,31 @@ setup() { source "$BATS_TEST_DIRNAME/../../remote/lib.sh"; F="$BATS_TEST_DIRNAME
   PATH="$BATS_TEST_DIRNAME/stubs:$PATH" STUB_PGREP_HIT=1 run install_running; [ "$status" -eq 0 ]
   PATH="$BATS_TEST_DIRNAME/stubs:$PATH" run install_running; [ "$status" -eq 1 ]
 }
+
+@test "wait_upgrade succeeds on the success line" {
+  PATH="$BATS_TEST_DIRNAME/stubs:$PATH" run wait_upgrade "$F/install-ok.txt" 3 0; [ "$status" -eq 0 ]
+}
+@test "wait_upgrade stops when the installer exited without success" {
+  PATH="$BATS_TEST_DIRNAME/stubs:$PATH" run wait_upgrade "$F/install-died.txt" 100 0
+  [ "$status" -eq 1 ]; [[ "$output" == *"Unable to determine upgrade day"* ]]
+}
+@test "wait_upgrade keeps waiting while the installer runs" {
+  PATH="$BATS_TEST_DIRNAME/stubs:$PATH" STUB_PGREP_HIT=1 run wait_upgrade "$F/install-died.txt" 2 0
+  [ "$status" -eq 1 ]; [[ "$output" == *"did not finish"* ]]
+}
+@test "cron_line runs upstream autoupgrade on a weekday before 7am" {
+  run cron_line /root/snapchain seed1
+  [[ "$output" =~ ^0\ [0-6]\ \*\ \*\ [1-5]\ root\ /root/snapchain/snapchain.sh\ autoupgrade\ \>\>\ /root/snapchain/snapchain-autoupgrade.log\ 2\>\&1$ ]]
+}
+@test "open_gossip_port opens 3382/udp only when ufw is active" {
+  export STUB_DIR="$BATS_TMPDIR/ufw$$"; mkdir -p "$STUB_DIR"
+  PATH="$BATS_TEST_DIRNAME/stubs:$PATH" STUB_UFW_ACTIVE=1 run open_gossip_port; [ "$status" -eq 0 ]
+  grep -q "allow 3382/udp" "$STUB_DIR/ufw.calls"
+  rm "$STUB_DIR/ufw.calls"
+  PATH="$BATS_TEST_DIRNAME/stubs:$PATH" run open_gossip_port; [ "$status" -eq 0 ]
+  ! grep -q allow "$STUB_DIR/ufw.calls"
+}
+@test "stale_shard finds a shard syncing from genesis" {
+  run stale_shard "$F/info-genesis.json" 1000000; [ "$status" -eq 0 ]; [ "$output" = 0 ]
+  run stale_shard "$F/info-syncing.json" 1000000; [ "$status" -eq 1 ]
+}

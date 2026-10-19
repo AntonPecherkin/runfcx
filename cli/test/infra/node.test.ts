@@ -29,6 +29,10 @@ describe("node", () => {
     const { s } = ssh(["unpacking", "disk_full"]);
     await expect(startNode(st, s, { wait: true, pollMs: 0, ...quiet })).rejects.toThrow(/disk/i);
   });
+  it("a shard syncing from genesis stops waiting with an error", async () => {
+    const { s } = ssh(["syncing", "shard_from_genesis"]);
+    await expect(startNode(st, s, { wait: true, pollMs: 0, ...quiet })).rejects.toThrow(/skipped its snapshot/);
+  });
   it("blocked SSH stops waiting with allow-ip hint", async () => {
     const { s } = ssh([], 255);
     await expect(startNode(st, s, { wait: true, pollMs: 0, ...quiet })).rejects.toThrow(/fcx allow-ip/);

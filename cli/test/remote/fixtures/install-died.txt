@@ -1,0 +1,2 @@
+Grafana is ready.
+auto-upgrade: Unable to determine upgrade day
