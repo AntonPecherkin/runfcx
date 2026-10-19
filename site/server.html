@@ -33,7 +33,7 @@
 <pre>mkdir -p ~/.config/fcx
 pbpaste &gt; ~/.config/fcx/hcloud-token   # Linux: xclip -o &gt; …
 chmod 600 ~/.config/fcx/hcloud-token</pre></li>
-<li>Run <code>npx fcx-cli provision --ttl 8h</code></li>
+<li>Run <code>npx runfcx provision --ttl 8h</code></li>
 </ol>
 
 <h2 id="vultr">Vultr · by hand, with free credit</h2>
@@ -46,13 +46,13 @@ cat ~/.fcx/ssh_ed25519.pub</pre></li>
 <li>Network → Firewall: allow SSH (22) from <b>your IP only</b>, and UDP 3382 from anywhere. Nothing else.</li>
 <li>Storage → Block Storage: a <b>bootable</b> 2000 GB volume with Ubuntu 24.04.</li>
 <li>Deploy → Dedicated CPU → <code>vx1-g-4c-16g</code>, in the same location, with that volume, your key and your firewall. Turn off backups.</li>
-<li>Run <code>npx fcx-cli provision --host root@YOUR_IP --data-dir /mnt/fcx</code></li>
+<li>Run <code>npx runfcx provision --host root@YOUR_IP --data-dir /mnt/fcx</code></li>
 </ol>
 <p><b>When you're done:</b> destroy the server <b>and</b> delete the block storage. A stopped server still bills.</p>
 
 <h2 id="own-box">Your own box</h2>
 <p>Any Ubuntu or Debian machine with the spec above. Put <code>~/.fcx/ssh_ed25519.pub</code> in root's <code>authorized_keys</code>, open UDP 3382, then:</p>
-<pre>npx fcx-cli provision --host root@YOUR_IP</pre>
+<pre>npx runfcx provision --host root@YOUR_IP</pre>
 </main>
 <footer><span>MIT · <a href="https://github.com/AntonPecherkin/fcx-cli">fcx-cli</a></span><span>Built on Snapchain · no API keys</span></footer>
 </body>

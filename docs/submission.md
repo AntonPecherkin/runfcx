@@ -20,7 +20,7 @@
 
 - [ ] Microsite live at https://antonpecherkin.github.io/fcx-cli (`node site/tools/check.mjs --release` passes)
 - [ ] Repo public, MIT `LICENSE` with the owner's name
-- [ ] `npx fcx-cli` works from npm
+- [ ] `npx runfcx` works from npm
 - [ ] At least one voucher cast URL (target 5+, first by Thu Oct 22)
 - [ ] Submitting account has a public wallet address (USDC payout)
 - [ ] Reply to cast `0x50184b62` with: microsite URL, repo URL, voucher cast URL

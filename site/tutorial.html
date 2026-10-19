@@ -26,14 +26,14 @@
 
 <section id="compute" data-chapter="compute">
 <h2>0 · Compute</h2>
-<pre>npx fcx-cli provision --ttl 8h</pre>
+<pre>npx runfcx provision --ttl 8h</pre>
 <p>This rents one server with a 2 TB disk. Its firewall allows SSH from your IP and UDP 3382 from anywhere. Everything else stays closed.</p>
 <p>With <code>--ttl</code>, a timer on the server deletes the server and its disk when time is up. Your Hetzner token sits on that server for this reason only. <code>fcx extend 4h</code> moves the timer, <code>fcx destroy</code> ends it now.</p>
 </section>
 
 <section id="node" data-chapter="node">
 <h2>1 · Read node</h2>
-<pre>npx fcx-cli node</pre>
+<pre>npx runfcx node</pre>
 <p><b>Read node or validator.</b> Validators agree on the order of messages and make blocks. A read node keeps a full copy and follows along. It can't make blocks. It can take your messages and gossip them to the validators.</p>
 <p><b>Shards.</b> The network splits users across shards 1 and 2. Shard 0 holds what everyone shares. Your node keeps all three.</p>
 <p><b>Snapshots.</b> Replaying from block 1 takes weeks. So the node downloads a snapshot first (about 400 GB), unpacks it, then catches up block by block.</p>
@@ -49,7 +49,7 @@ RAM:    0 GB used</pre>
 
 <section id="client" data-chapter="client">
 <h2>2 · Client</h2>
-<pre>npx fcx-cli login --wallet</pre>
+<pre>npx runfcx login --wallet</pre>
 <h3 id="fid">FID and custody address</h3>
 <p>Your account is a number, the FID. One Ethereum address owns it: the custody address. Whoever holds that key controls the account.</p>
 <h3 id="test-account">A test account</h3>

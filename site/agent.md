@@ -38,20 +38,20 @@ Wait for a yes.
 ## 3. Rent the server
 
 ```bash
-npx fcx-cli provision --ttl 8h                                  # Hetzner
-npx fcx-cli provision --host root@<IP> --data-dir /mnt/fcx     # Vultr or own box
+npx runfcx provision --ttl 8h                                  # Hetzner
+npx runfcx provision --host root@<IP> --data-dir /mnt/fcx     # Vultr or own box
 ```
 
 ## 4. Start the node
 
 ```bash
-npx fcx-cli node --no-wait
+npx runfcx node --no-wait
 ```
 
 Then check every 5 minutes:
 
 ```bash
-npx fcx-cli status --json
+npx runfcx status --json
 ```
 
 After each check, tell the person one line: phase, progress and ETA. For example: `downloading · shard 1 · 1240/2672 · ETA 53m`.
@@ -70,25 +70,25 @@ After each check, tell the person one line: phase, progress and ETA. For example
 | `ready` | synced, within 10 blocks | go to step 5 |
 | `disk_full` | under 5 GB free | stop; tell the person the disk is too small (see Errors) |
 | `shard_from_genesis` | a shard skipped its snapshot and syncs from block 1 | stop; send the person to https://github.com/farcasterxyz/snapchain/issues/1044 |
-| `stopped` | the node isn't running | run `npx fcx-cli node` again |
-| `error` | the status check failed on the server; see `detail` | run `npx fcx-cli node` again; if it repeats, show the person `detail` |
+| `stopped` | the node isn't running | run `npx runfcx node` again |
+| `error` | the status check failed on the server; see `detail` | run `npx runfcx node` again; if it repeats, show the person `detail` |
 
-If `ssh` is `blocked`, the person's IP probably changed. Run `npx fcx-cli allow-ip` (Hetzner only), or ask them to update their firewall.
+If `ssh` is `blocked`, the person's IP probably changed. Run `npx runfcx allow-ip` (Hetzner only), or ask them to update their firewall.
 
 ## 5. Hand over the login
 
 Send exactly this, then wait:
 
 > Your node is ready. Please run this in your own terminal:
-> `npx fcx-cli login --wallet`
+> `npx runfcx login --wallet`
 > It opens a page for your browser wallet and asks for two signatures. No gas. Tell me when it says "Logged in".
 
-If they have no browser wallet holding the account's custody key, they can run `npx fcx-cli login` and type the recovery phrase themselves, in their own terminal. Remind them to use a test account.
+If they have no browser wallet holding the account's custody key, they can run `npx runfcx login` and type the recovery phrase themselves, in their own terminal. Remind them to use a test account.
 
 ## 6. Check it worked
 
 ```bash
-npx fcx-cli whoami --json
+npx runfcx whoami --json
 ```
 
 ## 7. Show it off
@@ -96,16 +96,16 @@ npx fcx-cli whoami --json
 Ask before each write. Show the exact text first.
 
 ```bash
-npx fcx-cli feed --limit 5
-npx fcx-cli clients
-npx fcx-cli cast "<text the person approved>"
-npx fcx-cli like <hash from the feed>
-npx fcx-cli follow @<name>
+npx runfcx feed --limit 5
+npx runfcx clients
+npx runfcx cast "<text the person approved>"
+npx runfcx like <hash from the feed>
+npx runfcx follow @<name>
 ```
 
 ## 8. Finish
 
-Tell the person when the server deletes itself (`npx fcx-cli status`). If they want it gone now and say so: `npx fcx-cli destroy --yes`.
+Tell the person when the server deletes itself (`npx runfcx status`). If they want it gone now and say so: `npx runfcx destroy --yes`.
 
 ## Errors
 
@@ -151,4 +151,4 @@ Tell the person when the server deletes itself (`npx fcx-cli status`). If they w
 | Unknown cast '<x>'. Use <fid>/<hash> or a hash from fcx feed. | hash not in the last feed | run `fcx feed` first, or use fid/hash |
 | No user '@<name>' on your node. | name not found | check spelling; use the FID |
 | --only-client needs an app FID, e.g. 9152. | flag needs a number | pass a number |
-| Usage: | missing argument | see `npx fcx-cli help` |
+| Usage: | missing argument | see `npx runfcx help` |

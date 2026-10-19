@@ -1,4 +1,4 @@
-# fcx-cli
+# runfcx
 
 Your own Farcaster read node and client. No API keys.
 
@@ -8,9 +8,9 @@ Hand one line to your agent (Claude Code, Codex):
 
 Or type three commands:
 
-    npx fcx-cli provision --ttl 8h
-    npx fcx-cli node
-    npx fcx-cli login --wallet
+    npx runfcx provision --ttl 8h
+    npx runfcx node
+    npx runfcx login --wallet
 
 Then `fcx feed`, `fcx cast "gm"`, `fcx like <hash>`, `fcx follow @name`, `fcx clients`.
 

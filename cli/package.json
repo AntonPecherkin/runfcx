@@ -1,12 +1,12 @@
 {
-  "name": "fcx-cli",
+  "name": "runfcx",
   "version": "0.1.0",
   "description": "Your own Farcaster read node and client in three commands.",
   "license": "MIT",
   "type": "module",
   "bin": {
     "fcx": "dist/cli.js",
-    "fcx-cli": "dist/cli.js"
+    "runfcx": "dist/cli.js"
   },
   "files": [
     "dist",
