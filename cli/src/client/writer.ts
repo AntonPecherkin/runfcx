@@ -4,10 +4,12 @@ import { Message } from "@farcaster/core";
 import { NodeError, type NodeClient, type Hex } from "./node-client.js";
 import { hashOf, type Write } from "./messages.js";
 
+export type WriteOpts = { tries?: number; waitMs?: number; pollMs?: number; sleep?: (ms: number) => Promise<void> };
+
 const isDuplicate = (e: NodeError) => /duplicate|already (been )?merged/i.test(e.message);
 
 export async function submitAndConfirm(node: NodeClient, w: Write,
-  o: { tries?: number; waitMs?: number; pollMs?: number; sleep?: (ms: number) => Promise<void> } = {}): Promise<{ hash: Hex; tries: number }> {
+  o: WriteOpts = {}): Promise<{ hash: Hex; tries: number }> {
   const tries = o.tries ?? 3, waitMs = o.waitMs ?? 15_000, pollMs = o.pollMs ?? 3_000;
   const sleep = o.sleep ?? ((ms) => new Promise<void>((r) => setTimeout(r, ms)));
   const bytes = Message.encode(w.message).finish();
