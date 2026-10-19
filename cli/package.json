@@ -20,7 +20,8 @@
     "prepack": "npm run build",
     "test": "vitest run",
     "test:remote": "bats test/remote",
-    "lint:remote": "shellcheck remote/*.sh"
+    "lint:remote": "shellcheck remote/*.sh",
+    "site:check": "node --test ../site/tools/test/*.test.mjs && node ../site/tools/check.mjs"
   },
   "devDependencies": {
     "@types/node": "22.9.0",
