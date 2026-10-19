@@ -15,6 +15,13 @@
 <main>
 <h1 id="top">How it works</h1>
 <p class="lede">Three commands, three chapters. Each one explains what just happened on your machine.</p>
+<svg id="arch" viewBox="0 0 720 200" role="img" aria-label="Your laptop talks to your read node over SSH; the node gossips with the validators">
+  <g class="g-client"><rect class="box" x="10" y="60" width="170" height="80" rx="12"/><text x="28" y="94">Your laptop</text><text class="sub" x="28" y="116">fcx · app key</text></g>
+  <g class="g-tunnel"><path class="link" d="M180 100 H270" stroke-dasharray="6 5"/><text class="sub" x="205" y="90">SSH</text></g>
+  <g class="g-compute g-node"><rect class="box" x="270" y="40" width="200" height="120" rx="12"/><text x="288" y="78">Your server</text><text class="sub" x="288" y="100">read node · 1.5 TB</text><text class="sub" x="288" y="120">:3381 local · :3382 gossip</text></g>
+  <g class="g-gossip"><path class="link" d="M470 100 H560"/><text class="sub" x="490" y="90">gossip</text></g>
+  <g><rect class="box" x="560" y="60" width="150" height="80" rx="40"/><text x="590" y="96">Validators</text><text class="sub" x="590" y="116">make blocks</text></g>
+</svg>
 <nav class="toc"><a href="#compute">0 · Compute</a> · <a href="#node">1 · Read node</a> · <a href="#client">2 · Client</a> · <a href="#build-your-own">Build your own</a></nav>
 
 <section id="compute" data-chapter="compute">

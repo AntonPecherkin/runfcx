@@ -58,3 +58,8 @@ export function placeholders(html) {
   for (const m of new Set(html.match(/\{\{[A-Z]+\}\}/g) ?? [])) out.push(`unfilled ${m}`);
   return out;
 }
+
+export function motion(js) {
+  const animates = /setInterval|requestAnimationFrame|\.animate\(|setTimeout\([^,]+,\s*\d{2,}/.test(js);
+  return animates && !/prefers-reduced-motion/.test(js) ? ["app.js animates without a prefers-reduced-motion check"] : [];
+}

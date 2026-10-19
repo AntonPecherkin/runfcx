@@ -44,3 +44,46 @@ if (nums.length) {
     });
   }).catch(() => {});
 }
+
+// Motion: everything below runs instantly when the reader prefers reduced motion.
+const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const wait = (ms) => new Promise((r) => setTimeout(r, still ? 0 : ms));
+
+// Terminal replays: <pre data-term="name"> holds the real transcript; a Replay button types it out again.
+document.querySelectorAll("pre[data-term]").forEach((pre) => {
+  const full = pre.textContent, btn = document.createElement("button");
+  btn.type = "button"; btn.className = "replay"; btn.textContent = "Replay";
+  pre.after(btn);
+  btn.addEventListener("click", async () => {
+    btn.disabled = true; pre.textContent = "";
+    for (const line of full.split("\n")) { pre.textContent += (pre.textContent ? "\n" : "") + line; await wait(line.startsWith("$") ? 600 : 220); }
+    btn.disabled = false;
+  });
+});
+
+// Life of a cast: <ol class="stops" data-play> lights up one stop at a time.
+document.querySelectorAll("ol.stops[data-play]").forEach((ol) => {
+  const btn = document.createElement("button");
+  ol.classList.add("playable");
+  btn.type = "button"; btn.className = "btn"; btn.textContent = "Play the cast";
+  ol.after(btn);
+  btn.addEventListener("click", async () => {
+    btn.disabled = true;
+    for (const li of ol.children) { li.classList.add("lit"); await wait(700); }
+    await wait(1200); [...ol.children].forEach((li) => li.classList.remove("lit"));
+    btn.disabled = false;
+  });
+});
+
+// Tutorial: highlight the current chapter in the toc and in the architecture diagram.
+const arch = document.getElementById("arch");
+const chapters = document.querySelectorAll("[data-chapter]");
+if (chapters.length && "IntersectionObserver" in window) {
+  const io = new IntersectionObserver((entries) => entries.forEach((e) => {
+    if (!e.isIntersecting) return;
+    const c = e.target.dataset.chapter;
+    if (arch) arch.dataset.on = c;
+    document.querySelectorAll("nav.toc a").forEach((a) => a.setAttribute("aria-current", String(a.hash === `#${e.target.id}`)));
+  }), { rootMargin: "-40% 0px -55% 0px" });
+  chapters.forEach((c) => io.observe(c));
+}

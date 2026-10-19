@@ -61,3 +61,15 @@ h2.big{font-size:clamp(30px,4vw,44px);line-height:1.05;letter-spacing:-.02em;mar
 .stops b{display:block;font-size:19px}.stops span{color:var(--muted);font-size:15px}
 .tbd{background:var(--gold);color:var(--paper-ink);padding:0 4px;border-radius:4px}
 footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;font-size:14px;color:var(--muted);padding:24px 16px 48px;border-top:1px solid var(--line);margin-top:80px}
+.replay{margin:-8px 0 16px;border:1px solid var(--line);background:var(--card);color:var(--fg);border-radius:8px;padding:6px 12px;min-height:36px;cursor:pointer}
+.stops li{transition:transform .3s,opacity .3s}
+.stops.playable li:not(.lit){opacity:.55}
+.stops li.lit{opacity:1;transform:translateY(-4px)}
+#arch{color:var(--muted);margin:16px 0 8px}
+#arch .box{fill:var(--card);stroke:currentColor;stroke-width:1.5}
+#arch text{fill:var(--fg);font:14px system-ui,sans-serif}
+#arch .sub{fill:var(--muted);font-size:12px}
+#arch .link{stroke:currentColor;stroke-width:2;fill:none}
+#arch[data-on=compute] .g-compute .box,#arch[data-on=node] .g-node .box,#arch[data-on=client] .g-client .box{stroke:var(--accent);stroke-width:3}
+#arch[data-on=node] .g-gossip .link,#arch[data-on=client] .g-tunnel .link,#arch[data-on=compute] .g-tunnel .link{stroke:var(--accent)}
+.keys{color:var(--muted)}.keys .box{fill:var(--card);stroke:currentColor;stroke-width:1.5}.keys text{fill:var(--fg);font:14px system-ui,sans-serif}.keys .sub{fill:var(--muted);font-size:12px}.keys .link{stroke:currentColor;stroke-width:2;fill:none}.keys .hot{stroke:var(--accent)}
