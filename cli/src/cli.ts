@@ -13,6 +13,7 @@ import { loadState, requireState } from "./infra/state.js";
 import { makeSsh } from "./infra/ssh.js";
 import { Hetzner } from "./infra/hetzner.js";
 import { readToken } from "./infra/token.js";
+import { CLIENT_COMMANDS } from "./client/commands.js";
 
 const now = () => Math.floor(Date.now() / 1000);
 const myIp = async () => (await (await fetch("https://api.ipify.org")).text()).trim();
@@ -79,6 +80,8 @@ export const COMMANDS: Record<string, { summary: string; run: (argv: string[]) =
     },
   },
 };
+
+Object.assign(COMMANDS, CLIENT_COMMANDS);
 
 function help(): void {
   console.log([
