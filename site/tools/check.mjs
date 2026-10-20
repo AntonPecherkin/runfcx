@@ -3,7 +3,7 @@
 import { readFileSync, readdirSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { bannedPhrases, structure, cssTokens, links, placeholders, motion, agentCoverage } from "./rules.mjs";
+import { bannedPhrases, structure, cssTokens, links, placeholders, waiting, motion, agentCoverage } from "./rules.mjs";
 import { loadAll, drift } from "./snippets.mjs";
 
 const site = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -11,7 +11,7 @@ const release = process.argv.includes("--release");
 const pages = new Map(readdirSync(site).filter((f) => f.endsWith(".html")).map((f) => [f, readFileSync(join(site, f), "utf8")]));
 const problems = [];
 for (const [f, h] of pages) {
-  problems.push(...structure(h, f), ...bannedPhrases(h).map((p) => `${f}: ${p}`));
+  problems.push(...structure(h, f), ...bannedPhrases(h).map((p) => `${f}: ${p}`), ...waiting(h).map((p) => `${f}: ${p}`));
   if (release) problems.push(...placeholders(h).map((p) => `${f}: ${p}`));
 }
 const agent = readFileSync(join(site, "agent.md"), "utf8");

@@ -25,6 +25,8 @@
     "feed_warm_s": 20,
     "cast_s": 8,
     "cast_tries": 1,
-    "login_lookup_s": 22
+    "login_lookup_s": 22,
+    "login_signatures": 2,
+    "login_gas_usd": 0
   }
 }

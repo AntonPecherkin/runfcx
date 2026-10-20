@@ -55,5 +55,5 @@ $ fcx clients
 The cast shows `via @aap`: an fcx key names the user's own FID as the requesting app.
 
 ```fcx-numbers
-provider=vultr feed_cold_s=32 feed_warm_s=20 cast_s=8 cast_tries=1 login_lookup_s=22
+provider=vultr feed_cold_s=32 feed_warm_s=20 cast_s=8 cast_tries=1 login_lookup_s=22 login_signatures=2 login_gas_usd=0
 ```

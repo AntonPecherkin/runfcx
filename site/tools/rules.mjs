@@ -59,6 +59,12 @@ export function placeholders(html) {
   return out;
 }
 
+// A claim that waits on unmerged work (data-wait="branch") stays hidden until that marker is removed.
+export function waiting(html) {
+  return [...html.matchAll(/<[a-z]+\b[^>]*\bdata-wait="([^"]+)"[^>]*>/g)].filter(([tag]) => !/\shidden[\s>=]/.test(tag))
+    .map(([, b]) => `visible claim waits on ${b}`);
+}
+
 export function motion(js) {
   const animates = /setInterval|requestAnimationFrame|\.animate\(|setTimeout\([^,]+,\s*\d{2,}/.test(js);
   return animates && !/prefers-reduced-motion/.test(js) ? ["app.js animates without a prefers-reduced-motion check"] : [];
