@@ -77,7 +77,8 @@ fcx feed --exclude-client 9152</pre>
 <pre data-snippet="feed-build">const fids = [...new Set([me, ...(await node.following(me))])];
 const per = await pool(fids, 8, (fid) =&gt; node.castsByFid(fid, { pageSize: o.limit, startTimestamp: Math.max(0, since) }));
 // Filter here too: not every node applies startTimestamp.
-const casts = per.flat().filter((c) =&gt; c.data.timestamp &gt;= since).sort((a, b) =&gt; b.data.timestamp - a.data.timestamp);</pre>
+// castsByFid also returns CAST_REMOVE messages for deleted casts; keep only casts with a body.
+const casts = per.flat().filter((c) =&gt; c.data.castAddBody &amp;&amp; c.data.timestamp &gt;= since).sort((a, b) =&gt; b.data.timestamp - a.data.timestamp);</pre>
 <h3>Add an app key</h3>
 <pre data-snippet="key-add">const { privateKey, publicKey } = await newAppKey();
 const r = await makeKeyAddBody({ fid: BigInt(fid), key: Buffer.from(publicKey.slice(2), &quot;hex&quot;), scopes: SCOPES,

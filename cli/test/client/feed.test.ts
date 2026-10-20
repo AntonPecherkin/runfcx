@@ -90,3 +90,10 @@ describe("feed on real-world data", () => {
     expect((await buildFeed(node, 1, { limit: 10, now: NOW })).map((x) => x.app)).toEqual(["@farcaster", "unknown app", "@farcaster"]);
   });
 });
+
+describe("deleted casts", () => {
+  it("skips CAST_REMOVE messages that castsByFid returns alongside casts", async () => {
+    fake.store.addCast({ hash: h(99), signer: "0xb0", data: { type: "MESSAGE_TYPE_CAST_REMOVE", fid: 2, timestamp: 399_950 } } as Msg);
+    expect((await buildFeed(node, 1, { limit: 10, now: NOW })).map((x) => x.text)).toEqual(["cast 3", "cast 2", "cast 1"]);
+  });
+});

@@ -24,7 +24,8 @@ export async function buildFeed(node: NodeClient, me: number,
   const fids = [...new Set([me, ...(await node.following(me))])];
   const per = await pool(fids, 8, (fid) => node.castsByFid(fid, { pageSize: o.limit, startTimestamp: Math.max(0, since) }));
   // Filter here too: not every node applies startTimestamp.
-  const casts = per.flat().filter((c) => c.data.timestamp >= since).sort((a, b) => b.data.timestamp - a.data.timestamp);
+  // castsByFid also returns CAST_REMOVE messages for deleted casts; keep only casts with a body.
+  const casts = per.flat().filter((c) => c.data.castAddBody && c.data.timestamp >= since).sort((a, b) => b.data.timestamp - a.data.timestamp);
   // @end
 
   const names = new Names(node), clients = new Clients(node), kept: { c: Msg; appFid: number }[] = [];
