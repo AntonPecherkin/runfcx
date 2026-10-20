@@ -30,5 +30,5 @@ export async function submitAndConfirm(node: NodeClient, w: Write,
     }
   }
   // @end
-  throw new Error(`Sent the ${w.what} ${tries} times. Your node never showed it. Is it synced? Run: fcx status`);
+  throw new Error(`Sent the ${w.what} ${tries} times. Your node never showed it. Is it synced? Run: runfcx status`);
 }

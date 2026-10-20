@@ -64,7 +64,7 @@ describe("names and refs", () => {
     expect(parseRef(`5/${h(1)}`)).toEqual({ fid: 5, hash: h(1) });
     expect(parseRef("0x00000000000000000000000000000000abcdef12")).toEqual({ fid: 2, hash: h(0xabcdef12) });
     expect(parseRef("0x0000000000")).toEqual({ fid: 2, hash: h(0xabcdef12) });
-    expect(() => parseRef("0xdeadbeef")).toThrow("Unknown cast '0xdeadbeef'. Use <fid>/<hash> or a hash from fcx feed.");
+    expect(() => parseRef("0xdeadbeef")).toThrow("Unknown cast '0xdeadbeef'. Use <fid>/<hash> or a hash from runfcx feed.");
   });
 });
 

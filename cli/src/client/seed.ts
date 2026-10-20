@@ -7,7 +7,7 @@ import type { NodeClient } from "./node-client.js";
 import { addAppKey } from "./login.js";
 import type { AppKey } from "./keystore.js";
 
-export const NEEDS_HUMAN = "Login needs a human at the keyboard. Ask them to run: fcx login --wallet";
+export const NEEDS_HUMAN = "Login needs a human at the keyboard. Ask them to run: runfcx login --wallet";
 type Io = { stdin: NodeJS.ReadStream; stdout: NodeJS.WriteStream };
 
 export function requireTty(io: { stdin: { isTTY?: boolean }; stdout: { isTTY?: boolean } }): void {
@@ -49,8 +49,8 @@ export async function seedLogin(node: NodeClient, io: Io, log: (s: string) => vo
   requireTty(io);
   log([
     "A seed phrase controls your whole Farcaster account. Use a test account.",
-    "fcx keeps it in memory only, uses it to sign two messages, and forgets it.",
-    "Safer: fcx login --wallet",
+    "runfcx keeps it in memory only, uses it to sign two messages, and forgets it.",
+    "Safer: runfcx login --wallet",
   ].join("\n"));
   const phrase = normalizeMnemonic(await readHidden("Seed phrase (hidden): ", io));
   if (!validMnemonic(phrase)) throw new Error("That is not a valid 12/24-word seed phrase.");

@@ -83,7 +83,7 @@ describe("logout safety", () => {
     const k = await addAppKey(node, new ViemLocalEip712Signer(acct), acct.address, { write: fast });
     fake.store.keys = []; // e.g. a fresh node that has not synced yet
     await expect(logout(node, { write: fast })).rejects.toThrow(
-      "Your node doesn't see this app key. Is it synced? Run: fcx status. To delete the local key anyway: fcx logout --forget");
+      "Your node doesn't see this app key. Is it synced? Run: runfcx status. To delete the local key anyway: runfcx logout --forget");
     expect(loadKey()).toEqual(k);
     expect(await logout(node, { write: fast, forget: true })).toBe("forgotten");
     expect(loadKey()).toBeNull();

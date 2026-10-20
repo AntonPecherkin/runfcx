@@ -12,7 +12,7 @@ export function loadState(): RunState | null {
 }
 export function requireState(): RunState {
   const s = loadState();
-  if (!s) throw new Error("No server yet. Run: fcx provision");
+  if (!s) throw new Error("No server yet. Run: runfcx provision");
   return s;
 }
 export function saveState(s: RunState): void {

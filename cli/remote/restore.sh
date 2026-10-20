@@ -4,7 +4,7 @@
 # Upstream's restore keeps every chunk, a full .tar and the unpacked shard on disk until all shards are
 # done (peak near 1.6 TB in run 1). Here chunks stream through gunzip into tar (no .tar file) and are
 # deleted once their shard is unpacked, so the peak is about one shard's chunks plus the unpacked data.
-# Progress goes to stdout as "fcx-restore: ..." lines; lib.sh detect_phase reads them for fcx status.
+# Progress goes to stdout as "fcx-restore: ..." lines; lib.sh detect_phase reads them for runfcx status.
 set -euo pipefail
 DIR="${1:-/root/snapchain}"
 URL="${FCX_SNAPSHOT_URL:-https://pub-d352dd8819104a778e20d08888c5a661.r2.dev}"
@@ -71,7 +71,7 @@ restore_shard() {
   for c in "${chunks[@]}"; do [[ -f "$here/$c" ]] || missing=$((missing + 1)); done
   need=$(( missing * CHUNK_MB + n * UNPACK_MB + MARGIN_GB * 1024 ))
   free=$(free_mb)
-  (( free >= need )) || stop "not enough disk for shard $s: need $(((need + 1023) / 1024)) GB free, have $((free / 1024)) GB. Use a bigger disk, then run: fcx node"
+  (( free >= need )) || stop "not enough disk for shard $s: need $(((need + 1023) / 1024)) GB free, have $((free / 1024)) GB. Use a bigger disk, then run: runfcx node"
 
   started=$SECONDS; got=0
   for ((i = 0; i < n; i++)); do
@@ -91,7 +91,7 @@ restore_shard() {
   if ! for c in "${chunks[@]}"; do gunzip -c "$here/$c" || exit 1; done | tar -x -C "$DB"; then
     bad=0
     for c in "${chunks[@]}"; do gzip -t "$here/$c" 2>/dev/null || { rm -f "$here/$c"; bad=$((bad + 1)); }; done
-    stop "unpacking shard $s failed ($bad corrupt chunks deleted). Run fcx node again: it downloads them again and retries this shard"
+    stop "unpacking shard $s failed ($bad corrupt chunks deleted). Run runfcx node again: it downloads them again and retries this shard"
   fi
   touch "$DB/.fcx-restored-$s" || stop "cannot write $DB/.fcx-restored-$s"
   rm -rf "$here"

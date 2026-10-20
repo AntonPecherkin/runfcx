@@ -29,7 +29,7 @@ export class NodeClient {
     let r: Response;
     try { r = await this.f(u, { ...init, signal: AbortSignal.timeout(ms) }); }
     catch (e) {
-      if ((e as Error).name === "TimeoutError" || (e as Error).name === "AbortError") throw new Error("Your node did not answer in time. Run: fcx status");
+      if ((e as Error).name === "TimeoutError" || (e as Error).name === "AbortError") throw new Error("Your node did not answer in time. Run: runfcx status");
       throw e;
     }
     const body = await r.json().catch(() => ({}));

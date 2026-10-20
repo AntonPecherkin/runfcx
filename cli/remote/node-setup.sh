@@ -15,7 +15,7 @@ command -v jq >/dev/null || { apt-get update -qq && apt-get install -y -qq jq cu
 if [[ ! -e /mnt/fcx ]]; then
   if [[ "$MODE" == hetzner ]]; then
     # never fall back to the small root disk: the snapshot would fill it hours later
-    vol=$(find_volume /mnt 24 5) || { echo "The data volume is not mounted. Run: fcx destroy, then fcx provision again."; exit 1; }
+    vol=$(find_volume /mnt 24 5) || { echo "The data volume is not mounted. Run: runfcx destroy, then runfcx provision again."; exit 1; }
     ln -s "$vol" /mnt/fcx
   elif [[ "$DATA_DIR" != /mnt/fcx ]]; then
     mkdir -p "$DATA_DIR" && ln -s "$DATA_DIR" /mnt/fcx
@@ -49,7 +49,7 @@ cp /opt/fcx/docker-compose.override.yml ./docker-compose.override.yml
 # node only once every shard is in, so upstream's own restore (~1.6 TB, no resume) never runs.
 # The restore takes hours: it runs in the background and re-runs this script when it finishes.
 if restore_needed /root/snapchain; then
-  if restore_running /root/snapchain; then echo "Snapshot restore already in progress. Check: fcx status"; exit 0; fi
+  if restore_running /root/snapchain; then echo "Snapshot restore already in progress. Check: runfcx status"; exit 0; fi
   [[ -f restore.log ]] && mv restore.log restore.log.1
   : > restore.log
   # shellcheck disable=SC2016 # $@ expands in the child shell

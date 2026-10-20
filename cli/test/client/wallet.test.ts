@@ -59,7 +59,7 @@ describe("explain", () => {
       .toBe("Name FID 42 (you) as the app that asked for key 0x12345678…. No gas, no transaction.");
   });
   it("covers account and chain requests", () => {
-    expect(explain({ method: "eth_requestAccounts" })).toBe("Share your address with fcx.");
+    expect(explain({ method: "eth_requestAccounts" })).toBe("Share your address with runfcx.");
     expect(explain({ method: "wallet_switchEthereumChain" })).toBe("Switch to Ethereum mainnet. The signatures name chain 1; nothing is sent on-chain.");
   });
 });

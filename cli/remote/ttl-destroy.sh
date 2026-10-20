@@ -11,10 +11,10 @@ now="${FCX_NOW:-$(date +%s)}"
 deadline=$(cat "$ETC/deadline"); name=$(cat "$ETC/name")
 case "$(ttl_state "$deadline" "$now")" in
   none|ok) exit 0 ;;
-  warn) msg="fcx: auto-destroy in $(( (deadline - now) / 60 )) min. Extend with: fcx extend 4h"
+  warn) msg="fcx: auto-destroy in $(( (deadline - now) / 60 )) min. Extend with: runfcx extend 4h"
         echo "$msg"; wall "$msg" 2>/dev/null || true; exit 0 ;;
 esac
-[[ -s "$ETC/token" ]] || { echo "fcx: deadline passed but no token installed. Run fcx destroy from your laptop."; exit 1; }
+[[ -s "$ETC/token" ]] || { echo "fcx: deadline passed but no token installed. Run runfcx destroy from your laptop."; exit 1; }
 
 auth=(-H "Authorization: Bearer $(cat "$ETC/token")" -H "Content-Type: application/json")
 api() { curl -fsS "${auth[@]}" "$@"; }

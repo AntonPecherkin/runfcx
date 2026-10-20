@@ -19,7 +19,7 @@ export class Names {
   save(): void { writeCache("names", this.names); }
 }
 
-// fcx feed shows short hashes. We remember which FID wrote each one, so "fcx like 0x1a2b3c4d" works.
+// runfcx feed shows short hashes. We remember which FID wrote each one, so "runfcx like 0x1a2b3c4d" works.
 export function rememberCasts(items: { fid: number; hash: Hex }[]): void {
   writeCache("casts", Object.fromEntries(items.map((i) => [i.hash, i.fid])));
 }
@@ -29,6 +29,6 @@ export function parseRef(s: string): CastRef {
   const seen = readCache<Record<string, number>>("casts") ?? {};
   const hits = /^0x[0-9a-f]{8,40}$/i.test(s) ? Object.keys(seen).filter((h) => h.startsWith(s.toLowerCase())) : [];
   if (hits.length > 1) throw new Error(`Cast prefix '${s}' matches more than one cast. Use more characters.`);
-  if (hits.length === 0) throw new Error(`Unknown cast '${s}'. Use <fid>/<hash> or a hash from fcx feed.`);
+  if (hits.length === 0) throw new Error(`Unknown cast '${s}'. Use <fid>/<hash> or a hash from runfcx feed.`);
   return { fid: seen[hits[0]], hash: hits[0] as Hex };
 }

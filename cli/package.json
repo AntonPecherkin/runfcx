@@ -1,11 +1,10 @@
 {
   "name": "runfcx",
   "version": "0.1.2",
-  "description": "Your own Farcaster read node and client in three commands.",
+  "description": "runfcx: run a Farcaster node and client with your agent. Half the disk, no API keys.",
   "license": "MIT",
   "type": "module",
   "bin": {
-    "fcx": "dist/cli.js",
     "runfcx": "dist/cli.js"
   },
   "files": [

@@ -18,7 +18,7 @@ describe("keystore", () => {
   });
   it("clear and require", () => {
     clearKey(); expect(loadKey()).toBeNull();
-    expect(() => requireKey()).toThrow("Not logged in. Run: fcx login --wallet");
+    expect(() => requireKey()).toThrow("Not logged in. Run: runfcx login --wallet");
   });
   it("cache round-trips", () => {
     expect(readCache("x")).toBeUndefined();

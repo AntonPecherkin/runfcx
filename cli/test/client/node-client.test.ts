@@ -43,7 +43,7 @@ describe("openNode", () => {
   });
   it("openNode gives up with a hint", async () => {
     process.env.FCX_NODE = "http://127.0.0.1:1"; // nothing listens on port 1
-    await expect(openNode({ waitMs: 300 })).rejects.toThrow("Can't reach your node. Run: fcx status");
+    await expect(openNode({ waitMs: 300 })).rejects.toThrow("Can't reach your node. Run: runfcx status");
     delete process.env.FCX_NODE;
   });
   it("needs a server when FCX_NODE is not set", async () => {
@@ -54,7 +54,7 @@ describe("openNode", () => {
 describe("reaching an unready node", () => {
   it("openNode refuses a node that is still syncing", async () => {
     process.env.FCX_NODE = "http://node"; fake.knobs.blockDelay = 500;
-    await expect(openNode({ waitMs: 300, fetch: fake.fetch })).rejects.toThrow("Your node is still syncing. Run: fcx status");
+    await expect(openNode({ waitMs: 300, fetch: fake.fetch })).rejects.toThrow("Your node is still syncing. Run: runfcx status");
     delete process.env.FCX_NODE;
   });
   it("openNode accepts a node within 10 blocks", async () => {
@@ -66,7 +66,7 @@ describe("reaching an unready node", () => {
     const stall = ((_u: unknown, init?: RequestInit) => new Promise<Response>((_, rej) =>
       init!.signal!.addEventListener("abort", () => rej(init!.signal!.reason)))) as typeof fetch;
     const n = new NodeClient("http://node", stall, { timeoutMs: 50 });
-    await expect(n.info()).rejects.toThrow("Your node did not answer in time. Run: fcx status");
+    await expect(n.info()).rejects.toThrow("Your node did not answer in time. Run: runfcx status");
   });
 });
 

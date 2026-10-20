@@ -46,7 +46,7 @@ export async function logout(node: NodeClient, o: { write?: WriteOpts; forget?: 
   if (o.forget) { clearKey(); return "forgotten"; }
   // Deleting the file without KEY_REMOVE would leave a live key we can no longer revoke.
   if ((await node.signer(k.fid, k.publicKey)) === null)
-    throw new Error("Your node doesn't see this app key. Is it synced? Run: fcx status. To delete the local key anyway: fcx logout --forget");
+    throw new Error("Your node doesn't see this app key. Is it synced? Run: runfcx status. To delete the local key anyway: runfcx logout --forget");
   {
     // @snippet logout-revoke
     // Self-revoke: the key signs its own removal. It uses the app nonce of the FID that requested it.

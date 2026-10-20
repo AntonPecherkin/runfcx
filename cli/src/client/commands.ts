@@ -46,14 +46,14 @@ type Cmd = { summary: string; run(argv: string[], ctx?: Ctx): Promise<void> };
 const react = (kind: "like" | "recast", remove: boolean, done: string): Cmd => ({
   summary: `${remove ? "Undo a " + kind : kind[0].toUpperCase() + kind.slice(1) + " a cast"}: <hash>`,
   run: (argv, ctx = defaultCtx()) => write(argv, ctx, async ([ref]) => {
-    const r = need(ref, `fcx ${remove ? "un" : ""}${kind} <hash>`);
+    const r = need(ref, `runfcx ${remove ? "un" : ""}${kind} <hash>`);
     return { w: await reactionWrite(requireKey(), kind, parseRef(r), remove), done: `${done} ${r}.` };
   }),
 });
 const link = (remove: boolean): Cmd => ({
   summary: remove ? "Unfollow: @user" : "Follow: @user",
   run: (argv, ctx = defaultCtx()) => write(argv, ctx, async ([who], node) => {
-    const u = need(who, `fcx ${remove ? "un" : ""}follow @user`);
+    const u = need(who, `runfcx ${remove ? "un" : ""}follow @user`);
     const fid = await new Names(node).fidOf(u);
     return { w: await followWrite(requireKey(), fid, remove), done: remove ? `Unfollowed ${u}.` : `Following ${u}.` };
   }),
@@ -69,7 +69,7 @@ export const CLIENT_COMMANDS: Record<string, Cmd> = {
       await withNode(ctx, async (node) => {
         const k = values.wallet ? await walletLogin(node, ctx.io, log, { open: openBrowser }) : await seedLogin(node, ctx.io, log);
         const name = await new Names(node).username(k.fid);
-        ctx.out(`Logged in as @${name} (FID ${k.fid}). App key ${k.publicKey.slice(0, 10)}… added. Try: fcx feed`);
+        ctx.out(`Logged in as @${name} (FID ${k.fid}). App key ${k.publicKey.slice(0, 10)}… added. Try: runfcx feed`);
       });
     },
   },
@@ -88,7 +88,7 @@ export const CLIENT_COMMANDS: Record<string, Cmd> = {
     async run(argv, ctx = defaultCtx()) {
       const { values } = parseArgs({ args: argv, options: { json: { type: "boolean", default: false } } });
       const k = loadKey();
-      if (!k) { ctx.out("Not logged in. Run: fcx login --wallet"); return; }
+      if (!k) { ctx.out("Not logged in. Run: runfcx login --wallet"); return; }
       await withNode(ctx, async (node) => {
         const username = await new Names(node).username(k.fid);
         const r = { fid: k.fid, username, publicKey: k.publicKey, addedAt: k.addedAt };
@@ -127,7 +127,7 @@ export const CLIENT_COMMANDS: Record<string, Cmd> = {
     async run(argv, ctx = defaultCtx()) {
       const { values, positionals } = parseArgs({ args: argv, allowPositionals: true, options: {
         "reply-to": { type: "string" }, channel: { type: "string" }, json: { type: "boolean", default: false } } });
-      const text = need(positionals[0], 'fcx cast "<text>"');
+      const text = need(positionals[0], 'runfcx cast "<text>"');
       const k = requireKey();
       await write(values.json ? ["--json"] : [], ctx, async () => ({
         w: await castWrite(k, text, { replyTo: values["reply-to"] ? parseRef(values["reply-to"]) : undefined, channel: values.channel }),
@@ -141,7 +141,7 @@ export const CLIENT_COMMANDS: Record<string, Cmd> = {
     summary: "Profile: @user --json",
     async run(argv, ctx = defaultCtx()) {
       const { values, positionals } = parseArgs({ args: argv, allowPositionals: true, options: { json: { type: "boolean", default: false } } });
-      const who = need(positionals[0], "fcx user @user");
+      const who = need(positionals[0], "runfcx user @user");
       await withNode(ctx, async (node) => {
         const fid = await new Names(node).fidOf(who);
         const d = await node.userData(fid), following = (await node.following(fid)).length;

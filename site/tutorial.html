@@ -3,20 +3,20 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>fcx · tutorial</title>
+<title>runfcx · tutorial</title>
 <link rel="stylesheet" href="assets/style.css">
 <script src="assets/app.js" defer></script>
 </head>
 <body>
 <header class="top">
-  <a class="brand" href="index.html"><span class="mark" aria-hidden="true"></span>fcx</a>
-  <nav><a href="server.html">Server</a><a href="tutorial.html">Tutorial</a><a href="operate.html">Operate</a><a href="safety.html">Safety</a><a href="notes.html">Notes</a><a href="https://github.com/AntonPecherkin/fcx-cli">GitHub</a></nav>
+  <a class="brand" href="index.html"><span class="mark" aria-hidden="true"></span>runfcx</a>
+  <nav><a href="server.html">Server</a><a href="tutorial.html">Tutorial</a><a href="operate.html">Operate</a><a href="safety.html">Safety</a><a href="notes.html">Notes</a><a href="https://github.com/AntonPecherkin/runfcx">GitHub</a><a href="https://farcaster.xyz/aap">@aap</a></nav>
 </header>
 <main>
 <h1 id="top">How it works</h1>
 <p class="lede">Three commands, three chapters. Each one explains what just happened on your machine.</p>
 <svg id="arch" viewBox="0 0 720 200" role="img" aria-label="Your laptop talks to your read node over SSH; the node gossips with the validators">
-  <g class="g-client"><rect class="box" x="10" y="60" width="170" height="80" rx="12"/><text x="28" y="94">Your laptop</text><text class="sub" x="28" y="116">fcx · app key</text></g>
+  <g class="g-client"><rect class="box" x="10" y="60" width="170" height="80" rx="12"/><text x="28" y="94">Your laptop</text><text class="sub" x="28" y="116">runfcx · app key</text></g>
   <g class="g-tunnel"><path class="link" d="M180 100 H270" stroke-dasharray="6 5"/><text class="sub" x="205" y="90">SSH</text></g>
   <g class="g-compute g-node"><rect class="box" x="270" y="40" width="200" height="120" rx="12"/><text x="288" y="78">Your server</text><text class="sub" x="288" y="100">read node · 1 TB</text><text class="sub" x="288" y="120">:3381 local · :3382 gossip</text></g>
   <g class="g-gossip"><path class="link" d="M470 100 H560"/><text class="sub" x="490" y="90">gossip</text></g>
@@ -28,7 +28,7 @@
 <h2>0 · Compute</h2>
 <pre>npx runfcx provision --host root@YOUR_IP --data-dir /mnt/fcx</pre>
 <p>You rent one Vultr server with a 1000 GB disk (<a href="server.html#vultr">10 minutes</a>). Its firewall allows SSH from your IP and UDP 3382 from anywhere. Everything else stays closed.</p>
-<p><code>provision</code> logs in with fcx's own SSH key, checks the CPU, memory and disk, and remembers the server. When you're done, destroy the server and delete its disk in Vultr: a stopped server still bills.</p>
+<p><code>provision</code> logs in with runfcx's own SSH key, checks the CPU, memory and disk, and remembers the server. When you're done, destroy the server and delete its disk in Vultr: a stopped server still bills.</p>
 </section>
 
 <section id="node" data-chapter="node">
@@ -37,14 +37,14 @@
 <p><b>Read node or validator.</b> Validators agree on the order of messages and make blocks. A read node keeps a full copy and follows along. It can't make blocks. It can take your messages and gossip them to the validators.</p>
 <p><b>Shards.</b> The network splits users across shards 1 and 2. Shard 0 holds what everyone shares. Your node keeps all three.</p>
 <p><b>Snapshots.</b> Replaying from block 1 takes weeks. So the node downloads a snapshot first (about 400 GB), unpacks it, then catches up block by block.</p>
-<pre data-term="status-downloading">$ fcx status
+<pre data-term="status-downloading">$ runfcx status
 Phase:  downloading
 Shard:  1  chunk 1156/2672  ETA 0h56m
 Disk:   108 GB used, 790 GB free
 RAM:    0 GB used</pre>
-<p><b>Why 1000 GB is enough.</b> The node's own restore keeps every downloaded chunk and every unzipped archive until all shards are unpacked. On our run one shard took 222 GB of chunks, a 261 GB archive and 261 GB unpacked, so the peak lands near 1.6 TB, and our first try on a 1000 GB disk ran out. fcx restores the snapshot itself before the node starts. It streams each shard's chunks straight into the database, with no archive on disk, and deletes the chunks once that shard is in. It also picks up where it stopped. Our run finished at 557 GB.</p>
-<p><b>Ports.</b> Only gossip (3382/udp) is public. The API (3381) listens on the server itself. fcx reaches it through an SSH tunnel.</p>
-<p><b>If a shard starts from block 1.</b> A known bug (<a href="https://github.com/farcasterxyz/snapchain/issues/1044">snapchain#1044</a>) can skip shard 0's snapshot. <code>fcx status</code> says so and links the fix.</p>
+<p><b>Why 1000 GB is enough.</b> The node's own restore keeps every downloaded chunk and every unzipped archive until all shards are unpacked. On our run one shard took 222 GB of chunks, a 261 GB archive and 261 GB unpacked, so the peak lands near 1.6 TB, and our first try on a 1000 GB disk ran out. runfcx restores the snapshot itself before the node starts. It streams each shard's chunks straight into the database, with no archive on disk, and deletes the chunks once that shard is in. It also picks up where it stopped. Our run finished at 557 GB.</p>
+<p><b>Ports.</b> Only gossip (3382/udp) is public. The API (3381) listens on the server itself. runfcx reaches it through an SSH tunnel.</p>
+<p><b>If a shard starts from block 1.</b> A known bug (<a href="https://github.com/farcasterxyz/snapchain/issues/1044">snapchain#1044</a>) can skip shard 0's snapshot. <code>runfcx status</code> says so and links the fix.</p>
 </section>
 
 <section id="client" data-chapter="client">
@@ -57,22 +57,22 @@ RAM:    0 GB used</pre>
 <h3 id="storage">Storage</h3>
 <p>Every account rents storage for its casts, likes and follows. An account without storage can't post. New accounts in the app come with it.</p>
 <h3 id="app-keys">App keys</h3>
-<p>Apps never get your custody key. They get an app key: a separate key your custody address approves once. fcx makes one on your laptop and asks your wallet to sign two messages. No gas, no transaction.</p>
-<p>The key can only cast, like, recast and follow. It expires 30 days after its last use. <code>fcx logout</code> revokes it.</p>
+<p>Apps never get your custody key. They get an app key: a separate key your custody address approves once. runfcx makes one on your laptop and asks your wallet to sign two messages. No gas, no transaction.</p>
+<p>The key can only cast, like, recast and follow. It expires 30 days after its last use. <code>runfcx logout</code> revokes it.</p>
 <h3 id="messages">Messages</h3>
-<p>A cast, a like or a follow is a small signed message. Your node checks the signature, then gossips it to the validators. fcx then watches for it to land in a block, and sends it again if it doesn't.</p>
+<p>A cast, a like or a follow is a small signed message. Your node checks the signature, then gossips it to the validators. runfcx then watches for it to land in a block, and sends it again if it doesn't.</p>
 <h3 id="feed">The feed</h3>
-<p>Nodes have no home feed. fcx builds it: who you follow, what each of them posted lately, newest first.</p>
+<p>Nodes have no home feed. runfcx builds it: who you follow, what each of them posted lately, newest first.</p>
 <h3 id="apps">Which app posted it</h3>
-<p>Every app key records the FID of the app that asked for it. fcx reads that for each cast, so you can filter:</p>
-<pre>fcx clients
-fcx feed --only-client 9152
-fcx feed --exclude-client 9152</pre>
+<p>Every app key records the FID of the app that asked for it. runfcx reads that for each cast, so you can filter:</p>
+<pre>runfcx clients
+runfcx feed --only-client 9152
+runfcx feed --exclude-client 9152</pre>
 </section>
 
 <section id="build-your-own" data-chapter="client">
 <h2>Build your own client</h2>
-<p>The code below is copied from fcx at build time.</p>
+<p>The code below is copied from runfcx at build time.</p>
 <h3>Build a feed</h3>
 <pre data-snippet="feed-build">const fids = [...new Set([me, ...(await node.following(me))])];
 const per = await pool(fids, 8, (fid) =&gt; node.castsByFid(fid, { pageSize: o.limit, startTimestamp: Math.max(0, since) }));
@@ -134,6 +134,6 @@ if (m.isErr()) throw new Error(m.error.message);
 await submitAndConfirm(node, { what: &quot;KEY_REMOVE&quot;, message: m.value, landed: async (n) =&gt; (await n.signer(k.fid, k.publicKey)) === null }, o.write);</pre>
 </section>
 </main>
-<footer><span>MIT · <a href="https://github.com/AntonPecherkin/fcx-cli">fcx-cli</a></span><span>Built on Snapchain · no API keys</span></footer>
+<footer><span>Made by <a href="https://farcaster.xyz/aap">@aap</a> · MIT · <a href="https://github.com/AntonPecherkin/runfcx">fcx-cli</a></span><span>Built on Snapchain · no API keys</span></footer>
 </body>
 </html>

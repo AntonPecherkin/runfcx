@@ -27,9 +27,9 @@ export async function openNode(o: { waitMs?: number; fetch?: typeof fetch } = {}
     try { info = await node.info(); } catch { await new Promise((r) => setTimeout(r, 250)); continue; }
     // A node that is still catching up answers "not found" for things that exist. Refuse early.
     const behind = Math.max(0, ...info.shardInfos.map((s) => s.blockDelay ?? 0));
-    if (behind > 10) { close(); throw new Error("Your node is still syncing. Run: fcx status"); }
+    if (behind > 10) { close(); throw new Error("Your node is still syncing. Run: runfcx status"); }
     return { node, close };
   }
   close();
-  throw new Error("Can't reach your node. Run: fcx status");
+  throw new Error("Can't reach your node. Run: runfcx status");
 }

@@ -55,9 +55,9 @@ describe("provision", () => {
     expect(ran.some((r) => r.input !== undefined)).toBe(false);
     expect(loadState()!.deadline).toBe(0);
   });
-  it("token install fails → error says run fcx destroy, state kept", async () => {
+  it("token install fails → error says run runfcx destroy, state kept", async () => {
     const { d } = deps({ sshCode: 1 });
-    await expect(provision(base, d)).rejects.toThrow(/auto-destroy[\s\S]*fcx destroy/);
+    await expect(provision(base, d)).rejects.toThrow(/auto-destroy[\s\S]*runfcx destroy/);
     expect(loadState()!.name).toBe("t1");
   });
   it("saves state with deadline = now + ttl", async () => {
@@ -74,12 +74,12 @@ describe("provision", () => {
   it("refuses when a local run exists", async () => {
     saveState({ name: "old", mode: "hetzner", sshTarget: "root@9.9.9.9", dataDir: "/mnt/fcx", deadline: 5 });
     const { d, calls } = deps();
-    await expect(provision(base, d)).rejects.toThrow(/Run 'old' exists[\s\S]*fcx destroy/);
+    await expect(provision(base, d)).rejects.toThrow(/Run 'old' exists[\s\S]*runfcx destroy/);
     expect(calls).toEqual([]);
   });
   it("refuses when any fcx resource exists in the project", async () => {
     const { d, calls } = deps({ existing: ["firewalls"] });
-    await expect(provision(base, d)).rejects.toThrow(/already has fcx resources/);
+    await expect(provision(base, d)).rejects.toThrow(/already has runfcx resources/);
     expect(calls).toEqual([]);
   });
   it("bad ttl fails before any API call", async () => {

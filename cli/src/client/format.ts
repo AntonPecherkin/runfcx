@@ -6,7 +6,7 @@ export function ago(sec: number): string {
   return `${Math.floor(sec / 86400)}d`;
 }
 export function formatFeed(items: FeedItem[], now: number): string {
-  if (items.length === 0) return "Nothing in the last 3 days. Follow someone: fcx follow @dwr\n";
+  if (items.length === 0) return "Nothing in the last 3 days. Follow someone: runfcx follow @dwr\n";
   return items.map((i) => {
     const where = i.replyTo ? " · reply" : i.channel ? ` · ${i.channel}` : "";
     const text = i.text.split("\n").map((l) => `  ${l}`).join("\n");

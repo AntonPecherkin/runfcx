@@ -15,7 +15,7 @@ export function loadKey(): AppKey | null {
 }
 export function requireKey(): AppKey {
   const k = loadKey();
-  if (!k) throw new Error("Not logged in. Run: fcx login --wallet");
+  if (!k) throw new Error("Not logged in. Run: runfcx login --wallet");
   return k;
 }
 export function saveKey(k: AppKey): void { writeFileSync(file(), JSON.stringify(k, null, 2) + "\n", { mode: 0o600 }); }

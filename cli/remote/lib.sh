@@ -35,10 +35,10 @@ detect_phase() {
 }
 
 # Waits for the upstream install that starts the node. After fcx's restore this runs in the background
-# with its output in restore.log, so a failure must leave a line that fcx status shows as restore_failed.
+# with its output in restore.log, so a failure must leave a line that runfcx status shows as restore_failed.
 start_node_or_report() {
   wait_upgrade "$@" && return 0
-  echo "$(date -u +%FT%TZ) fcx-restore: stopped: node install failed after the snapshot restore. See /root/snapchain/install.log, then run: fcx node"
+  echo "$(date -u +%FT%TZ) fcx-restore: stopped: node install failed after the snapshot restore. See /root/snapchain/install.log, then run: runfcx node"
   return 1
 }
 

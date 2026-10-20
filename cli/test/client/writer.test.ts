@@ -31,7 +31,7 @@ describe("submitAndConfirm", () => {
   it("gives up after 3 tries with a clear error", async () => {
     fake.knobs.dropSubmits = 99;
     await expect(submitAndConfirm(node, await castWrite(k, "gm"), fast))
-      .rejects.toThrow("Sent the cast 3 times. Your node never showed it. Is it synced? Run: fcx status");
+      .rejects.toThrow("Sent the cast 3 times. Your node never showed it. Is it synced? Run: runfcx status");
   });
   it("stops at once when the node rejects the message", async () => {
     fake.knobs.reject = "invalid signer";

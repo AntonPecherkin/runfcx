@@ -3,14 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>fcx · renting the server</title>
+<title>runfcx · renting the server</title>
 <link rel="stylesheet" href="assets/style.css">
 <script src="assets/app.js" defer></script>
 </head>
 <body>
 <header class="top">
-  <a class="brand" href="index.html"><span class="mark" aria-hidden="true"></span>fcx</a>
-  <nav><a href="server.html">Server</a><a href="tutorial.html">Tutorial</a><a href="operate.html">Operate</a><a href="safety.html">Safety</a><a href="notes.html">Notes</a><a href="https://github.com/AntonPecherkin/fcx-cli">GitHub</a></nav>
+  <a class="brand" href="index.html"><span class="mark" aria-hidden="true"></span>runfcx</a>
+  <nav><a href="server.html">Server</a><a href="tutorial.html">Tutorial</a><a href="operate.html">Operate</a><a href="safety.html">Safety</a><a href="notes.html">Notes</a><a href="https://github.com/AntonPecherkin/runfcx">GitHub</a><a href="https://farcaster.xyz/aap">@aap</a></nav>
 </header>
 <main>
 <h1 id="top">Renting the server</h1>
@@ -19,17 +19,17 @@
 <b>Any provider, same spec</b>
 <ul>
 <li>4 vCPU, 16 GB RAM</li>
-<li>1000 GB disk. fcx unpacks the snapshot one shard at a time and deletes chunks as it goes. Our run ended at 557 GB.</li>
+<li>1000 GB disk. runfcx unpacks the snapshot one shard at a time and deletes chunks as it goes. Our run ended at 557 GB.</li>
 <li>Ubuntu 24.04, billed by the hour</li>
 </ul>
 </div>
 
 
 <h2 id="vultr">Vultr · 10 minutes</h2>
-<p>Sign up through <a href="https://www.vultr.com/?ref=9929634-9J" rel="sponsored noopener">our referral link</a> (we get a small bonus too). You click the server together, then fcx takes over.</p>
+<p>Sign up through <a href="https://www.vultr.com/?ref=9929634-9J" rel="sponsored noopener">our referral link</a> (we get a small bonus too). You click the server together, then runfcx takes over.</p>
 <ol>
-<li>Make the SSH key fcx uses, and add the public half under Account → SSH Keys:
-<pre>mkdir -p ~/.fcx &amp;&amp; ssh-keygen -t ed25519 -N "" -C fcx -f ~/.fcx/ssh_ed25519
+<li>Make the SSH key runfcx uses, and add the public half under Account → SSH Keys:
+<pre>mkdir -p ~/.fcx &amp;&amp; ssh-keygen -t ed25519 -N "" -C runfcx -f ~/.fcx/ssh_ed25519
 cat ~/.fcx/ssh_ed25519.pub</pre></li>
 <li>Network → Firewall: allow SSH (22) from <b>your IP only</b>, and UDP 3382 from anywhere. Nothing else.</li>
 <li>Storage → Block Storage: a <b>bootable</b> 1000 GB volume with Ubuntu 24.04.</li>
@@ -42,6 +42,6 @@ cat ~/.fcx/ssh_ed25519.pub</pre></li>
 <p>Any Ubuntu or Debian machine with the spec above. Put <code>~/.fcx/ssh_ed25519.pub</code> in root's <code>authorized_keys</code>, open UDP 3382, then:</p>
 <pre>npx runfcx provision --host root@YOUR_IP</pre>
 </main>
-<footer><span>MIT · <a href="https://github.com/AntonPecherkin/fcx-cli">fcx-cli</a></span><span>Built on Snapchain · no API keys</span></footer>
+<footer><span>Made by <a href="https://farcaster.xyz/aap">@aap</a> · MIT · <a href="https://github.com/AntonPecherkin/runfcx">fcx-cli</a></span><span>Built on Snapchain · no API keys</span></footer>
 </body>
 </html>

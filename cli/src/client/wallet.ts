@@ -14,7 +14,7 @@ export interface RpcRequest { method: string; params?: unknown[] }
 const short = (k: string) => `${String(k).slice(0, 10)}…`;
 
 export function explain(r: RpcRequest): string {
-  if (r.method === "eth_requestAccounts") return "Share your address with fcx.";
+  if (r.method === "eth_requestAccounts") return "Share your address with runfcx.";
   if (r.method === "wallet_switchEthereumChain") return "Switch to Ethereum mainnet. The signatures name chain 1; nothing is sent on-chain.";
   if (r.method === "eth_signTypedData_v4") {
     const td = JSON.parse(String(r.params?.[1] ?? "{}")), m = td.message ?? {};

@@ -14,7 +14,7 @@ export async function startNode(s: RunState, ssh: Ssh,
   o.log("Installing the Snapchain read node (Docker + upstream snapchain.sh v0.14.3)…");
   const r = await ssh.run(`sudo bash /opt/fcx/node-setup.sh ${keep} ${s.dataDir} ${s.mode}`, { inherit: true });
   if (r.code !== 0) throw new Error("Node install failed. See the lines above.");
-  if (!o.wait) { o.log("Started. Check progress with: fcx status"); return; }
+  if (!o.wait) { o.log("Started. Check progress with: runfcx status"); return; }
 
   o.log("Syncing. This takes a few hours. Safe to Ctrl-C: the node keeps going.");
   let failures = 0;
@@ -23,16 +23,16 @@ export async function startNode(s: RunState, ssh: Ssh,
     if (st.phase === "error") {
       // a blip should not end a multi-hour wait; three in a row is a real problem
       if (++failures >= 3) throw new Error(st.ssh === "blocked"
-        ? "SSH blocked. Your IP may have changed. Run: fcx allow-ip" : `Status check failed: ${st.detail ?? ""}`);
+        ? "SSH blocked. Your IP may have changed. Run: runfcx allow-ip" : `Status check failed: ${st.detail ?? ""}`);
       await new Promise((res) => setTimeout(res, o.pollMs));
       continue;
     }
     failures = 0;
     o.line(formatLine(st));
-    if (st.phase === "ready") { o.log("\nNode is synced. Next: fcx login"); return; }
+    if (st.phase === "ready") { o.log("\nNode is synced. Next: runfcx login"); return; }
     if (st.phase === "shard_from_genesis") throw new Error(GENESIS(st.stale_shard));
     if (st.phase === "restore_failed") throw new Error(RESTORE_STOPPED(st.detail));
-    if (st.phase === "disk_full") throw new Error("Disk is full. Run: fcx status");
+    if (st.phase === "disk_full") throw new Error("Disk is full. Run: runfcx status");
     await new Promise((res) => setTimeout(res, o.pollMs));
   }
 }

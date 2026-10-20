@@ -1,8 +1,8 @@
-# fcx
+# runfcx
 
 > Run your own Farcaster read node and client in three commands. No API keys. An AI agent can do the setup by following agent.md; the person signs in themselves.
 
-- [agent.md](https://antonpecherkin.github.io/fcx-cli/agent.md): step-by-step runbook for AI agents, with every status phase and error
-- [Tutorial](https://antonpecherkin.github.io/fcx-cli/tutorial.html): FIDs, custody, app keys, read nodes and validators, storage
-- [Renting the server](https://antonpecherkin.github.io/fcx-cli/server.html): Vultr ($300 credit for new accounts), or your own box
-- [Source (MIT)](https://github.com/AntonPecherkin/fcx-cli)
+- [agent.md](https://antonpecherkin.github.io/runfcx/agent.md): step-by-step runbook for AI agents, with every status phase and error
+- [Tutorial](https://antonpecherkin.github.io/runfcx/tutorial.html): FIDs, custody, app keys, read nodes and validators, storage
+- [Renting the server](https://antonpecherkin.github.io/runfcx/server.html): Vultr ($300 credit for new accounts), or your own box
+- [Source (MIT)](https://github.com/AntonPecherkin/runfcx)

@@ -44,7 +44,7 @@ export async function provision(o: ProvisionOpts, d: ProvisionDeps): Promise<Run
   const name = o.name ?? `trial-${stamp()}`;
   validate(o, name);
   const existing = loadState();
-  if (existing) throw new Error(`Run '${existing.name}' exists. Use it, or delete it first: fcx destroy`);
+  if (existing) throw new Error(`Run '${existing.name}' exists. Use it, or delete it first: runfcx destroy`);
 
   if (o.host) {
     await d.publicKey();
@@ -57,17 +57,17 @@ export async function provision(o: ProvisionOpts, d: ProvisionDeps): Promise<Run
     if (r.code !== 0) throw new Error("This server does not meet the requirements above.");
     const s: RunState = { name, mode: "host", sshTarget: o.host, dataDir, deadline: 0 };
     saveState(s);
-    d.log(`Using your server ${o.host}. Next: fcx node`);
+    d.log(`Using your server ${o.host}. Next: runfcx node`);
     return s;
   }
 
   const api = d.api();
   for (const kind of ["servers", "volumes", "firewalls"] as const) {
     if ((await api.listByLabel(kind)).length > 0)
-      throw new Error("This Hetzner project already has fcx resources. Delete them in the console, or use another project.");
+      throw new Error("This Hetzner project already has runfcx resources. Delete them in the console, or use another project.");
   }
   const deadline = secs === 0 ? 0 : d.now() + secs;
-  // saved before the first create, so fcx destroy can always find what exists
+  // saved before the first create, so runfcx destroy can always find what exists
   let s: RunState = { name, mode: "hetzner", sshTarget: "", dataDir: "/mnt/fcx", deadline };
   saveState(s);
 
@@ -86,7 +86,7 @@ export async function provision(o: ProvisionOpts, d: ProvisionDeps): Promise<Run
   } catch (e) {
     d.log("Create failed. Removing what was created…");
     await destroy(s, () => api, d.ssh, { sleepMs: d.sleepMs, log: d.log }).catch(() => {
-      d.log(`Cleanup incomplete. Run: fcx destroy`);
+      d.log(`Cleanup incomplete. Run: runfcx destroy`);
     });
     throw e;
   }
@@ -99,11 +99,11 @@ export async function provision(o: ProvisionOpts, d: ProvisionDeps): Promise<Run
   if (deadline > 0) {
     // token goes over SSH stdin: not in user-data (readable on the box), not in argv
     const r = await ssh.run("sudo sh -c 'umask 077; cat > /etc/fcx/token'", { input: d.readToken() });
-    if (r.code !== 0) throw new Error("Could not install auto-destroy on the server. Delete it now: fcx destroy");
+    if (r.code !== 0) throw new Error("Could not install auto-destroy on the server. Delete it now: runfcx destroy");
   }
   d.log(`Server ready at ${ip}.`);
-  d.log(deadline === 0 ? "No auto-destroy. You pay until you run: fcx destroy"
-                       : `Auto-destroy in ${o.ttl}. Extend with: fcx extend 4h`);
-  d.log("Next: fcx node");
+  d.log(deadline === 0 ? "No auto-destroy. You pay until you run: runfcx destroy"
+                       : `Auto-destroy in ${o.ttl}. Extend with: runfcx extend 4h`);
+  d.log("Next: runfcx node");
   return s;
 }

@@ -80,7 +80,7 @@ setup() { source "$BATS_TEST_DIRNAME/../../remote/lib.sh"; F="$BATS_TEST_DIRNAME
 }
 @test "restore_message prints the reason the restore stopped" {
   run restore_message "$F/restore-stopped.txt"
-  [ "$output" = "not enough disk for shard 2: need 550 GB free, have 300 GB. Use a bigger disk, then run: fcx node" ]
+  [ "$output" = "not enough disk for shard 2: need 550 GB free, have 300 GB. Use a bigger disk, then run: runfcx node" ]
 }
 @test "restore_needed: fresh, partial and finished fcx restores" {
   D="$BATS_TMPDIR/rn$$"; rm -rf "$D"; mkdir -p "$D"

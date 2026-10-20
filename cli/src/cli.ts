@@ -49,11 +49,11 @@ export const COMMANDS: Record<string, { summary: string; run: (argv: string[]) =
     },
   },
   extend: {
-    summary: "Move auto-destroy to now + TTL, e.g. fcx extend 4h (0 = off)",
+    summary: "Move auto-destroy to now + TTL, e.g. runfcx extend 4h (0 = off)",
     async run(argv) {
       const s = requireState();
       const n = await extend(s, makeSsh(s.sshTarget), argv[0] ?? "", now());
-      console.log(n.deadline === 0 ? "Auto-destroy is off. Remember: fcx destroy"
+      console.log(n.deadline === 0 ? "Auto-destroy is off. Remember: runfcx destroy"
                                    : `Auto-destroy at ${new Date(n.deadline * 1000).toLocaleString()}.`);
     },
   },
@@ -85,12 +85,12 @@ Object.assign(COMMANDS, CLIENT_COMMANDS);
 
 function help(): void {
   console.log([
-    "fcx: your own Farcaster read node and client.",
+    "runfcx: your own Farcaster read node and client.",
     "",
     "Quickstart:",
-    "  fcx provision --host root@YOUR_IP --data-dir /mnt/fcx",
-    "  fcx node",
-    "  fcx login --wallet",
+    "  runfcx provision --host root@YOUR_IP --data-dir /mnt/fcx",
+    "  runfcx node",
+    "  runfcx login --wallet",
     "",
     "Commands:",
     ...Object.entries(COMMANDS).map(([k, v]) => `  ${k.padEnd(10)} ${v.summary}`),
@@ -101,7 +101,7 @@ export async function main(argv: string[]): Promise<number> {
   const [cmd, ...rest] = argv;
   if (!cmd || cmd === "help" || cmd === "--help") { help(); return 0; }
   const c = COMMANDS[cmd];
-  if (!c) { console.error(`Unknown command '${cmd}'. Run: fcx help`); return 1; }
+  if (!c) { console.error(`Unknown command '${cmd}'. Run: runfcx help`); return 1; }
   try { await c.run(rest); return Number(process.exitCode ?? 0); }
   catch (e) {
     console.error(process.env.FCX_DEBUG ? e : `error: ${(e as Error).message}`);

@@ -29,7 +29,7 @@ export async function destroy(s: RunState | null, api: () => Hetzner, ssh: (t: s
   }
   for (const f of await h.listByLabel("firewalls", s.name)) await retry(() => h.deleteFirewall(f.id), o.sleepMs);
   const left = [...await h.listByLabel("servers", s.name), ...await h.listByLabel("volumes", s.name)];
-  if (left.length > 0) throw new Error(`Server or volume still there (${left.map((x) => x.id).join(", ")}). Run fcx destroy again, or check the Hetzner console.`);
+  if (left.length > 0) throw new Error(`Server or volume still there (${left.map((x) => x.id).join(", ")}). Run runfcx destroy again, or check the Hetzner console.`);
   clearState();
   o.log(`Run '${s.name}' deleted. Billing stopped.`);
 }

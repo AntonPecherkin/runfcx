@@ -53,7 +53,7 @@ describe("client commands", () => {
 describe("logout --forget", () => {
   it("refuses, then forgets on request", async () => {
     fake.store.keys = [];
-    await expect(CLIENT_COMMANDS.logout.run([], ctx)).rejects.toThrow("fcx logout --forget");
+    await expect(CLIENT_COMMANDS.logout.run([], ctx)).rejects.toThrow("runfcx logout --forget");
     await CLIENT_COMMANDS.logout.run(["--forget"], ctx);
     expect(out[0]).toBe("Local app key deleted. It stays on your account until it expires, 30 days after its last use.");
   });

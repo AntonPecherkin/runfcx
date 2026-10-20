@@ -3,33 +3,33 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>fcx · your own Farcaster node</title>
+<title>runfcx · run a Farcaster node with your agent</title>
 <meta name="description" content="Run your own Farcaster read node and client. Hand one line to your agent, or type three commands. No API keys.">
 <link rel="stylesheet" href="assets/style.css">
 <script src="assets/app.js" defer></script>
 </head>
 <body>
 <header class="top">
-  <a class="brand" href="#top"><span class="mark" aria-hidden="true"></span>fcx</a>
-  <nav><a href="#server">Free server</a><a href="#why">Why fcx</a><a href="#wallet">Wallet</a><a href="#vouch">Vouch</a><a href="tutorial.html">Tutorial</a><a href="https://github.com/AntonPecherkin/fcx-cli">GitHub</a></nav>
+  <a class="brand" href="#top"><span class="mark" aria-hidden="true"></span>runfcx</a>
+  <nav><a href="#server">Free server</a><a href="#why">Why runfcx</a><a href="#wallet">Wallet</a><a href="#vouch">Vouch</a><a href="tutorial.html">Tutorial</a><a href="https://github.com/AntonPecherkin/runfcx">GitHub</a><a href="https://farcaster.xyz/aap">@aap</a></nav>
 </header>
 
 <main class="wide" id="top">
   <section class="split" id="hero" style="padding:40px 0 24px">
     <div>
-      <h1 class="hero">Copy one line<br><em>Your agent does the rest</em></h1>
-      <p class="lede">Paste it into Claude Code or Codex. You get your own Farcaster node, and a client that posts through it.</p>
+      <h1 class="hero">Run a Farcaster node<br><em>with your agent</em></h1>
+      <p class="lede">Half the disk of the official setup. No API keys. Free with Vultr credit. Paste this line into Claude Code or Codex:</p>
       <div class="prompt">
-        <code id="agent-line">Set up my Farcaster node with https://antonpecherkin.github.io/fcx-cli/agent.md</code>
+        <code id="agent-line">Set up my Farcaster node with https://antonpecherkin.github.io/runfcx/agent.md</code>
         <button type="button" data-copy="agent-line">Copy</button>
       </div>
       <p class="under">No API keys · <a href="tutorial.html">prefer to type it yourself?</a></p>
     </div>
     <div class="chat" aria-label="What a session with your agent looks like">
-      <div class="me">Set up my Farcaster node with antonpecherkin.github.io/fcx-cli/agent.md</div>
+      <div class="me">Set up my Farcaster node with antonpecherkin.github.io/runfcx/agent.md</div>
       <div>The server costs <span data-num="run1.hourly_usd" data-prefix="$" data-suffix="/h">$0.26/h</span>. Start?</div>
       <div class="me">go</div>
-      <pre data-term="status-downloading">$ fcx status
+      <pre data-term="status-downloading">$ runfcx status
 Phase:  downloading
 Shard:  1  chunk 1156/2672  ETA 0h56m
 Disk:   108 GB used, 790 GB free
@@ -71,23 +71,23 @@ RAM:    0 GB used</pre>
         <h3>Half the disk</h3>
         <div class="vs">
           <p><small>Upstream needs</small><b>2 TB</b></p>
-          <p class="fcx"><small>fcx needs</small><b>1 TB</b></p>
+          <p class="runfcx"><small>runfcx needs</small><b>1 TB</b></p>
         </div>
-        <p>Upstream keeps every download and a full archive until the end, about <span data-num="run1.peak_disk_est_gb" data-suffix=" GB">1600 GB</span> at the peak. fcx unpacks as it downloads. Our node ended at <span data-num="run1.steady_disk_gb" data-suffix=" GB">557 GB</span>.</p>
+        <p>Upstream keeps every download and a full archive until the end, about <span data-num="run1.peak_disk_est_gb" data-suffix=" GB">1600 GB</span> at the peak. runfcx unpacks as it downloads. Our node ended at <span data-num="run1.steady_disk_gb" data-suffix=" GB">557 GB</span>.</p>
       </li>
       <li>
         <h3>Survives a crash</h3>
         <div class="vs">
           <p><small>Upstream</small><b>weeks</b></p>
-          <p class="fcx"><small>fcx</small><b>resumes</b></p>
+          <p class="runfcx"><small>runfcx</small><b>resumes</b></p>
         </div>
-        <p>If the restore stops halfway, upstream rebuilds the missing shards block by block (<a href="https://github.com/farcasterxyz/snapchain/issues/1044">snapchain#1044</a>). fcx picks up where it left off.</p>
+        <p>If the restore stops halfway, upstream rebuilds the missing shards block by block (<a href="https://github.com/farcasterxyz/snapchain/issues/1044">snapchain#1044</a>). runfcx picks up where it left off.</p>
       </li>
       <li>
         <h3>No gas, no ETH</h3>
         <div class="vs">
-          <p class="fcx"><small>Signatures</small><b><span data-num="run2.login_signatures">2</span></b></p>
-          <p class="fcx"><small>Gas</small><b><span data-num="run2.login_gas_usd" data-prefix="$">$0</span></b></p>
+          <p class="runfcx"><small>Signatures</small><b><span data-num="run2.login_signatures">2</span></b></p>
+          <p class="runfcx"><small>Gas</small><b><span data-num="run2.login_gas_usd" data-prefix="$">$0</span></b></p>
         </div>
         <p>Your wallet signs twice. No transaction.</p>
       </li>
@@ -95,10 +95,10 @@ RAM:    0 GB used</pre>
     <div class="fixed">
       <b>Snags we hit, so you don't</b>
       <ul>
-        <li>Upstream's installer can quit before the node starts. fcx starts it</li>
-        <li>The server's own firewall can block gossip. fcx opens the port</li>
-        <li>A shard can quietly sync from block 1 for weeks. fcx status warns you</li>
-        <li>Finding your account on a real node takes ~22 s. fcx waits for it</li>
+        <li>Upstream's installer can quit before the node starts. runfcx starts it</li>
+        <li>The server's own firewall can block gossip. runfcx opens the port</li>
+        <li>A shard can quietly sync from block 1 for weeks. runfcx status warns you</li>
+        <li>Finding your account on a real node takes ~22 s. runfcx waits for it</li>
       </ul>
     </div>
   </section>
@@ -126,7 +126,7 @@ RAM:    0 GB used</pre>
       <div class="again">
         <p><b>Ready?</b> Paste this into your agent</p>
         <div class="prompt">
-          <code id="agent-line-2">Set up my Farcaster node with https://antonpecherkin.github.io/fcx-cli/agent.md</code>
+          <code id="agent-line-2">Set up my Farcaster node with https://antonpecherkin.github.io/runfcx/agent.md</code>
           <button type="button" data-copy="agent-line-2">Copy</button>
         </div>
       </div>
@@ -141,15 +141,15 @@ RAM:    0 GB used</pre>
       <ul class="facts">
         <li><b>A key with limits</b><span>It can cast, like and follow. Nothing else</span></li>
         <li><b>On your computer only</b><span>The sign-in page runs on your laptop, behind a one-time link</span></li>
-        <li><b>Undo anytime</b><span><code>fcx logout</code> removes it</span></li>
+        <li><b>Undo anytime</b><span><code>runfcx logout</code> removes it</span></li>
       </ul>
     </div>
-    <div class="signflow" data-signflow aria-label="Signing in: fcx opens a page, your wallet asks twice, you're logged in">
+    <div class="signflow" data-signflow aria-label="Signing in: runfcx opens a page, your wallet asks twice, you're logged in">
       <ol>
-        <li><span class="sf-term">$ fcx login --wallet</span><span class="sf-cap">fcx opens a page on your laptop</span></li>
-        <li><span class="sf-pop"><b>Signature request</b><em>Approve fcx as the app asking for a key</em><i>Approve</i></span><span class="sf-cap">Your wallet asks once</span></li>
+        <li><span class="sf-term">$ runfcx login --wallet</span><span class="sf-cap">runfcx opens a page on your laptop</span></li>
+        <li><span class="sf-pop"><b>Signature request</b><em>Approve runfcx as the app asking for a key</em><i>Approve</i></span><span class="sf-cap">Your wallet asks once</span></li>
         <li><span class="sf-pop"><b>Signature request</b><em>Add a key that can cast, like and follow · 30 days</em><i>Approve</i></span><span class="sf-cap">and once more</span></li>
-        <li><span class="sf-term ok">Logged in as @you · try: fcx feed</span><span class="sf-cap">Done. No gas spent</span></li>
+        <li><span class="sf-term ok">Logged in as @you · try: runfcx feed</span><span class="sf-cap">Done. No gas spent</span></li>
       </ol>
     </div>
   </section>
@@ -158,18 +158,18 @@ RAM:    0 GB used</pre>
     <div class="vouch-box">
       <p class="kicker">The most useful thing you can do</p>
       <h2 class="big">Got it running? Vouch for it</h2>
-      <p class="lede">fcx qualifies for the bounty when someone else sets up a node and client with this guide and says so publicly. That someone can be you.</p>
+      <p class="lede">runfcx qualifies for the bounty when someone else sets up a node and client with this guide and says so publicly. That someone can be you.</p>
       <ol class="you">
-        <li><div><b>Finish the setup</b><span>your node is synced and <code>fcx whoami</code> shows your account</span></div></li>
+        <li><div><b>Finish the setup</b><span>your node is synced and <code>runfcx whoami</code> shows your account</span></div></li>
         <li><div><b>Post a public cast in your own words</b><span>did it work, how long it took, what you'd change</span></div></li>
         <li><div><b>Tag @aap or send us the link</b><span>so we can add it to our entry</span></div></li>
       </ol>
-      <p class="under">Posting it with <code>fcx cast</code> from your new node is the strongest proof.</p>
+      <p class="under">Posting it with <code>runfcx cast</code> from your new node is the strongest proof.</p>
       <a class="pill" href="vouch.html">How to vouch</a>
     </div>
   </section>
 </main>
 
-<footer class="wide"><span>MIT · <a href="https://github.com/AntonPecherkin/fcx-cli">fcx-cli</a></span><span>Built on Snapchain · no API keys</span></footer>
+<footer class="wide"><span>Made by <a href="https://farcaster.xyz/aap">@aap</a> · MIT · <a href="https://github.com/AntonPecherkin/runfcx">fcx-cli</a></span><span>Built on Snapchain · no API keys</span></footer>
 </body>
 </html>

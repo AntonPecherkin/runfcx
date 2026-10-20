@@ -6,7 +6,7 @@ describe("cli", () => {
     const out: string[] = []; vi.spyOn(console, "log").mockImplementation((s) => { out.push(String(s)); });
     expect(await main(["help"])).toBe(0);
     const text = out.join("\n");
-    expect(text).toMatch(/fcx provision --host root@YOUR_IP --data-dir \/mnt\/fcx\n  fcx node\n  fcx login --wallet/);
+    expect(text).toMatch(/fcx provision --host root@YOUR_IP --data-dir \/mnt\/fcx\n  runfcx node\n  runfcx login --wallet/);
   });
   it("unknown command exits 1", async () => {
     vi.spyOn(console, "error").mockImplementation(() => {});

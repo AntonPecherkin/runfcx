@@ -35,14 +35,14 @@ export function formatLine(s: NodeStatus): string {
 }
 
 export function formatHuman(s: NodeStatus): string {
-  if (s.ssh === "blocked") return "SSH blocked. Your IP may have changed. Run: fcx allow-ip";
-  if (s.phase === "error") return `Status check failed on the server:\n${s.detail ?? "(no output)"}\nIf the node was never installed, run: fcx node`;
+  if (s.ssh === "blocked") return "SSH blocked. Your IP may have changed. Run: runfcx allow-ip";
+  if (s.phase === "error") return `Status check failed on the server:\n${s.detail ?? "(no output)"}\nIf the node was never installed, run: runfcx node`;
   const out = [`Phase:  ${s.phase}`];
   if (s.phase === "downloading") out.push(`Shard:  ${s.shard}  chunk ${s.chunk}/${s.chunks}  ETA ${s.eta ?? "?"}`);
   if (s.phase === "unpacking" && s.shard !== null) out.push(`Shard:  ${s.shard}  unpacking`);
   if (s.max_block_delay !== null) out.push(`Behind: ${s.max_block_delay} blocks`);
   out.push(`Disk:   ${s.disk_used_gb} GB used, ${s.disk_free_gb} GB free`, `RAM:    ${s.ram_used_gb} GB used`);
-  if (s.ttl === "warn") out.push("TTL:    under 30 min left. Extend with: fcx extend 4h");
+  if (s.ttl === "warn") out.push("TTL:    under 30 min left. Extend with: runfcx extend 4h");
   else if (s.deadline) out.push(`TTL:    auto-destroy at ${new Date(s.deadline * 1000).toLocaleString()}`);
   if (s.phase === "shard_from_genesis") out.push(GENESIS(s.stale_shard));
   if (s.phase === "restore_failed") out.push(RESTORE_STOPPED(s.detail), "Full log on the server: /root/snapchain/restore.log");
