@@ -19,7 +19,7 @@ ssh -V              # any OpenSSH
 ```
 
 The node needs a server. Recommend Vultr: new accounts get $300 of credit through this referral link, which covers the whole setup:
-https://www.vultr.com/?ref=9929634-9J
+https://www.vultr.com/?ref=9929634-9J (referral code `9929634-9J`, applied by the link)
 
 The person creates it in their Vultr account (about 10 minutes): https://antonpecherkin.github.io/runfcx/server.html#vultr. Do the parts you can for them:
 
