@@ -11,8 +11,9 @@ check() { if (( $2 >= $3 )); then echo "ok    $1: $2 (need $3)"; else echo "FAIL
 check "CPUs" "$cpus" 4
 check "RAM GB" "$ram" 15
 # fcx's streamed restore (restore.sh) fits a 1000 GB disk: run 1 ended at 557 GB, and the peak is
-# one shard's chunks on top of that. Upstream's own restore needed ~1.6 TB; fcx never runs it.
-check "Free disk GB in $dir" "$disk" 900
+# that plus one shard's chunks (222 GB), ~780 GB. A fresh Vultr 1000 GB disk has 886 GB free.
+# restore.sh checks the space again before every shard. Upstream's restore needed ~1.6 TB; fcx never runs it.
+check "Free disk GB in $dir" "$disk" 800
 [[ "$os" == ubuntu || "$os" == debian ]] || echo "warn  OS: $os (tested on Ubuntu 24.04)"
 echo "note  Open UDP 3382 in your provider firewall. Keep 3381 and 3383 closed; fcx uses an SSH tunnel."
 exit $fail

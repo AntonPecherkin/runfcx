@@ -63,6 +63,6 @@ fi
 # upstream "upgrade" ends with `logs -f`; run it detached and wait for its success line
 nohup ./snapchain.sh upgrade </dev/null > install.log 2>&1 &
 sleep 2
-wait_upgrade install.log 180 5 || exit 1
+start_node_or_report install.log 180 5 || exit 1
 [[ "$KEEP" == yes ]] && cron_line /root/snapchain "$(hostname)" > /etc/cron.d/fcx-autoupgrade
 echo "Node started."

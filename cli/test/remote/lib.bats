@@ -117,3 +117,16 @@ setup() { source "$BATS_TEST_DIRNAME/../../remote/lib.sh"; F="$BATS_TEST_DIRNAME
   run wait_restore_start "$BATS_TMPDIR/dead.txt" 3 0
   [ "$status" -eq 1 ]; [[ "$output" == *"No such file"* ]]
 }
+
+@test "start_node_or_report: a failed install after the restore surfaces as restore_failed" {
+  log="$BATS_TMPDIR/after-restore.log"
+  PATH="$BATS_TEST_DIRNAME/stubs:$PATH" run start_node_or_report "$F/install-died.txt" 100 0
+  [ "$status" -eq 1 ]; [[ "$output" == *"fcx-restore: stopped: node install failed"* ]]
+  echo "$output" > "$log"
+  [ "$(detect_phase "$log" | cut -d' ' -f1)" = restore_failed ]
+  [[ "$(restore_message "$log")" == "node install failed"* ]]
+}
+@test "start_node_or_report: a good install prints no stop line" {
+  PATH="$BATS_TEST_DIRNAME/stubs:$PATH" run start_node_or_report "$F/install-ok.txt" 3 0
+  [ "$status" -eq 0 ]; [[ "$output" != *"fcx-restore: stopped"* ]]
+}

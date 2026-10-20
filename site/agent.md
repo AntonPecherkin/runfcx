@@ -120,7 +120,7 @@ Tell the person when the server deletes itself (`npx runfcx status`). If they wa
 | Bad --host '<x>'. Use user@hostname. | invalid host | fix the flag |
 | Bad --data-dir '<x>'. Use an absolute path | invalid path | fix the flag |
 | bad TTL '<x>'. Use 90m, 8h, 2d or 0. | invalid TTL | fix the flag |
-| This server does not meet the requirements above. | under 4 CPU, 15 GB RAM or 900 GB free disk (fcx's streamed restore ended at 557 GB on our run) | person picks a bigger server or disk |
+| This server does not meet the requirements above. | under 4 CPU, 15 GB RAM or 800 GB free disk (fcx's streamed restore peaks near 780 GB: 557 GB final plus one shard's chunks) | person picks a bigger server or disk |
 | Server did not accept SSH in time. | server still booting, or firewall blocks SSH | wait 2 min and retry; check the firewall allows the person's IP |
 | Could not install auto-destroy on the server. Delete it now: fcx destroy | token push failed | `fcx destroy` with the person's OK |
 | Could not reach the server. Run: fcx allow-ip | SSH blocked | `fcx allow-ip` |
