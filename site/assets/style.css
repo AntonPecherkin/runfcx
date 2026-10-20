@@ -129,3 +129,7 @@ h3.mid{font-size:24px;margin:56px 0 0}
 .prompt code{white-space:normal;overflow-wrap:anywhere}
 #you{padding-top:72px}
 .more{margin:20px 0 0}
+#vouch{padding-top:88px}
+.vouch-box{background:var(--card);border:2px solid var(--accent);border-radius:28px;padding:36px 28px}
+.vouch-box .pill{background:var(--accent);color:var(--accent-ink);margin-top:20px}
+.vouch-box ol.you li{background:var(--bg)}

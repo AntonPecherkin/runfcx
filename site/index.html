@@ -11,7 +11,7 @@
 <body>
 <header class="top">
   <a class="brand" href="#top"><span class="mark" aria-hidden="true"></span>fcx</a>
-  <nav><a href="#server">Free server</a><a href="#why">Why fcx</a><a href="#wallet">Wallet</a><a href="#node">Your node</a><a href="tutorial.html">Tutorial</a><a href="https://github.com/AntonPecherkin/fcx-cli">GitHub</a></nav>
+  <nav><a href="#server">Free server</a><a href="#why">Why fcx</a><a href="#wallet">Wallet</a><a href="#vouch">Vouch</a><a href="tutorial.html">Tutorial</a><a href="https://github.com/AntonPecherkin/fcx-cli">GitHub</a></nav>
 </header>
 
 <main class="wide" id="top">
@@ -93,11 +93,12 @@ RAM:    0 GB used</pre>
       </li>
     </ul>
     <div class="fixed">
-      <b>Fixed along the way</b>
+      <b>Snags we hit, so you don't</b>
       <ul>
-        <li>Fresh installs that quit before starting the node</li>
-        <li>Vultr's firewall blocking gossip</li>
-        <li>A shard silently syncing from block 1</li>
+        <li>Upstream's installer can quit before the node starts. fcx starts it</li>
+        <li>The server's own firewall can block gossip. fcx opens the port</li>
+        <li>A shard can quietly sync from block 1 for weeks. fcx status warns you</li>
+        <li>Finding your account on a real node takes ~22 s. fcx waits for it</li>
       </ul>
     </div>
   </section>
@@ -136,7 +137,7 @@ RAM:    0 GB used</pre>
   <section id="wallet" class="split">
     <div>
       <p class="kicker">Signing in</p>
-      <h2 class="big">Your wallet signs twice<br>Your key stays there</h2>
+      <h2 class="big">Your wallet signs twice<br>Your keys stay safe in MetaMask or Rabby</h2>
       <ul class="facts">
         <li><b>A key with limits</b><span>It can cast, like and follow. Nothing else</span></li>
         <li><b>On your computer only</b><span>The sign-in page runs on your laptop, behind a one-time link</span></li>
@@ -153,34 +154,17 @@ RAM:    0 GB used</pre>
     </div>
   </section>
 
-  <section id="node">
-    <p class="kicker">Your own node</p>
-    <h2 class="big">Why run your own node</h2>
-    <div class="split" style="align-items:flex-start;margin-top:28px">
-      <ul class="facts" style="margin:0">
-        <li><b>No hub provider, no API keys</b><span>Everything goes through your node. Our first cast landed in <span data-num="run2.cast_s" data-suffix=" s">8 s</span></span></li>
-        <li><b>Filter your feed by app</b><span>See which app posted each cast. Keep or hide any of them</span></li>
-      </ul>
-      <pre aria-label="fcx clients on our run">$ fcx clients
-  87  @warpcast (fid 9152)
-   9  @fireflyapp (fid 16823)
-   3  @cassie (fid 1325)
-   1  @greg (fid 347)</pre>
-    </div>
-    <h3 id="cast" class="mid">Where a cast goes</h3>
-    <ol class="stops" data-play>
-      <li><b>Your laptop</b><span>Your app key signs it</span></li>
-      <li><b>Your node</b><span>Checks it, passes it on</span></li>
-      <li class="net"><b>Validators</b><span>Put it in a block</span></li>
-      <li><b>Your node</b><span>Sees it land</span></li>
-      <li class="net"><b>Every feed</b><span>Anyone can read it</span></li>
-    </ol>
-    <p class="more"><a href="tutorial.html" style="font-weight:600">How it works, step by step →</a></p>
-    <div class="vouch">
-      <div>
-        <h3>Ran it? Vouch for fcx</h3>
-        <p>Post one cast from your own node and reply to the bounty cast with it.</p>
-      </div>
+  <section id="vouch">
+    <div class="vouch-box">
+      <p class="kicker">The most useful thing you can do</p>
+      <h2 class="big">Got it running? Vouch for it</h2>
+      <p class="lede">fcx qualifies for the bounty when someone else sets up a node and client with this guide and says so publicly. That someone can be you.</p>
+      <ol class="you">
+        <li><div><b>Finish the setup</b><span>your node is synced and <code>fcx whoami</code> shows your account</span></div></li>
+        <li><div><b>Post a public cast in your own words</b><span>did it work, how long it took, what you'd change</span></div></li>
+        <li><div><b>Tag @aap or send us the link</b><span>so we can add it to our entry</span></div></li>
+      </ol>
+      <p class="under">Posting it with <code>fcx cast</code> from your new node is the strongest proof.</p>
       <a class="pill" href="vouch.html">How to vouch</a>
     </div>
   </section>
