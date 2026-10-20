@@ -9,6 +9,8 @@ export const GENESIS = (shard?: number | null) =>
   `Shard ${shard ?? "?"} skipped its snapshot and is syncing from block 1. That takes weeks.\n` +
   "Reload that shard's snapshot: https://github.com/farcasterxyz/snapchain/issues/1044";
 
+export const RESTORE_STOPPED = (detail?: string) => `Snapshot restore stopped: ${detail ?? "see the log"}`;
+
 const REMOTE = "sudo FCX_LIB=/opt/fcx/lib.sh bash /opt/fcx/status-remote.sh";
 
 export async function getStatus(ssh: Ssh): Promise<NodeStatus> {
@@ -26,6 +28,7 @@ export async function getStatus(ssh: Ssh): Promise<NodeStatus> {
 export function formatLine(s: NodeStatus): string {
   let t = s.phase;
   if (s.phase === "downloading") t += ` shard ${s.shard} ${s.chunk}/${s.chunks} ETA ${s.eta ?? "?"}`;
+  if (s.phase === "unpacking" && s.shard !== null) t += ` shard ${s.shard}`;
   if (s.phase === "syncing") t += ` ${s.max_block_delay} blocks behind`;
   if (s.disk_used_gb) t += `  disk ${s.disk_used_gb}G`;
   return t;
@@ -36,11 +39,13 @@ export function formatHuman(s: NodeStatus): string {
   if (s.phase === "error") return `Status check failed on the server:\n${s.detail ?? "(no output)"}\nIf the node was never installed, run: fcx node`;
   const out = [`Phase:  ${s.phase}`];
   if (s.phase === "downloading") out.push(`Shard:  ${s.shard}  chunk ${s.chunk}/${s.chunks}  ETA ${s.eta ?? "?"}`);
+  if (s.phase === "unpacking" && s.shard !== null) out.push(`Shard:  ${s.shard}  unpacking`);
   if (s.max_block_delay !== null) out.push(`Behind: ${s.max_block_delay} blocks`);
   out.push(`Disk:   ${s.disk_used_gb} GB used, ${s.disk_free_gb} GB free`, `RAM:    ${s.ram_used_gb} GB used`);
   if (s.ttl === "warn") out.push("TTL:    under 30 min left. Extend with: fcx extend 4h");
   else if (s.deadline) out.push(`TTL:    auto-destroy at ${new Date(s.deadline * 1000).toLocaleString()}`);
   if (s.phase === "shard_from_genesis") out.push(GENESIS(s.stale_shard));
+  if (s.phase === "restore_failed") out.push(RESTORE_STOPPED(s.detail), "Full log on the server: /root/snapchain/restore.log");
   if (s.phase === "disk_full") out.push("Disk is full. Use a bigger volume (resize in Hetzner) and restart.");
   return out.join("\n");
 }

@@ -66,3 +66,54 @@ setup() { source "$BATS_TEST_DIRNAME/../../remote/lib.sh"; F="$BATS_TEST_DIRNAME
   run stale_shard "$F/info-genesis.json" 1000000; [ "$status" -eq 0 ]; [ "$output" = 0 ]
   run stale_shard "$F/info-syncing.json" 1000000; [ "$status" -eq 1 ]
 }
+@test "detect_phase reads fcx restore lines" {
+  [ "$(detect_phase "$F/restore-downloading.txt")" = "downloading 1 1240 2672 0h56m" ]
+  [ "$(detect_phase "$F/restore-unpacking.txt")" = "unpacking 2 - - -" ]
+  [ "$(detect_phase "$F/restore-stopped.txt")" = "restore_failed - - - -" ]
+  [ "$(detect_phase "$F/restore-done.txt")" = "starting - - - -" ]
+  echo "x fcx-restore: downloading shard 0 chunk 1/371" > "$BATS_TMPDIR/first.txt"
+  [ "$(detect_phase "$BATS_TMPDIR/first.txt")" = "downloading 0 1 371 -" ]
+}
+@test "detect_phase: container lines after the restore log win" {
+  cat "$F/restore-done.txt" "$F/log-running.txt" > "$BATS_TMPDIR/both.txt"
+  [ "$(detect_phase "$BATS_TMPDIR/both.txt")" = "running - - - -" ]
+}
+@test "restore_message prints the reason the restore stopped" {
+  run restore_message "$F/restore-stopped.txt"
+  [ "$output" = "not enough disk for shard 2: need 550 GB free, have 300 GB. Use a bigger disk, then run: fcx node" ]
+}
+@test "restore_needed: fresh, partial and finished fcx restores" {
+  D="$BATS_TMPDIR/rn$$"; rm -rf "$D"; mkdir -p "$D"
+  run restore_needed "$D"; [ "$status" -eq 0 ]
+  mkdir -p "$D/.rocks"; run restore_needed "$D"; [ "$status" -eq 0 ]
+  touch "$D/.rocks/.fcx-restore" "$D/.rocks/.fcx-restored-0" "$D/.rocks/.fcx-restored-1"; mkdir "$D/.rocks/shard-0"
+  run restore_needed "$D"; [ "$status" -eq 0 ]
+  touch "$D/.rocks/.fcx-restored-2"; run restore_needed "$D"; [ "$status" -eq 1 ]
+  rm -rf "$D"
+}
+@test "restore_needed: a node restored before fcx had its own restore is left alone" {
+  D="$BATS_TMPDIR/rn$$"; rm -rf "$D"; mkdir -p "$D/.rocks/shard-1" "$D/.rocks/global"
+  run restore_needed "$D"; [ "$status" -eq 1 ]
+  mkdir "$D/.rocks.snapshot"   # but upstream's restore never finished
+  run restore_needed "$D"; [ "$status" -eq 0 ]
+  rm -rf "$D"
+}
+@test "restore_running follows the pid file" {
+  D="$BATS_TMPDIR/rr$$"; mkdir -p "$D"
+  run restore_running "$D"; [ "$status" -eq 1 ]
+  echo $$ > "$D/.fcx-restore.pid"; run restore_running "$D"; [ "$status" -eq 0 ]
+  echo 999999 > "$D/.fcx-restore.pid"; run restore_running "$D"; [ "$status" -eq 1 ]
+  rm -rf "$D"
+}
+@test "wait_restore_start returns once the restore logs progress" {
+  run wait_restore_start "$F/restore-downloading.txt" 3 0; [ "$status" -eq 0 ]
+}
+@test "wait_restore_start fails with the reason when the restore stopped" {
+  run wait_restore_start "$F/restore-stopped.txt" 3 0
+  [ "$status" -eq 1 ]; [[ "$output" == *"not enough disk for shard 2"* ]]
+}
+@test "wait_restore_start fails when the restore died silently" {
+  echo "bash: restore.sh: No such file" > "$BATS_TMPDIR/dead.txt"
+  run wait_restore_start "$BATS_TMPDIR/dead.txt" 3 0
+  [ "$status" -eq 1 ]; [[ "$output" == *"No such file"* ]]
+}

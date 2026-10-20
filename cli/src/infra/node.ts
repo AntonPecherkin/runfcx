@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { remoteDir } from "./paths.js";
 import type { Ssh } from "./ssh.js";
 import type { RunState } from "./state.js";
-import { getStatus, formatLine, GENESIS } from "./status.js";
+import { getStatus, formatLine, GENESIS, RESTORE_STOPPED } from "./status.js";
 
 export async function startNode(s: RunState, ssh: Ssh,
   o: { wait: boolean; pollMs: number; log: (s: string) => void; line: (s: string) => void }): Promise<void> {
@@ -31,6 +31,7 @@ export async function startNode(s: RunState, ssh: Ssh,
     o.line(formatLine(st));
     if (st.phase === "ready") { o.log("\nNode is synced. Next: fcx login"); return; }
     if (st.phase === "shard_from_genesis") throw new Error(GENESIS(st.stale_shard));
+    if (st.phase === "restore_failed") throw new Error(RESTORE_STOPPED(st.detail));
     if (st.phase === "disk_full") throw new Error("Disk is full. Run: fcx status");
     await new Promise((res) => setTimeout(res, o.pollMs));
   }

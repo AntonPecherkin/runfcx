@@ -55,10 +55,10 @@ RAM:    1 GB used
 ```
 
 ## Numbers so far
-Prices are Vultr list prices for the recommended setup (2 TB NVMe block storage at $0.10/GB-month ≈ $0.27/h). This run used a 1000 GB disk. Times are filled in when each phase ends.
+Prices are Vultr list prices for the recommended setup, which is what this run used: a 1000 GB NVMe block storage disk at $0.10/GB-month ≈ $0.14/h. fcx now does the streamed restore above itself (`cli/remote/restore.sh`), so 1000 GB is enough. Times are filled in when each phase ends.
 
 ```fcx-numbers
-provider=vultr plan=vx1-g-4c-16g server_usd_h=0.12 disk_usd_h=0.27 hourly_usd=0.39 shard1_chunks_gb=222 shard1_tar_gb=261 shard1_unpacked_gb=261 peak_disk_est_gb=1600 steady_disk_gb=557 stream_unpack_shard2_min=38
+provider=vultr plan=vx1-g-4c-16g server_usd_h=0.12 disk_usd_h=0.14 hourly_usd=0.26 shard1_chunks_gb=222 shard1_tar_gb=261 shard1_unpacked_gb=261 peak_disk_est_gb=1600 steady_disk_gb=557 stream_unpack_shard2_min=38
 ```
 
 ## Terminal

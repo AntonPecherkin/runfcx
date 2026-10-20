@@ -6,10 +6,10 @@ setup() {
   chmod +x "$S"/*
   R="$BATS_TEST_DIRNAME/../../remote/host-check.sh"
 }
-@test "1800 GB free passes" {
-  PATH="$S:$PATH" STUB_AVAIL=1850 FCX_OS_RELEASE=/dev/null run bash "$R" "$BATS_TMPDIR/data"; [ "$status" -eq 0 ]
+@test "a 1000 GB disk passes: run 1 finished its streamed restore in 557 GB" {
+  PATH="$S:$PATH" STUB_AVAIL=980 FCX_OS_RELEASE=/dev/null run bash "$R" "$BATS_TMPDIR/data"; [ "$status" -eq 0 ]
 }
-@test "a 1.5 TB disk fails: the snapshot peaks near 1.6 TB" {
-  PATH="$S:$PATH" STUB_AVAIL=1450 FCX_OS_RELEASE=/dev/null run bash "$R" "$BATS_TMPDIR/data"
-  [ "$status" -eq 1 ]; [[ "$output" == *"need 1800"* ]]
+@test "under 900 GB free fails" {
+  PATH="$S:$PATH" STUB_AVAIL=800 FCX_OS_RELEASE=/dev/null run bash "$R" "$BATS_TMPDIR/data"
+  [ "$status" -eq 1 ]; [[ "$output" == *"need 900"* ]]
 }

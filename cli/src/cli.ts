@@ -73,7 +73,7 @@ export const COMMANDS: Record<string, { summary: string; run: (argv: string[]) =
       if (s && s.mode === "hetzner" && !values.yes) {
         if (!process.stdin.isTTY) throw new Error("Add --yes to confirm.");
         const rl = createInterface({ input: process.stdin, output: process.stdout });
-        const a = await rl.question(`Delete run '${s.name}' and its 2 TB volume? [y/N] `); rl.close();
+        const a = await rl.question(`Delete run '${s.name}' and its 1 TB volume? [y/N] `); rl.close();
         if (!a.toLowerCase().startsWith("y")) return;
       }
       await destroy(s, () => new Hetzner(readToken()), makeSsh, { sleepMs: 5000, log: (t) => console.log(t) });

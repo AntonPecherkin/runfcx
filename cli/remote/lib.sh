@@ -17,16 +17,55 @@ ttl_state() {
   else echo ok; fi
 }
 
-# Latest snapshot phase from the snapchain container log.
+# Latest snapshot phase from the restore log (fcx-restore lines) and the snapchain container log.
 detect_phase() {
   local line
-  line=$(grep -E 'Downloading zipped snapshot chunk|Unzipping snapshot chunk|Unpacking snapshot file|Starting node' "$1" | tail -n 1)
+  line=$(grep -E 'Downloading zipped snapshot chunk|Unzipping snapshot chunk|Unpacking snapshot file|Starting node|fcx-restore: (downloading|unpacking|stopped|done)' "$1" | tail -n 1)
   if [[ -z "$line" ]]; then echo "starting - - - -"
+  elif [[ "$line" =~ fcx-restore:\ downloading\ shard\ ([0-9]+)\ chunk\ ([0-9]+)/([0-9]+)(\ ETA\ ([0-9]+h[0-9]+m))? ]]; then
+    echo "downloading ${BASH_REMATCH[1]} ${BASH_REMATCH[2]} ${BASH_REMATCH[3]} ${BASH_REMATCH[5]:--}"
+  elif [[ "$line" =~ fcx-restore:\ unpacking\ shard\ ([0-9]+) ]]; then echo "unpacking ${BASH_REMATCH[1]} - - -"
+  elif [[ "$line" == *"fcx-restore: stopped"* ]]; then echo "restore_failed - - - -"
+  elif [[ "$line" == *"fcx-restore: done"* ]]; then echo "starting - - - -"
   elif [[ "$line" =~ Downloading\ zipped\ snapshot\ chunk\ [^\ ]+\ for\ shard\ ([0-9]+)\ \(([0-9]+)/([0-9]+)\ chunks\ in\ shard\)\ ?(Shard\ ETA:\ ([0-9]+h[0-9]+m))? ]]; then
     echo "downloading ${BASH_REMATCH[1]} ${BASH_REMATCH[2]} ${BASH_REMATCH[3]} ${BASH_REMATCH[5]:--}"
   elif [[ "$line" =~ Unzipping\ snapshot\ chunk\ .*\ for\ shard\ ([0-9]+) ]]; then echo "unzipping ${BASH_REMATCH[1]} - - -"
   elif [[ "$line" =~ Unpacking\ snapshot\ file\ .*\ for\ shard\ ([0-9]+) ]]; then echo "unpacking ${BASH_REMATCH[1]} - - -"
   else echo "running - - - -"; fi
+}
+
+# Why the last fcx restore stopped (empty if it did not).
+restore_message() { grep 'fcx-restore: stopped: ' "$1" 2>/dev/null | tail -n 1 | sed 's/.*fcx-restore: stopped: //'; }
+
+# Exit 0 if <snapchain_dir> still needs fcx's snapshot restore before the node may start.
+# Done = all three shard markers. A .rocks with data but no fcx files was restored before fcx had its
+# own restore; leave it alone unless upstream's staging dir shows that restore never finished.
+restore_needed() {
+  local db="$1/.rocks" s
+  if compgen -G "$db/.fcx-restore*" >/dev/null; then
+    for s in 0 1 2; do [[ -f "$db/.fcx-restored-$s" ]] || return 0; done
+    return 1
+  fi
+  [[ -d "$db" && -n "$(ls -A "$db")" && ! -e "$1/.rocks.snapshot" ]] && return 1
+  return 0
+}
+
+# True while restore.sh runs for <snapchain_dir>.
+restore_running() {
+  local pid
+  pid=$(cat "$1/.fcx-restore.pid" 2>/dev/null) || return 1
+  [[ "$pid" =~ ^[0-9]+$ ]] && kill -0 "$pid" 2>/dev/null
+}
+
+# Waits until a background restore logs progress. Fails with its reason if it stopped or died.
+wait_restore_start() {
+  local log="$1" tries="$2" pause="$3" i
+  for ((i = 0; i < tries; i++)); do
+    if grep -q 'fcx-restore: stopped' "$log"; then echo "Snapshot restore stopped: $(restore_message "$log")"; return 1; fi
+    grep -qE 'fcx-restore: (downloading|unpacking|done|shard)' "$log" && return 0
+    sleep "$pause"
+  done
+  echo "Snapshot restore did not start. Last lines:"; tail -20 "$log"; return 1
 }
 
 info_ready() {

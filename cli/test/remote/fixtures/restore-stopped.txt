@@ -1,0 +1,2 @@
+2026-10-20T08:00:00Z fcx-restore: downloading shard 1 chunk 1/2672
+2026-10-20T08:00:01Z fcx-restore: stopped: not enough disk for shard 2: need 550 GB free, have 300 GB. Use a bigger disk, then run: fcx node

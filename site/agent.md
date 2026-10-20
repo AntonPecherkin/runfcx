@@ -31,7 +31,7 @@ Ask which server the person wants:
 
 Tell the person, in one message:
 
-> This rents a 4-CPU, 16 GB server with a 2 TB disk. It costs about $0.39 an hour on our test run, and the sync takes a few hours. With Hetzner it deletes itself after 8 hours. OK to start?
+> This rents a 4-CPU, 16 GB server with a 1000 GB disk. It costs about $0.26 an hour on our test run, and the sync takes a few hours. With Hetzner it deletes itself after 8 hours. OK to start?
 
 Wait for a yes.
 
@@ -64,7 +64,8 @@ After each check, tell the person one line: phase, progress and ETA. For example
 | `starting` | the node process is starting | wait |
 | `downloading` | snapshot chunks are downloading; `chunk`/`chunks` and `eta` show progress | wait, report progress |
 | `unzipping` | the snapshot is being unzipped | wait; disk use peaks here |
-| `unpacking` | the snapshot is being unpacked into the database | wait |
+| `unpacking` | the snapshot is being unpacked into the database; `shard` says which | wait |
+| `restore_failed` | fcx's snapshot restore stopped; `detail` says why (often: not enough disk) | show the person `detail`; after a fix, `npx runfcx node` resumes where it stopped |
 | `running` | the node runs but its API doesn't answer yet | wait |
 | `syncing` | catching up block by block; `max_block_delay` falls toward 0 | wait |
 | `ready` | synced, within 10 blocks | go to step 5 |
@@ -119,7 +120,7 @@ Tell the person when the server deletes itself (`npx runfcx status`). If they wa
 | Bad --host '<x>'. Use user@hostname. | invalid host | fix the flag |
 | Bad --data-dir '<x>'. Use an absolute path | invalid path | fix the flag |
 | bad TTL '<x>'. Use 90m, 8h, 2d or 0. | invalid TTL | fix the flag |
-| This server does not meet the requirements above. | under 4 CPU, 15 GB RAM or 1800 GB free disk (the restore peaks near 1.6 TB) | person picks a bigger server or disk |
+| This server does not meet the requirements above. | under 4 CPU, 15 GB RAM or 900 GB free disk (fcx's streamed restore ended at 557 GB on our run) | person picks a bigger server or disk |
 | Server did not accept SSH in time. | server still booting, or firewall blocks SSH | wait 2 min and retry; check the firewall allows the person's IP |
 | Could not install auto-destroy on the server. Delete it now: fcx destroy | token push failed | `fcx destroy` with the person's OK |
 | Could not reach the server. Run: fcx allow-ip | SSH blocked | `fcx allow-ip` |
@@ -127,6 +128,7 @@ Tell the person when the server deletes itself (`npx runfcx status`). If they wa
 | scp failed: | SSH problem | check `fcx status`; retry |
 | Node install failed. See the lines above. | upstream installer failed | show the person the lines; retry `fcx node` once |
 | Disk is full. Run: fcx status | disk too small | person grows the disk, then `fcx node` |
+| Snapshot restore stopped: | the restore hit a problem it can't fix itself; the rest of the message says which | show the person the message; after a fix, `npx runfcx node` resumes the restore |
 | Only trial runs on Hetzner have a TTL. | `extend` on a host run | nothing to extend |
 | This run was created with --keep. It has no auto-destroy. Delete it with: fcx destroy | `extend` on a keep run | nothing to extend |
 | Only for Hetzner runs. Update your own firewall. | `allow-ip` on a host run | person updates their firewall |

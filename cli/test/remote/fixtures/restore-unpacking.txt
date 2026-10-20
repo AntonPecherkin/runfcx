@@ -1,0 +1,2 @@
+2026-10-20T08:00:03Z fcx-restore: downloading shard 2 chunk 2648/2648 ETA 0h0m
+2026-10-20T08:00:04Z fcx-restore: unpacking shard 2
