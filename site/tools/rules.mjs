@@ -59,6 +59,10 @@ export function placeholders(html) {
   return out;
 }
 
+// A claim that waits on unmerged work (data-wait="branch") may sit on a branch, never on main.
+export const waiting = (html) => [...new Set([...html.matchAll(/\bdata-wait="([^"]+)"/g)].map((m) => m[1]))]
+  .map((b) => `claim waits on ${b} (remove data-wait once it is merged)`);
+
 export function motion(js) {
   const animates = /setInterval|requestAnimationFrame|\.animate\(|setTimeout\([^,]+,\s*\d{2,}/.test(js);
   return animates && !/prefers-reduced-motion/.test(js) ? ["app.js animates without a prefers-reduced-motion check"] : [];

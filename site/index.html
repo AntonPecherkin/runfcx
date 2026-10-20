@@ -11,19 +11,19 @@
 <body>
 <header class="top">
   <a class="brand" href="#top"><span class="mark" aria-hidden="true"></span>fcx</a>
-  <nav><a href="#server">Free server</a><a href="#you">What you do</a><a href="#wallet">Wallet</a><a href="tutorial.html">Tutorial</a><a href="https://github.com/AntonPecherkin/fcx-cli">GitHub</a></nav>
+  <nav><a href="#server">Free server</a><a href="#why">Why fcx</a><a href="#wallet">Wallet</a><a href="#node">Your node</a><a href="tutorial.html">Tutorial</a><a href="https://github.com/AntonPecherkin/fcx-cli">GitHub</a></nav>
 </header>
 
 <main class="wide" id="top">
   <section class="split" id="hero" style="padding:40px 0 24px">
     <div>
       <h1 class="hero">Copy one line<br><em>Your agent does the rest</em></h1>
-      <p class="lede">Paste it into Claude Code or Codex. It sets up a Farcaster node of your own and a client that posts through it.</p>
+      <p class="lede">Paste it into Claude Code or Codex. You get your own Farcaster node, and a client that posts through it.</p>
       <div class="prompt">
         <code id="agent-line">Set up my Farcaster node with https://antonpecherkin.github.io/fcx-cli/agent.md</code>
         <button type="button" data-copy="agent-line">Copy</button>
       </div>
-      <p class="muted" style="font-size:15px">No API keys · <a href="tutorial.html">prefer to type it yourself?</a></p>
+      <p class="under">No API keys · <a href="tutorial.html">prefer to type it yourself?</a></p>
     </div>
     <div class="chat" aria-label="What a session with your agent looks like">
       <div class="me">Set up my Farcaster node with antonpecherkin.github.io/fcx-cli/agent.md</div>
@@ -42,9 +42,9 @@ RAM:    0 GB used</pre>
     <div>
       <p class="kicker">The server</p>
       <h2 class="big">Run it for $0</h2>
-      <p class="band-lede">The node needs a rented server for a few hours. New Vultr accounts get $300 of credit, which covers it many times over.</p>
+      <p class="band-lede">The node runs on a rented server. New Vultr accounts get $300 of credit, which covers many runs.</p>
       <a class="pill big-pill" href="https://www.vultr.com/?ref=9929634-9J" rel="sponsored noopener">Get $300 in server credit</a>
-      <p class="fine">Our referral link: we get a small bonus too. Then follow <a href="server.html#vultr">the 10-minute Vultr setup</a>, or use <a href="server.html#hetzner">Hetzner</a> for a fully automatic run.</p>
+      <p class="fine">Our referral link, we get a small bonus too. <a href="server.html#vultr">Vultr setup, 10 minutes</a> · <a href="server.html#hetzner">Hetzner, fully automatic</a></p>
     </div>
     <div>
       <div class="receipt" aria-label="Cost of our test run">
@@ -60,6 +60,45 @@ RAM:    0 GB used</pre>
         <div class="total"><span>YOU PAY</span><span>$0</span></div>
         <small>MEASURED ON OUR RUN · OCT 2026</small>
       </div>
+    </div>
+  </section>
+
+  <section id="why">
+    <p class="kicker">Measured on our mainnet runs</p>
+    <h2 class="big">What we found running it</h2>
+    <ul class="wins">
+      <li>
+        <h3>Half the disk</h3>
+        <div class="vs">
+          <p><small>Upstream needs</small><b>2 TB</b></p>
+          <p class="fcx"><small>fcx needs</small><b>1 TB</b></p>
+        </div>
+        <p>Upstream keeps every download and a full archive until the end, about <span data-num="run1.peak_disk_est_gb" data-suffix=" GB">1600 GB</span> at the peak. fcx unpacks as it downloads. Our node ended at <span data-num="run1.steady_disk_gb" data-suffix=" GB">557 GB</span>.</p>
+      </li>
+      <li>
+        <h3>Survives a crash</h3>
+        <div class="vs">
+          <p><small>Upstream</small><b>weeks</b></p>
+          <p class="fcx"><small>fcx</small><b>resumes</b></p>
+        </div>
+        <p>If the restore stops halfway, upstream rebuilds the missing shards block by block (<a href="https://github.com/farcasterxyz/snapchain/issues/1044">snapchain#1044</a>). fcx picks up where it left off.</p>
+      </li>
+      <li>
+        <h3>No gas, no ETH</h3>
+        <div class="vs">
+          <p class="fcx"><small>Signatures</small><b><span data-num="run2.login_signatures">2</span></b></p>
+          <p class="fcx"><small>Gas</small><b><span data-num="run2.login_gas_usd" data-prefix="$">$0</span></b></p>
+        </div>
+        <p>Your wallet signs twice. No transaction.</p>
+      </li>
+    </ul>
+    <div class="fixed">
+      <b>Fixed along the way</b>
+      <ul>
+        <li>Fresh installs that quit before starting the node</li>
+        <li>Vultr's firewall blocking gossip</li>
+        <li>A shard silently syncing from block 1</li>
+      </ul>
     </div>
   </section>
 
@@ -83,15 +122,22 @@ RAM:    0 GB used</pre>
           <li>Never sees your seed phrase, and posts nothing without asking</li>
         </ul>
       </details>
+      <div class="again">
+        <p><b>Ready?</b> Paste this into your agent</p>
+        <div class="prompt">
+          <code id="agent-line-2">Set up my Farcaster node with https://antonpecherkin.github.io/fcx-cli/agent.md</code>
+          <button type="button" data-copy="agent-line-2">Copy</button>
+        </div>
+      </div>
     </div>
   </section>
+
 
   <section id="wallet" class="split">
     <div>
       <p class="kicker">Signing in</p>
       <h2 class="big">Your wallet signs twice<br>Your key stays there</h2>
       <ul class="facts">
-        <li><b>No gas</b><span>Two signatures, no transaction</span></li>
         <li><b>A key with limits</b><span>It can cast, like and follow. Nothing else</span></li>
         <li><b>On your computer only</b><span>The sign-in page runs on your laptop, behind a one-time link</span></li>
         <li><b>Undo anytime</b><span><code>fcx logout</code> removes it</span></li>
@@ -107,8 +153,21 @@ RAM:    0 GB used</pre>
     </div>
   </section>
 
-  <section id="cast" style="padding-top:72px">
-    <h2 class="big">Where a cast goes</h2>
+  <section id="node">
+    <p class="kicker">Your own node</p>
+    <h2 class="big">Why run your own node</h2>
+    <div class="split" style="align-items:flex-start;margin-top:28px">
+      <ul class="facts" style="margin:0">
+        <li><b>No hub provider, no API keys</b><span>Everything goes through your node. Our first cast landed in <span data-num="run2.cast_s" data-suffix=" s">8 s</span></span></li>
+        <li><b>Filter your feed by app</b><span>See which app posted each cast. Keep or hide any of them</span></li>
+      </ul>
+      <pre aria-label="fcx clients on our run">$ fcx clients
+  87  @warpcast (fid 9152)
+   9  @fireflyapp (fid 16823)
+   3  @cassie (fid 1325)
+   1  @greg (fid 347)</pre>
+    </div>
+    <h3 id="cast" class="mid">Where a cast goes</h3>
     <ol class="stops" data-play>
       <li><b>Your laptop</b><span>Your app key signs it</span></li>
       <li><b>Your node</b><span>Checks it, passes it on</span></li>
@@ -116,7 +175,14 @@ RAM:    0 GB used</pre>
       <li><b>Your node</b><span>Sees it land</span></li>
       <li class="net"><b>Every feed</b><span>Anyone can read it</span></li>
     </ol>
-    <a href="tutorial.html" style="font-weight:600">How it works, step by step →</a>
+    <p class="more"><a href="tutorial.html" style="font-weight:600">How it works, step by step →</a></p>
+    <div class="vouch">
+      <div>
+        <h3>Ran it? Vouch for fcx</h3>
+        <p>Post one cast from your own node and reply to the bounty cast with it.</p>
+      </div>
+      <a class="pill" href="vouch.html">How to vouch</a>
+    </div>
   </section>
 </main>
 

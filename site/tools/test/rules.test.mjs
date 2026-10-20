@@ -45,3 +45,10 @@ test("release blocks unfilled placeholders", () => {
   assert.deepEqual(placeholders(`<b>$0.34</b>`), []);
   assert.deepEqual(placeholders(`<span class="tbd">[sync time]</span> {{SITE}}`), ["unmeasured value [sync time]", "unfilled {{SITE}}"]);
 });
+
+import { waiting } from "../rules.mjs";
+test("claims that wait on a branch are listed", () => {
+  assert.deepEqual(waiting(`<li>2 TB</li>`), []);
+  assert.deepEqual(waiting(`<li data-wait="stream-restore">1 TB</li><li data-wait="stream-restore">resumes</li>`),
+    ["claim waits on stream-restore (remove data-wait once it is merged)"]);
+});
