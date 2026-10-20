@@ -26,9 +26,9 @@
 
 <section id="compute" data-chapter="compute">
 <h2>0 · Compute</h2>
-<pre>npx runfcx provision --ttl 8h</pre>
-<p>This rents one server with a 1000 GB disk. Its firewall allows SSH from your IP and UDP 3382 from anywhere. Everything else stays closed.</p>
-<p>With <code>--ttl</code>, a timer on the server deletes the server and its disk when time is up. Your Hetzner token sits on that server for this reason only. <code>fcx extend 4h</code> moves the timer, <code>fcx destroy</code> ends it now.</p>
+<pre>npx runfcx provision --host root@YOUR_IP --data-dir /mnt/fcx</pre>
+<p>You rent one Vultr server with a 1000 GB disk (<a href="server.html#vultr">10 minutes</a>). Its firewall allows SSH from your IP and UDP 3382 from anywhere. Everything else stays closed.</p>
+<p><code>provision</code> logs in with fcx's own SSH key, checks the CPU, memory and disk, and remembers the server. When you're done, destroy the server and delete its disk in Vultr: a stopped server still bills.</p>
 </section>
 
 <section id="node" data-chapter="node">

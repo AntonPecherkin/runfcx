@@ -20,7 +20,7 @@ const myIp = async () => (await (await fetch("https://api.ipify.org")).text()).t
 
 export const COMMANDS: Record<string, { summary: string; run: (argv: string[]) => Promise<void> }> = {
   provision: {
-    summary: "(0) Get a server. --ttl 8h (default) | --keep | --host user@box",
+    summary: "(0) Take over your server: --host root@IP --data-dir /mnt/fcx",
     async run(argv) {
       const { values } = parseArgs({ args: argv, options: {
         ttl: { type: "string", default: "8h" }, keep: { type: "boolean", default: false },
@@ -88,7 +88,7 @@ function help(): void {
     "fcx: your own Farcaster read node and client.",
     "",
     "Quickstart:",
-    "  fcx provision --ttl 8h",
+    "  fcx provision --host root@YOUR_IP --data-dir /mnt/fcx",
     "  fcx node",
     "  fcx login --wallet",
     "",

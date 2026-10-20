@@ -14,7 +14,7 @@
 </header>
 <main>
 <h1 id="top">Renting the server</h1>
-<p class="lede">You need it for a few hours. Pick one of three ways.</p>
+<p class="lede">We use Vultr: new accounts get $300 of credit through <a href="https://www.vultr.com/?ref=9929634-9J" rel="sponsored noopener">our referral link</a>, which covers many runs.</p>
 <div class="card">
 <b>Any provider, same spec</b>
 <ul>
@@ -24,20 +24,9 @@
 </ul>
 </div>
 
-<h2 id="hetzner">Hetzner · fully scripted</h2>
-<p>fcx creates the server, disk and firewall, and deletes them all when the timer runs out.</p>
-<ol>
-<li>Create a new project in the Hetzner Cloud console. Use it only for fcx: the token can delete anything in its project.</li>
-<li>In that project: Security → API tokens → Generate, with Read &amp; Write.</li>
-<li>Copy the token, then save it without pasting it anywhere else:
-<pre>mkdir -p ~/.config/fcx
-pbpaste &gt; ~/.config/fcx/hcloud-token   # Linux: xclip -o &gt; …
-chmod 600 ~/.config/fcx/hcloud-token</pre></li>
-<li>Run <code>npx runfcx provision --ttl 8h</code></li>
-</ol>
 
-<h2 id="vultr">Vultr · by hand, with free credit</h2>
-<p>New accounts get <span>$300</span> of credit through <a href="https://www.vultr.com/?ref=9929634-9J" rel="sponsored noopener">our referral link</a>. That covers many runs. You click the server together yourself, then hand it to fcx.</p>
+<h2 id="vultr">Vultr · 10 minutes</h2>
+<p>Sign up through <a href="https://www.vultr.com/?ref=9929634-9J" rel="sponsored noopener">our referral link</a> (we get a small bonus too). You click the server together, then fcx takes over.</p>
 <ol>
 <li>Make the SSH key fcx uses, and add the public half under Account → SSH Keys:
 <pre>mkdir -p ~/.fcx &amp;&amp; ssh-keygen -t ed25519 -N "" -C fcx -f ~/.fcx/ssh_ed25519
