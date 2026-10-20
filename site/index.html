@@ -27,7 +27,7 @@
     </div>
     <div class="chat" aria-label="What a session with your agent looks like">
       <div class="me">Set up my Farcaster node with antonpecherkin.github.io/fcx-cli/agent.md</div>
-      <div>The server costs <span data-num="run1.hourly_usd" data-prefix="$" data-suffix="/h">$0.39/h</span>. Start?</div>
+      <div>The server costs <span data-num="run1.hourly_usd" data-prefix="$" data-suffix="/h">$0.26/h</span>. Start?</div>
       <div class="me">go</div>
       <pre data-term="status-downloading">$ fcx status
 Phase:  downloading
@@ -41,10 +41,8 @@ RAM:    0 GB used</pre>
   <section id="why">
     <p class="kicker">Measured on our mainnet runs</p>
     <h2 class="big">What we found running it</h2>
-    <!-- Cards 1 and 2 wait on feat/stream-restore: check.mjs fails on main (and so blocks the Pages deploy)
-         while a data-wait claim is on the page. Remove data-wait once the streaming restore is merged. -->
     <ul class="wins">
-      <li data-wait="stream-restore">
+      <li>
         <h3>Half the disk</h3>
         <div class="vs">
           <p><small>Upstream peak</small><b>~<span data-num="run1.peak_disk_est_gb">1600</span> GB</b></p>
@@ -52,7 +50,7 @@ RAM:    0 GB used</pre>
         </div>
         <p>Upstream keeps a shard's chunks (<span data-num="run1.shard1_chunks_gb" data-suffix=" GB">222 GB</span>), archive (<span data-num="run1.shard1_tar_gb" data-suffix=" GB">261 GB</span>) and unpacked copy (<span data-num="run1.shard1_unpacked_gb" data-suffix=" GB">261 GB</span>) until the end. fcx streams chunks straight into tar, so no archive is written. A 1 TB disk is enough.</p>
       </li>
-      <li data-wait="stream-restore">
+      <li>
         <h3>Picks up where it stopped</h3>
         <div class="vs">
           <p><small>Upstream</small><b>block 1</b></p>
@@ -113,7 +111,7 @@ RAM:    0 GB used</pre>
         <div style="text-align:center;font-weight:700;letter-spacing:.08em">THE WHOLE BILL</div>
         <hr>
         <div class="row"><span>Server</span><i></i><b data-num="run1.server_usd_h" data-prefix="$" data-suffix="/h">$0.12/h</b></div>
-        <div class="row"><span>Disk</span><i></i><b data-num="run1.disk_usd_h" data-prefix="$" data-suffix="/h">$0.27/h</b></div>
+        <div class="row"><span>Disk</span><i></i><b data-num="run1.disk_usd_h" data-prefix="$" data-suffix="/h">$0.14/h</b></div>
         <div class="row"><span>API keys</span><i></i><b>$0</b></div>
         <div class="row"><span>Gas</span><i></i><b>$0</b></div>
         <div class="row"><span>Run total</span><i></i><b><span class="tbd" data-num="run1.total_cost_usd" data-prefix="$">measuring</span></b></div>

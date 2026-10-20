@@ -1,5 +1,9 @@
 services:
   snapchain:
+    environment:
+      # fcx restores the snapshot itself (restore.sh) before the first start; never run upstream's
+      # restore, which needs ~1.6 TB. Overrides load_db_from_snapshot in the generated config.toml.
+      SNAPCHAIN_SNAPSHOT__LOAD_DB_FROM_SNAPSHOT: "false"
     ports: !override
       - "127.0.0.1:3381:3381/tcp"
       - "3382:3382/udp"

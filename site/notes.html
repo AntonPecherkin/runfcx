@@ -19,7 +19,7 @@
 <li><b>App keys.</b> We use gasless keys (<code>KEY_ADD</code>). Most guides still show the onchain key registry.</li>
 <li><b>Writes.</b> We send through our own read node. It relays to validators.</li>
 <li><b>Ports.</b> We keep 3381 and 3383 private and use an SSH tunnel.</li>
-<li><b>Disk.</b> Official docs say 1.5 TB in one place and 2 TB in another. Use 2 TB: one large shard alone took 744 GB on our run, and the peak lands near 1.6 TB.</li>
+<li><b>Disk.</b> Official docs say 1.5 TB in one place and 2 TB in another. With the node's own restore, use 2 TB: one large shard alone took 744 GB on our run, and the peak lands near 1.6 TB. fcx streams the restore itself, so 1000 GB is enough with fcx.</li>
 </ul>
 <h2 id="troubleshooting">Troubleshooting</h2>
 <p>Every message fcx can print, with the fix, is in the <a href="agent.md">agent runbook</a> under Errors.</p>

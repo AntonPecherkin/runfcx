@@ -18,7 +18,7 @@
 <svg id="arch" viewBox="0 0 720 200" role="img" aria-label="Your laptop talks to your read node over SSH; the node gossips with the validators">
   <g class="g-client"><rect class="box" x="10" y="60" width="170" height="80" rx="12"/><text x="28" y="94">Your laptop</text><text class="sub" x="28" y="116">fcx · app key</text></g>
   <g class="g-tunnel"><path class="link" d="M180 100 H270" stroke-dasharray="6 5"/><text class="sub" x="205" y="90">SSH</text></g>
-  <g class="g-compute g-node"><rect class="box" x="270" y="40" width="200" height="120" rx="12"/><text x="288" y="78">Your server</text><text class="sub" x="288" y="100">read node · 2 TB</text><text class="sub" x="288" y="120">:3381 local · :3382 gossip</text></g>
+  <g class="g-compute g-node"><rect class="box" x="270" y="40" width="200" height="120" rx="12"/><text x="288" y="78">Your server</text><text class="sub" x="288" y="100">read node · 1 TB</text><text class="sub" x="288" y="120">:3381 local · :3382 gossip</text></g>
   <g class="g-gossip"><path class="link" d="M470 100 H560"/><text class="sub" x="490" y="90">gossip</text></g>
   <g><rect class="box" x="560" y="60" width="150" height="80" rx="40"/><text x="590" y="96">Validators</text><text class="sub" x="590" y="116">make blocks</text></g>
 </svg>
@@ -27,7 +27,7 @@
 <section id="compute" data-chapter="compute">
 <h2>0 · Compute</h2>
 <pre>npx runfcx provision --ttl 8h</pre>
-<p>This rents one server with a 2 TB disk. Its firewall allows SSH from your IP and UDP 3382 from anywhere. Everything else stays closed.</p>
+<p>This rents one server with a 1000 GB disk. Its firewall allows SSH from your IP and UDP 3382 from anywhere. Everything else stays closed.</p>
 <p>With <code>--ttl</code>, a timer on the server deletes the server and its disk when time is up. Your Hetzner token sits on that server for this reason only. <code>fcx extend 4h</code> moves the timer, <code>fcx destroy</code> ends it now.</p>
 </section>
 
@@ -42,7 +42,7 @@ Phase:  downloading
 Shard:  1  chunk 1156/2672  ETA 0h56m
 Disk:   108 GB used, 790 GB free
 RAM:    0 GB used</pre>
-<p><b>Why 2 TB.</b> The node keeps every downloaded chunk and every unzipped archive until all shards are unpacked. On our run one shard took 222 GB of chunks, a 261 GB archive and 261 GB unpacked. The peak lands near 1.6 TB. Our first try, on a 1000 GB disk, ran out.</p>
+<p><b>Why 1000 GB is enough.</b> The node's own restore keeps every downloaded chunk and every unzipped archive until all shards are unpacked. On our run one shard took 222 GB of chunks, a 261 GB archive and 261 GB unpacked, so the peak lands near 1.6 TB, and our first try on a 1000 GB disk ran out. fcx restores the snapshot itself before the node starts. It streams each shard's chunks straight into the database, with no archive on disk, and deletes the chunks once that shard is in. It also picks up where it stopped. Our run finished at 557 GB.</p>
 <p><b>Ports.</b> Only gossip (3382/udp) is public. The API (3381) listens on the server itself. fcx reaches it through an SSH tunnel.</p>
 <p><b>If a shard starts from block 1.</b> A known bug (<a href="https://github.com/farcasterxyz/snapchain/issues/1044">snapchain#1044</a>) can skip shard 0's snapshot. <code>fcx status</code> says so and links the fix.</p>
 </section>

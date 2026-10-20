@@ -2,12 +2,12 @@ import { describe, it, expect } from "vitest";
 import { startNode } from "../../src/infra/node.js";
 
 const st = { name: "t1", mode: "hetzner" as const, sshTarget: "root@1.2.3.4", dataDir: "/mnt/fcx", deadline: 9 };
-function ssh(phases: string[], statusCode = 0) {
+function ssh(phases: string[], statusCode = 0, detail?: string) {
   const cmds: string[] = []; let i = 0;
   return { cmds, s: {
     run: async (c: string) => { cmds.push(c);
       if (c.includes("status-remote")) return { code: statusCode, stdout: statusCode ? "" : JSON.stringify({
-        phase: phases[Math.min(i++, phases.length - 1)], disk_used_gb: 1, disk_free_gb: 1, ram_used_gb: 1, deadline: 0, ttl: "none" }), stderr: "" };
+        phase: phases[Math.min(i++, phases.length - 1)], disk_used_gb: 1, disk_free_gb: 1, ram_used_gb: 1, deadline: 0, ttl: "none", detail }), stderr: "" };
       return { code: 0, stdout: "", stderr: "" }; },
     copy: async () => {}, tunnel: () => ({ close() {} }) } as any };
 }
@@ -32,6 +32,10 @@ describe("node", () => {
   it("a shard syncing from genesis stops waiting with an error", async () => {
     const { s } = ssh(["syncing", "shard_from_genesis"]);
     await expect(startNode(st, s, { wait: true, pollMs: 0, ...quiet })).rejects.toThrow(/skipped its snapshot/);
+  });
+  it("a stopped snapshot restore stops waiting with its reason", async () => {
+    const { s } = ssh(["downloading", "restore_failed"], 0, "not enough disk for shard 1");
+    await expect(startNode(st, s, { wait: true, pollMs: 0, ...quiet })).rejects.toThrow(/restore stopped: not enough disk for shard 1/);
   });
   it("blocked SSH stops waiting with allow-ip hint", async () => {
     const { s } = ssh([], 255);

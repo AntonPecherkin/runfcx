@@ -9,8 +9,9 @@ import { saveState, loadState, clearState, type RunState } from "./state.js";
 import { remoteDir } from "./paths.js";
 import { destroy } from "./destroy.js";
 
-// The snapshot restore peaks near 1.6 TB (measured in run 1), so 1.5 TB volumes fail.
-export const VOLUME_GB = 2000;
+// fcx streams the snapshot restore (remote/restore.sh): run 1 ended at 557 GB on a 1000 GB disk.
+// Upstream's own restore peaks near 1.6 TB; fcx never runs it.
+export const VOLUME_GB = 1000;
 
 export interface ProvisionOpts { ttl: string; name?: string; type: string; location: string;
   keep: boolean; host?: string; dataDir?: string }
@@ -70,7 +71,7 @@ export async function provision(o: ProvisionOpts, d: ProvisionDeps): Promise<Run
   let s: RunState = { name, mode: "hetzner", sshTarget: "", dataDir: "/mnt/fcx", deadline };
   saveState(s);
 
-  d.log(`Creating firewall, 2 TB volume and server (${o.type}, ${o.location})…`);
+  d.log(`Creating firewall, 1 TB volume and server (${o.type}, ${o.location})…`);
   let ip: string;
   try {
     const pub = await d.publicKey();

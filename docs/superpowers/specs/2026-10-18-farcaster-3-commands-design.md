@@ -35,7 +35,8 @@ Clarifications from Balaji (cast `0x0a05d5c8`):
 
 - Mainnet snapshot: 5,689 chunks × ~70 MB ≈ **400 GB compressed** (shard 0: 370, shard 1: 2,671,
   shard 2: 2,648). Downloaded sequentially, one chunk at a time.
-- Node spec: 16 GB RAM, 4 vCPU, 2 TB disk (measured in run 1: 1.5 TB is too small), ports 3381–3383 TCP+UDP.
+- Node spec: 16 GB RAM, 4 vCPU, 1000 GB disk with fcx's own streamed restore (run 1 ended at 557 GB;
+  upstream's restore needs 2 TB, 1.5 TB is too small), ports 3381–3383 TCP+UDP.
 - HTTP API on 3381 includes: `linksByFid`, `castsByFid`, `castById`, `reactionsByFid`,
   `reactionById`, `linkById`, `userDataByFid`, `signersByFid` (returns `requestFid`),
   `storageLimitsByFid`, `onChainIdRegistryEventByAddress`, `submitMessage`, `info`, `events`.
@@ -49,7 +50,18 @@ Clarifications from Balaji (cast `0x0a05d5c8`):
   (upstream doc PR #1).
 - Why the disk peak is high (`src/storage/db/snapshot.rs`): all ~400 GB of chunks are downloaded
   first, each shard is gunzipped into a `.tar` then unpacked, and chunks are deleted only at the
-  very end. Measured in run 1: one large shard = 222 GB chunks + 261 GB tar + 261 GB unpacked; peak ≈ 1.6 TB. Volumes are 2000 GB.
+  very end. Measured in run 1: one large shard = 222 GB chunks + 261 GB tar + 261 GB unpacked; peak ≈ 1.6 TB.
+  A half-finished upstream restore can't resume: a non-empty `.rocks` skips the remaining snapshots
+  and those shards sync from block 1 (snapchain#1044). Snapshots rotate, so an old `key_base` can 404.
+- So fcx restores the snapshot itself (`cli/remote/restore.sh`, run by `node-setup.sh` before the
+  node's first start), as done by hand in run 1: shards 0, 1, 2 in order; `latest.json` fetched right
+  before each shard; chunks downloaded to `.part` and renamed after a gzip check; `gunzip -c` of each
+  chunk piped into `tar -x` (no `.tar` on disk); `.rocks/.fcx-restored-<shard>` written only after
+  tar exits 0, then that shard's chunks deleted. Resumes after any interruption; a changed `key_base`
+  restarts that shard. Before each shard it checks free disk ≥ chunks still to download + unpacked
+  estimate (100 MB per chunk each) + 20 GB, and stops with a message instead of filling the disk.
+  The node starts only when all three markers exist; `SNAPCHAIN_SNAPSHOT__LOAD_DB_FROM_SNAPSHOT=false`
+  (compose override) keeps upstream's restore off as a second safeguard. Volumes are 1000 GB.
 - Can't reduce: syncing one shard (users split across shards 1 and 2), pruning (events only),
   syncing without snapshot (slower, same size).
 
@@ -66,7 +78,7 @@ Open items to verify on day 1:
 
 ```
  LAPTOP                                    HETZNER SERVER (or your own box)
- (0) fcx provision   ── Hetzner API ─▶    Ubuntu + Docker + 2 TB volume
+ (0) fcx provision   ── Hetzner API ─▶    Ubuntu + Docker + 1 TB volume
  (1) fcx node        ── SSH ─────────▶    official snapchain bootstrap (pinned commit) → read node
  (2) fcx login/feed  ── SSH tunnel ──▶    HTTP :3381 (reads + submitMessage)
      ~/.fcx/key                            gossip :3382/udp ⇄ validators
@@ -94,7 +106,7 @@ Repo layout (MIT, one repo `<owner>/fcx-cli`):
 
 ## 5. Infra (`fcx provision | node | status | extend | allow-ip | destroy`)
 
-- `provision`: creates a server (dedicated vCPU, 16 GB RAM class), a 2 TB volume, a firewall
+- `provision`: creates a server (dedicated vCPU, 16 GB RAM class), a 1 TB volume, a firewall
   (22 from the caller's IP only; 3382/udp gossip open; **3381, 3383, Grafana and statsd bound to 127.0.0.1**), SSH key auth only.
   `--ttl` installs an on-server timer that deletes server + volume via the Hetzner API.
   `--host user@box` skips creation and only checks specs and ports.
