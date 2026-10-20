@@ -125,3 +125,7 @@ h3.mid{font-size:24px;margin:56px 0 0}
 .fixed b{font:600 13px/1 ui-monospace,monospace;letter-spacing:.1em;text-transform:uppercase;color:var(--accent)}
 .fixed ul{margin:10px 0 0;padding-left:20px;color:var(--muted);display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:4px 28px}
 .facts code,.facts [data-num]{white-space:nowrap}
+
+.prompt code{white-space:normal;overflow-wrap:anywhere}
+#you{padding-top:72px}
+.more{margin:20px 0 0}
