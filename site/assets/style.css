@@ -133,3 +133,6 @@ h3.mid{font-size:24px;margin:56px 0 0}
 .vouch-box{background:var(--card);border:2px solid var(--accent);border-radius:28px;padding:36px 28px}
 .vouch-box .pill{background:var(--accent);color:var(--accent-ink);margin-top:20px}
 .vouch-box ol.you li{background:var(--bg)}
+.refcode{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;margin-top:16px;background:rgba(0,0,0,.18);border:1px solid var(--band-soft);border-radius:12px;padding:10px 12px;font-size:15px;max-width:30rem}
+.refcode a{color:var(--gold);font-weight:600}.refcode code{color:var(--band-ink);font-size:15px}
+.refcode button{margin-left:auto;border:0;border-radius:8px;background:var(--gold);color:var(--paper-ink);font:600 14px system-ui,sans-serif;padding:0 14px;min-height:36px;cursor:pointer}
