@@ -101,36 +101,49 @@ requested() { grep -c "$1" "$STUB_LOG" || true; }
   [ "$(cat "$D/.rocks/shard-1/DATA")" = "shard 1 newer" ]
 }
 
-@test "a corrupt chunk stops the unpack without a marker; the next run downloads only that chunk again" {
+@test "a corrupt chunk stops the unpack without a marker; the next run downloads the missing chunks again" {
   STUB_SNAP_CORRUPT="$N/0/snapshot-new.tar.gz/chunk_0002.bin" FCX_SHARDS=0 run bash "$R" "$D"
   [ "$status" -ne 0 ]; [[ "$output" == *"stopped: unpacking shard 0 failed (1 corrupt chunks deleted)"* ]]
-  [ ! -e "$D/.rocks/.fcx-restored-0" ]; [ -f "$S/shard-0/chunk_0001.bin" ]; [ ! -e "$S/shard-0/chunk_0002.bin" ]
+  [ ! -e "$D/.rocks/.fcx-restored-0" ]; [ ! -e "$S/shard-0/chunk_0002.bin" ]; [ -f "$S/shard-0/chunk_0003.bin" ]
   : > "$STUB_LOG"
   FCX_SHARDS=0 run bash "$R" "$D"; [ "$status" -eq 0 ]
-  [ "$(requested chunk_)" -eq 1 ]; [ "$(requested chunk_0002.bin)" -eq 1 ]
+  # chunk 1 was unpacked (and deleted) before chunk 2 failed, so both come back; 3 and 4 stayed
+  [ "$(requested chunk_)" -eq 2 ]; [ "$(requested chunk_0001.bin)" -eq 1 ]; [ "$(requested chunk_0002.bin)" -eq 1 ]
   [ "$(cat "$D/.rocks/shard-0/DATA")" = "shard 0 new" ]
 }
 
 @test "disk guard stops before a shard that would not fit, without downloading" {
-  # 4 chunks x (100 MB download + 100 MB unpacked) + 20 GB margin = 21280 MB
+  # chunks are deleted as they unpack, so the peak is the downloads plus how much bigger the data
+  # gets unpacked: 4 chunks x (100 MB download + 20 MB growth) + 20 GB margin = 20960 MB
   FCX_DF_CMD="echo 20000" FCX_SHARDS=0 run bash "$R" "$D"
   [ "$status" -ne 0 ]
   [[ "$output" == *"fcx-restore: stopped: not enough disk for shard 0: need 21 GB free, have 19 GB"* ]]
   [ "$(requested chunk_)" -eq 0 ]; [ ! -e "$D/.rocks/.fcx-restored-0" ]
-  FCX_DF_CMD="echo 21280" FCX_SHARDS=0 run bash "$R" "$D"; [ "$status" -eq 0 ]
+  FCX_DF_CMD="echo 20959" FCX_SHARDS=0 run bash "$R" "$D"; [ "$status" -ne 0 ]
+  FCX_DF_CMD="echo 20960" FCX_SHARDS=0 run bash "$R" "$D"; [ "$status" -eq 0 ]
 }
 
 @test "disk guard does not count a partial shard left by a crash mid-unpack" {
   # free space = exactly what shard 0 needs, minus whatever the partial shard still holds
   mkdir -p "$D/.rocks/shard-0"; head -c 3000000 /dev/zero > "$D/.rocks/shard-0/partial"
-  FCX_DF_CMD="echo \$(( 21280 - \$(du -sm '$D/.rocks/shard-0' 2>/dev/null | cut -f1) + 0 ))" FCX_SHARDS=0 run bash "$R" "$D"
+  FCX_DF_CMD="echo \$(( 20960 - \$(du -sm '$D/.rocks/shard-0' 2>/dev/null | cut -f1) + 0 ))" FCX_SHARDS=0 run bash "$R" "$D"
   [ "$status" -eq 0 ]
 }
 
 @test "disk guard counts only chunks still to download" {
   mkdir -p "$S/shard-0"; echo "$N/0/snapshot-new.tar.gz" > "$S/shard-0/key_base"
   cp "$STUB_SNAP_ROOT/$N/0/snapshot-new.tar.gz/"* "$S/shard-0/"
-  FCX_DF_CMD="echo 20880" FCX_SHARDS=0 run bash "$R" "$D"; [ "$status" -eq 0 ]
+  # nothing to download: only growth (4 x 20 MB) + margin = 20560 MB
+  FCX_DF_CMD="echo 20559" FCX_SHARDS=0 run bash "$R" "$D"; [ "$status" -ne 0 ]
+  FCX_DF_CMD="echo 20560" FCX_SHARDS=0 run bash "$R" "$D"; [ "$status" -eq 0 ]
+}
+
+@test "deletes each chunk as soon as it is unpacked, so downloads and unpacked data never pile up" {
+  STUB_SNAP_CORRUPT="$N/0/snapshot-new.tar.gz/chunk_0003.bin" FCX_SHARDS=0 run bash "$R" "$D"
+  [ "$status" -ne 0 ]
+  [ ! -e "$S/shard-0/chunk_0001.bin" ]; [ ! -e "$S/shard-0/chunk_0002.bin" ]   # unpacked, then deleted
+  [ ! -e "$S/shard-0/chunk_0003.bin" ]                                          # corrupt, deleted
+  [ -f "$S/shard-0/chunk_0004.bin" ]                                            # never reached
 }
 
 @test "removes upstream's half-finished staging dir" {

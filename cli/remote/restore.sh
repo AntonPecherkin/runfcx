@@ -2,8 +2,8 @@
 # Usage: restore.sh [snapchain_dir]. Restores the mainnet snapshot into <dir>/.rocks before the node's
 # first start, one shard at a time, and can resume after any interruption.
 # Upstream's restore keeps every chunk, a full .tar and the unpacked shard on disk until all shards are
-# done (peak near 1.6 TB in run 1). Here chunks stream through gunzip into tar (no .tar file) and are
-# deleted once their shard is unpacked, so the peak is about one shard's chunks plus the unpacked data.
+# done (peak near 1.6 TB in run 1). Here chunks stream through gunzip into tar (no .tar file), and each
+# chunk is deleted as soon as it is unpacked, so the disk peaks near the final size of the data.
 # Progress goes to stdout as "fcx-restore: ..." lines; lib.sh detect_phase reads them for fcx status.
 set -euo pipefail
 DIR="${1:-/root/snapchain}"
@@ -12,7 +12,7 @@ NET="${FCX_NETWORK:-FARCASTER_NETWORK_MAINNET}"
 # Shard 0 first: it is the smallest, so its snapshot is the least likely to rotate out mid-restore.
 read -r -a SHARDS <<<"${FCX_SHARDS:-0 1 2}"
 CHUNK_MB="${FCX_CHUNK_MB:-100}"  # upstream chunks are 100 MB max; run 1 measured ~83 MB each
-UNPACK_MB="${FCX_UNPACK_MB:-100}" # unpacked size per chunk; run 1 measured ~98 MB (261 GB / 2672)
+GROW_MB="${FCX_GROW_MB:-20}"     # unpacked minus compressed, per chunk; run 1: ~98 MB vs ~83 MB
 MARGIN_GB="${FCX_MARGIN_GB:-20}"
 DB="$DIR/.rocks"; STAGE="$DIR/.fcx-snapshot"; PIDF="$DIR/.fcx-restore.pid"
 
@@ -69,7 +69,8 @@ restore_shard() {
   rm -rf "${DB:?}/shard-$s"
   missing=0
   for c in "${chunks[@]}"; do [[ -f "$here/$c" ]] || missing=$((missing + 1)); done
-  need=$(( missing * CHUNK_MB + n * UNPACK_MB + MARGIN_GB * 1024 ))
+  # chunks leave as they unpack: the peak is the downloads plus how much the data grows when unpacked
+  need=$(( missing * CHUNK_MB + n * GROW_MB + MARGIN_GB * 1024 ))
   free=$(free_mb)
   (( free >= need )) || stop "not enough disk for shard $s: need $(((need + 1023) / 1024)) GB free, have $((free / 1024)) GB. Use a bigger disk, then run: fcx node"
 
@@ -87,10 +88,14 @@ restore_shard() {
   done
 
   log "unpacking shard $s"
-  # each chunk is its own gzip stream of the next slice of one tar
-  if ! for c in "${chunks[@]}"; do gunzip -c "$here/$c" || exit 1; done | tar -x -C "$DB"; then
+  # each chunk is its own gzip stream of the next slice of one tar; it goes once it is fed to tar.
+  # After a failure the shard unpacks again from clean, re-downloading the chunks already gone.
+  if ! for c in "${chunks[@]}"; do gunzip -c "$here/$c" || exit 1; rm -f "$here/$c"; done | tar -x -C "$DB"; then
     bad=0
-    for c in "${chunks[@]}"; do gzip -t "$here/$c" 2>/dev/null || { rm -f "$here/$c"; bad=$((bad + 1)); }; done
+    for c in "${chunks[@]}"; do
+      [[ -f "$here/$c" ]] || continue
+      gzip -t "$here/$c" 2>/dev/null || { rm -f "$here/$c"; bad=$((bad + 1)); }
+    done
     stop "unpacking shard $s failed ($bad corrupt chunks deleted). Run fcx node again: it downloads them again and retries this shard"
   fi
   touch "$DB/.fcx-restored-$s" || stop "cannot write $DB/.fcx-restored-$s"
