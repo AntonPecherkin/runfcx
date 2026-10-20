@@ -24,7 +24,10 @@
 <h2 id="troubleshooting">Troubleshooting</h2>
 <p>Every message runfcx can print, with the fix, is in the <a href="agent.md">agent runbook</a> under Errors.</p>
 <h2 id="upstream">What we sent upstream</h2>
-<p class="muted">Pull requests and issues appear here once they're opened.</p>
+<ul>
+<li><b>Approving gasless keys from the Farcaster app.</b> Most custody keys live inside the app, and a verified wallet can't sign <code>KeyAdd</code>. We asked for a gasless signer-request flow: <a href="https://github.com/farcasterxyz/protocol/discussions/266#discussioncomment-19076831">comment on FIP #266</a>.</li>
+<li><b>A smaller snapshot restore.</b> Streaming chunks into <code>tar</code> so no archive is written, and resuming per shard: <a href="https://github.com/farcasterxyz/snapchain/pull/1046#issuecomment-6295715750">comment on snapchain #1046</a>.</li>
+</ul>
 </main>
 <footer><span>Made by <a href="https://farcaster.xyz/aap">@aap</a> · MIT · <a href="https://github.com/AntonPecherkin/runfcx">runfcx</a></span><span>Built on Snapchain · no API keys</span></footer>
 </body>
