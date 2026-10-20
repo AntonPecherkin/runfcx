@@ -16,6 +16,7 @@ const net = (fid: number) => ({ fid, network: FarcasterNetwork.MAINNET });
 export async function addAppKey(node: NodeClient, custody: Eip712Signer, address: Hex,
   o: { log?: (s: string) => void; write?: WriteOpts } = {}): Promise<AppKey> {
   const log = o.log ?? (() => {});
+  log("Looking up your account (about 20 seconds)…");
   const fid = await node.fidByAddress(address);
   if (fid === null) throw new Error(`${address} is not the custody address of any FID.`);
   if ((await node.storageUnits(fid)) === 0) throw new Error(`FID ${fid} has no storage. It needs storage rent before it can post.`);

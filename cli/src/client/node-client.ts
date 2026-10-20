@@ -16,16 +16,16 @@ export class NodeError extends Error {
 }
 
 export class NodeClient {
-  constructor(public base: string, private f: typeof fetch = fetch, private o: { timeoutMs?: number } = {}) {}
+  constructor(public base: string, private f: typeof fetch = fetch, private o: { timeoutMs?: number; slowTimeoutMs?: number } = {}) {}
 
-  private async call<T>(path: string, params: Params = {}, init?: RequestInit): Promise<T> {
+  private async call<T>(path: string, params: Params = {}, init?: RequestInit, slow = false): Promise<T> {
     const u = new URL(path, this.base);
     for (const [k, v] of Object.entries(params)) {
       if (Array.isArray(v)) v.forEach((x) => u.searchParams.append(k, String(x)));
       else if (v !== undefined) u.searchParams.set(k, String(v));
     }
     // A stalled tunnel or a busy node must not hang the CLI. Writes get a little longer.
-    const ms = (this.o.timeoutMs ?? 10_000) * (init?.method === "POST" ? 1.5 : 1);
+    const ms = slow ? (this.o.slowTimeoutMs ?? 60_000) : (this.o.timeoutMs ?? 10_000) * (init?.method === "POST" ? 1.5 : 1);
     let r: Response;
     try { r = await this.f(u, { ...init, signal: AbortSignal.timeout(ms) }); }
     catch (e) {
@@ -37,8 +37,8 @@ export class NodeClient {
     return body as T;
   }
   // The node answers "not found" with a 4xx. For lookups that is a normal answer.
-  private async maybe<T>(path: string, params: Params): Promise<T | null> {
-    try { return await this.call<T>(path, params); }
+  private async maybe<T>(path: string, params: Params, slow = false): Promise<T | null> {
+    try { return await this.call<T>(path, params, undefined, slow); }
     catch (e) { if (e instanceof NodeError && e.status < 500) return null; throw e; }
   }
 
@@ -71,7 +71,8 @@ export class NodeClient {
       .then((r) => ({ currentUserNonce: r.currentUserNonce, requesterFidNonces: r.requesterFidNonces ?? {} }));
   }
   async fidByAddress(address: Hex): Promise<number | null> {
-    return (await this.maybe<{ fid: number }>("/v1/onChainIdRegistryEventByAddress", { address }))?.fid ?? null;
+    // The node searches every shard for this one; on mainnet it takes ~20 s.
+    return (await this.maybe<{ fid: number }>("/v1/onChainIdRegistryEventByAddress", { address }, true))?.fid ?? null;
   }
   async storageUnits(fid: number): Promise<number> {
     return (await this.call<{ units: number }>("/v1/storageLimitsByFid", { fid })).units;

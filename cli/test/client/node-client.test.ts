@@ -69,3 +69,15 @@ describe("reaching an unready node", () => {
     await expect(n.info()).rejects.toThrow("Your node did not answer in time. Run: fcx status");
   });
 });
+
+describe("slow lookups", () => {
+  it("fidByAddress waits longer than ordinary reads (the node scans every shard, ~22 s on mainnet)", async () => {
+    const slow = (async (u: string | URL | Request, init?: RequestInit) => {
+      await new Promise((r, rej) => { const t = setTimeout(r, 120); init?.signal?.addEventListener("abort", () => { clearTimeout(t); rej(init.signal!.reason); }); });
+      return fake.fetch(u, init);
+    }) as typeof fetch;
+    const n = new NodeClient("http://node", slow, { timeoutMs: 50, slowTimeoutMs: 1000 });
+    expect(await n.fidByAddress(ALICE)).toBe(10);
+    await expect(n.storageUnits(10)).rejects.toThrow("did not answer in time");
+  });
+});
