@@ -6,10 +6,10 @@ setup() {
   chmod +x "$S"/*
   R="$BATS_TEST_DIRNAME/../../remote/host-check.sh"
 }
-@test "1800 GB free passes" {
-  PATH="$S:$PATH" STUB_AVAIL=1850 FCX_OS_RELEASE=/dev/null run bash "$R" "$BATS_TMPDIR/data"; [ "$status" -eq 0 ]
+@test "a fresh Vultr 1000 GB disk passes: run 1 measured 886 GB free on it" {
+  PATH="$S:$PATH" STUB_AVAIL=886 FCX_OS_RELEASE=/dev/null run bash "$R" "$BATS_TMPDIR/data"; [ "$status" -eq 0 ]
 }
-@test "a 1.5 TB disk fails: the snapshot peaks near 1.6 TB" {
-  PATH="$S:$PATH" STUB_AVAIL=1450 FCX_OS_RELEASE=/dev/null run bash "$R" "$BATS_TMPDIR/data"
-  [ "$status" -eq 1 ]; [[ "$output" == *"need 1800"* ]]
+@test "under 800 GB free fails: the restore peaks near 557 GB plus one shard's 222 GB of chunks" {
+  PATH="$S:$PATH" STUB_AVAIL=750 FCX_OS_RELEASE=/dev/null run bash "$R" "$BATS_TMPDIR/data"
+  [ "$status" -eq 1 ]; [[ "$output" == *"need 800"* ]]
 }

@@ -38,7 +38,7 @@ describe("provision", () => {
     await provision(base, d);
     expect(calls[0]).toBe(`sshkey ${KEYNAME}`);
     expect(calls[1]).toBe('fw fcx-t1 [{"direction":"in","protocol":"tcp","port":"22","source_ips":["5.6.7.8/32"]},{"direction":"in","protocol":"udp","port":"3382","source_ips":["0.0.0.0/0","::/0"]}]');
-    expect(calls[2]).toBe("volume fcx-t1 2000 fsn1");
+    expect(calls[2]).toBe("volume fcx-t1 1000 fsn1");
     expect(calls[3]).toBe(`server fcx-t1 ccx23 fsn1 vol=11 key=${KEYNAME} token=false`);
   });
   it("installs the token over SSH stdin, never in argv or user-data", async () => {

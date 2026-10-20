@@ -36,4 +36,14 @@ describe("status", () => {
     expect(t).toContain("Shard 0 skipped its snapshot");
     expect(t).toContain("https://github.com/farcasterxyz/snapchain/issues/1044");
   });
+  it("line and human for unpacking name the shard", () => {
+    const s = { ...base, phase: "unpacking", shard: 2, ssh: "ok" } as any;
+    expect(formatLine(s)).toBe("unpacking shard 2  disk 200G");
+    expect(formatHuman(s)).toContain("Shard:  2  unpacking");
+  });
+  it("explains a stopped restore with its reason", () => {
+    const t = formatHuman({ ...base, phase: "restore_failed", detail: "not enough disk for shard 2: need 550 GB free, have 300 GB.", ssh: "ok" } as any);
+    expect(t).toContain("Snapshot restore stopped: not enough disk for shard 2");
+    expect(t).toContain("/root/snapchain/restore.log");
+  });
 });

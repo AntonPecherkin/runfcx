@@ -1,0 +1,4 @@
+2026-10-20T08:00:00Z fcx-restore: shard 0 done
+2026-10-20T08:00:01Z fcx-restore: shard 1: 2672 chunks from FARCASTER_NETWORK_MAINNET/1/snapshot-2026-10-19-1.tar.gz
+2026-10-20T08:00:02Z fcx-restore: downloading shard 1 chunk 1239/2672 ETA 0h57m
+2026-10-20T08:00:03Z fcx-restore: downloading shard 1 chunk 1240/2672 ETA 0h56m

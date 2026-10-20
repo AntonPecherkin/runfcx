@@ -1,6 +1,27 @@
 #!/usr/bin/env bash
-# Fake Hetzner API. State lives in $STUB_DIR so deletes are remembered.
+# Fake Hetzner API and fake snapshot bucket. State lives in $STUB_DIR so deletes are remembered.
 echo "$*" >> "$STUB_LOG"
+url="${*: -1}"
+if [[ "$url" == https://snap.test/* ]]; then
+  # Serves $STUB_SNAP_ROOT/<path>. -o writes to a file, otherwise stdout.
+  # STUB_SNAP_FAIL=<substr>: always fail. STUB_SNAP_ROTATE=<substr>: first hit swaps in the next
+  # latest.json (snapshot rotated) and 404s. STUB_SNAP_CORRUPT=<substr>: first hit serves garbage.
+  p="$STUB_SNAP_ROOT/${url#https://snap.test/}" out= prev=
+  for a in "$@"; do [[ "$prev" == -o ]] && out="$a"; prev="$a"; done
+  [[ -n "${STUB_SNAP_FAIL:-}" && "$url" == *"$STUB_SNAP_FAIL"* ]] && exit 22
+  if [[ -n "${STUB_SNAP_ROTATE:-}" && "$url" == *"$STUB_SNAP_ROTATE"* && ! -f "$STUB_DIR/rotated" ]]; then
+    touch "$STUB_DIR/rotated"
+    for n in "$STUB_SNAP_ROOT"/*/*/latest.json.next; do mv "$n" "${n%.next}"; done
+    exit 22
+  fi
+  [[ -f "$p" ]] || exit 22
+  if [[ -n "${STUB_SNAP_CORRUPT:-}" && "$url" == *"$STUB_SNAP_CORRUPT"* && ! -f "$STUB_DIR/corrupted" ]]; then
+    touch "$STUB_DIR/corrupted"; p=/dev/null
+    [[ -n "$out" ]] && { echo garbage > "$out"; exit 0; }
+  fi
+  if [[ -n "$out" ]]; then cp "$p" "$out"; else cat "$p"; fi
+  exit 0
+fi
 case "$*" in
   *"/volumes?label_selector"*)
     [[ -n "${STUB_LIST_FAIL:-}" ]] && exit 22

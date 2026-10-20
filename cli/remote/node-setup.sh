@@ -15,7 +15,7 @@ command -v jq >/dev/null || { apt-get update -qq && apt-get install -y -qq jq cu
 if [[ ! -e /mnt/fcx ]]; then
   if [[ "$MODE" == hetzner ]]; then
     # never fall back to the small root disk: the snapshot would fill it hours later
-    vol=$(find_volume /mnt 24 5) || { echo "The 2 TB volume is not mounted. Run: fcx destroy, then fcx provision again."; exit 1; }
+    vol=$(find_volume /mnt 24 5) || { echo "The data volume is not mounted. Run: fcx destroy, then fcx provision again."; exit 1; }
     ln -s "$vol" /mnt/fcx
   elif [[ "$DATA_DIR" != /mnt/fcx ]]; then
     mkdir -p "$DATA_DIR" && ln -s "$DATA_DIR" /mnt/fcx
@@ -45,9 +45,24 @@ add SKIP_CRONTAB true
 open_gossip_port
 cp /opt/fcx/docker-compose.override.yml ./docker-compose.override.yml
 
+# fcx restores the snapshot itself (restore.sh: streamed, resumable, fits 1000 GB) and starts the
+# node only once every shard is in, so upstream's own restore (~1.6 TB, no resume) never runs.
+# The restore takes hours: it runs in the background and re-runs this script when it finishes.
+if restore_needed /root/snapchain; then
+  if restore_running /root/snapchain; then echo "Snapshot restore already in progress. Check: fcx status"; exit 0; fi
+  [[ -f restore.log ]] && mv restore.log restore.log.1
+  : > restore.log
+  # shellcheck disable=SC2016 # $@ expands in the child shell
+  nohup bash -c 'bash /opt/fcx/restore.sh /root/snapchain && exec bash /opt/fcx/node-setup.sh "$@"' \
+    fcx-restore "$KEEP" "$DATA_DIR" "$MODE" </dev/null >> restore.log 2>&1 &
+  wait_restore_start restore.log 120 1 || exit 1
+  echo "Restoring the snapshot (a few hours). The node starts when it is done."
+  exit 0
+fi
+
 # upstream "upgrade" ends with `logs -f`; run it detached and wait for its success line
 nohup ./snapchain.sh upgrade </dev/null > install.log 2>&1 &
 sleep 2
-wait_upgrade install.log 180 5 || exit 1
+start_node_or_report install.log 180 5 || exit 1
 [[ "$KEEP" == yes ]] && cron_line /root/snapchain "$(hostname)" > /etc/cron.d/fcx-autoupgrade
 echo "Node started."
