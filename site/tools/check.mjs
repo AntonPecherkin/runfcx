@@ -8,10 +8,13 @@ import { loadAll, drift } from "./snippets.mjs";
 
 const site = join(dirname(fileURLToPath(import.meta.url)), "..");
 const release = process.argv.includes("--release");
+const onMain = process.env.GITHUB_REF === "refs/heads/main"; // the Pages deploy
 const pages = new Map(readdirSync(site).filter((f) => f.endsWith(".html")).map((f) => [f, readFileSync(join(site, f), "utf8")]));
 const problems = [];
 for (const [f, h] of pages) {
-  problems.push(...structure(h, f), ...bannedPhrases(h).map((p) => `${f}: ${p}`), ...waiting(h).map((p) => `${f}: ${p}`));
+  problems.push(...structure(h, f), ...bannedPhrases(h).map((p) => `${f}: ${p}`));
+  if (release || onMain) problems.push(...waiting(h).map((p) => `${f}: ${p}`));
+  else for (const p of waiting(h)) console.warn(`${f}: ${p}; blocks main`);
   if (release) problems.push(...placeholders(h).map((p) => `${f}: ${p}`));
 }
 const agent = readFileSync(join(site, "agent.md"), "utf8");

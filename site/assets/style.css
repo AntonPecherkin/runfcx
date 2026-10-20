@@ -102,13 +102,11 @@ ol.you b{display:block;font-size:19px}ol.you span{color:var(--muted)}
 .signflow li.on .sf-pop i{animation:tap .5s ease 1s}
 @keyframes tap{50%{transform:scale(.9)}}
 .sf-cap{font-size:14px;color:var(--muted)}
-#found{padding:8px 0 72px}
-.found{list-style:none;padding:0;margin:28px 0 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
+#found{padding-top:48px}
+.found{list-style:none;padding:0;margin:16px 0 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
 .found>li{min-width:0;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:22px 20px;display:flex;flex-direction:column}
-.found>li[hidden]{display:none}
 .found .num{font:700 clamp(30px,3.4vw,40px)/1.1 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--accent);letter-spacing:-.02em;margin:0 0 14px}
 .found .num small{font:600 14px system-ui,sans-serif;color:var(--muted);letter-spacing:0}
-.found .num s{color:var(--muted);text-decoration-thickness:2px;font-size:.7em;margin-right:6px}
 .found pre{margin:0 0 14px;font-size:12px}
 .found h3{font-size:19px;margin:0 0 6px}
 .found li p:last-child{margin:0;color:var(--muted);font-size:15px}
@@ -116,3 +114,12 @@ ol.you b{display:block;font-size:19px}ol.you span{color:var(--muted)}
 .fixed{margin-top:16px;border:1px dashed var(--line);border-radius:16px;padding:14px 18px;font-size:15px}
 .fixed b{font:600 13px/1 ui-monospace,monospace;letter-spacing:.1em;text-transform:uppercase;color:var(--accent)}
 .fixed ul{margin:10px 0 0;padding-left:20px;color:var(--muted);display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:4px 28px}
+.wins{list-style:none;padding:0;margin:28px 0 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+.wins>li{min-width:0;background:var(--card);border:1.5px solid var(--accent);border-radius:24px;padding:26px 24px}
+.wins h3{font-size:clamp(24px,2.6vw,30px);letter-spacing:-.01em;margin:0 0 18px}
+.vs{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.vs p{margin:0;min-width:0;border-radius:14px;padding:12px 14px;background:var(--bg);border:1px solid var(--line)}
+.vs small{display:block;font-size:13px;color:var(--muted)}
+.vs b{display:block;font:700 clamp(24px,3vw,36px)/1.15 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--muted);letter-spacing:-.02em}
+.vs .fcx{border-color:var(--accent)}.vs .fcx b{color:var(--accent)}
+.wins>li>p:last-child{margin:0;color:var(--muted)}

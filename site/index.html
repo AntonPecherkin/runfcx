@@ -11,7 +11,7 @@
 <body>
 <header class="top">
   <a class="brand" href="#top"><span class="mark" aria-hidden="true"></span>fcx</a>
-  <nav><a href="#server">Free server</a><a href="#found">What we found</a><a href="#you">What you do</a><a href="#wallet">Wallet</a><a href="tutorial.html">Tutorial</a><a href="https://github.com/AntonPecherkin/fcx-cli">GitHub</a></nav>
+  <nav><a href="#found">What we found</a><a href="#server">Free server</a><a href="#you">What you do</a><a href="#wallet">Wallet</a><a href="tutorial.html">Tutorial</a><a href="https://github.com/AntonPecherkin/fcx-cli">GitHub</a></nav>
 </header>
 
 <main class="wide" id="top">
@@ -38,6 +38,60 @@ RAM:    0 GB used</pre>
     </div>
   </section>
 
+  <section id="found">
+    <p class="kicker">Measured on our mainnet runs</p>
+    <h2 class="big">What we found running it</h2>
+    <!-- Waits on feat/stream-restore: check.mjs fails on main (and so blocks the Pages deploy) while a
+         data-wait claim is on the page. Remove data-wait once the streaming restore is merged. -->
+    <ul class="wins">
+      <li data-wait="stream-restore">
+        <h3>Half the disk</h3>
+        <div class="vs">
+          <p><small>Upstream peak</small><b>~<span data-num="run1.peak_disk_est_gb">1600</span> GB</b></p>
+          <p class="fcx"><small>fcx, restored</small><b><span data-num="run1.steady_disk_gb" data-suffix=" GB">557 GB</span></b></p>
+        </div>
+        <p>Upstream keeps a shard's chunks (<span data-num="run1.shard1_chunks_gb" data-suffix=" GB">222 GB</span>), archive (<span data-num="run1.shard1_tar_gb" data-suffix=" GB">261 GB</span>) and unpacked copy (<span data-num="run1.shard1_unpacked_gb" data-suffix=" GB">261 GB</span>) until the end. fcx streams chunks straight into tar, so no archive is written. A 1 TB disk is enough.</p>
+      </li>
+      <li data-wait="stream-restore">
+        <h3>Picks up where it stopped</h3>
+        <div class="vs">
+          <p><small>Upstream</small><b>block 1</b></p>
+          <p class="fcx"><small>fcx</small><b>resumes</b></p>
+        </div>
+        <p>A half-finished upstream restore quietly syncs the rest from block 1 (<a href="https://github.com/farcasterxyz/snapchain/issues/1044">snapchain#1044</a>). fcx carries on with the restore.</p>
+      </li>
+    </ul>
+    <ul class="found">
+      <li>
+        <p class="num"><span data-num="run2.login_gas_usd" data-prefix="$">$0</span> <small>gas</small></p>
+        <h3>No gas, no ETH</h3>
+        <p><span data-num="run2.login_signatures">2</span> wallet signatures add your app key. No Optimism transaction.</p>
+      </li>
+      <li>
+        <p class="num"><span data-num="run2.cast_s" data-suffix=" s">8 s</span> <small>to confirm a cast</small></p>
+        <h3>No hub provider, no API keys</h3>
+        <p>Reads and writes go through your own read node. Our first cast landed on the first try.</p>
+      </li>
+      <li>
+        <pre>$ fcx clients
+  87  @warpcast (fid 9152)
+   9  @fireflyapp (fid 16823)
+   3  @cassie (fid 1325)
+   1  @greg (fid 347)</pre>
+        <h3>Filter your feed by app</h3>
+        <p><code>--only-client</code> and <code>--exclude-client</code> split the feed by the app that posted.</p>
+      </li>
+    </ul>
+    <div class="fixed">
+      <b>Fixed along the way</b>
+      <ul>
+        <li>A fresh keep-mode install exited before starting the node</li>
+        <li>Vultr's <code>ufw</code> blocked gossip on 3382/udp</li>
+        <li>A shard syncing from block 1 now shows in <code>fcx status</code></li>
+      </ul>
+    </div>
+  </section>
+
   <section class="band split" id="server">
     <div>
       <p class="kicker">The server</p>
@@ -60,57 +114,6 @@ RAM:    0 GB used</pre>
         <div class="total"><span>YOU PAY</span><span>$0</span></div>
         <small>MEASURED ON OUR RUN · OCT 2026</small>
       </div>
-    </div>
-  </section>
-
-  <section id="found">
-    <p class="kicker">Our test runs on mainnet</p>
-    <h2 class="big">What we found running it</h2>
-    <ul class="found">
-      <li>
-        <p class="num"><span data-num="run1.peak_disk_est_gb" data-prefix="~" data-suffix=" GB">~1600 GB</span></p>
-        <h3>The restore peaks near 1.6 TB</h3>
-        <p>Upstream keeps a shard's chunks (<span data-num="run1.shard1_chunks_gb" data-suffix=" GB">222 GB</span>), archive (<span data-num="run1.shard1_tar_gb" data-suffix=" GB">261 GB</span>) and unpacked copy (<span data-num="run1.shard1_unpacked_gb" data-suffix=" GB">261 GB</span>) until the end. Its README says 1.5 TB; fcx sizes the disk at 2 TB.</p>
-      </li>
-      <li>
-        <p class="num"><span data-num="run2.login_gas_usd" data-prefix="$">$0</span> <small>gas</small></p>
-        <h3>No gas, no ETH</h3>
-        <p><span data-num="run2.login_signatures">2</span> wallet signatures add your app key. No Optimism transaction.</p>
-      </li>
-      <li>
-        <p class="num"><span data-num="run2.cast_s" data-suffix=" s">8 s</span> <small>to confirm a cast</small></p>
-        <h3>No hub provider, no API keys</h3>
-        <p>Reads and writes go through your own read node. Our first cast landed on the first try.</p>
-      </li>
-      <li>
-        <pre>$ fcx clients
-  87  @warpcast (fid 9152)
-   9  @fireflyapp (fid 16823)
-   3  @cassie (fid 1325)
-   1  @greg (fid 347)</pre>
-        <h3>Filter your feed by app</h3>
-        <p><code>--only-client</code> and <code>--exclude-client</code> split the feed by the app that posted.</p>
-      </li>
-      <!-- Waits on feat/stream-restore. Once it's merged: remove `hidden data-wait` from these two
-           and delete the 1.6 TB card above. The checker fails if a data-wait card is visible. -->
-      <li hidden data-wait="stream-restore">
-        <p class="num"><s>~<span data-num="run1.peak_disk_est_gb">1600</span> GB</s> <span data-num="run1.steady_disk_gb" data-suffix=" GB">557 GB</span></p>
-        <h3>Half the disk</h3>
-        <p>fcx streams chunks straight into tar, so no archive is ever written. A 1 TB disk is enough.</p>
-      </li>
-      <li hidden data-wait="stream-restore">
-        <p class="num"><s>block 1</s> resumes</p>
-        <h3>Picks up where it stopped</h3>
-        <p>A half-finished upstream restore quietly syncs the rest from block 1 (<a href="https://github.com/farcasterxyz/snapchain/issues/1044">snapchain#1044</a>).</p>
-      </li>
-    </ul>
-    <div class="fixed">
-      <b>Fixed along the way</b>
-      <ul>
-        <li>A fresh keep-mode install exited before starting the node</li>
-        <li>Vultr's <code>ufw</code> blocked gossip on 3382/udp</li>
-        <li>A shard syncing from block 1 now shows in <code>fcx status</code></li>
-      </ul>
     </div>
   </section>
 

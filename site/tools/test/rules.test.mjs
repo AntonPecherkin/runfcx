@@ -47,7 +47,8 @@ test("release blocks unfilled placeholders", () => {
 });
 
 import { waiting } from "../rules.mjs";
-test("claims that wait on a branch stay hidden", () => {
-  assert.deepEqual(waiting(`<li hidden data-wait="stream-restore">1 TB</li>`), []);
-  assert.deepEqual(waiting(`<li data-wait="stream-restore">1 TB</li>`), ["visible claim waits on stream-restore"]);
+test("claims that wait on a branch are listed", () => {
+  assert.deepEqual(waiting(`<li>2 TB</li>`), []);
+  assert.deepEqual(waiting(`<li data-wait="stream-restore">1 TB</li><li data-wait="stream-restore">resumes</li>`),
+    ["claim waits on stream-restore (remove data-wait once it is merged)"]);
 });
