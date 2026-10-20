@@ -23,7 +23,7 @@
         <code id="agent-line">Set up my Farcaster node with https://antonpecherkin.github.io/fcx-cli/agent.md</code>
         <button type="button" data-copy="agent-line">Copy</button>
       </div>
-      <p class="under">No API keys · <a href="#server">free with Vultr credit</a> · <a href="tutorial.html">or type it yourself</a></p>
+      <p class="under">No API keys · <a href="tutorial.html">prefer to type it yourself?</a></p>
     </div>
     <div class="chat" aria-label="What a session with your agent looks like">
       <div class="me">Set up my Farcaster node with antonpecherkin.github.io/fcx-cli/agent.md</div>
@@ -39,50 +39,56 @@ RAM:    0 GB used</pre>
   </section>
 
   <section id="why">
-    <p class="kicker">Why fcx</p>
-    <h2 class="big">Why set up your node with fcx</h2>
+    <p class="kicker">Measured on our mainnet runs</p>
+    <h2 class="big">What we found running it</h2>
     <!-- Cards 1 and 2 wait on feat/stream-restore: check.mjs fails on main (and so blocks the Pages deploy)
          while a data-wait claim is on the page. Remove data-wait once the streaming restore is merged. -->
     <ul class="wins">
       <li data-wait="stream-restore">
-        <h3>Rent a 1 TB disk</h3>
+        <h3>Half the disk</h3>
         <div class="vs">
-          <p><small>Official setup</small><b>~<span data-num="run1.peak_disk_est_gb">1600</span> GB</b></p>
-          <p class="fcx"><small>fcx</small><b><span data-num="run1.steady_disk_gb" data-suffix=" GB">557 GB</span></b></p>
+          <p><small>Upstream peak</small><b>~<span data-num="run1.peak_disk_est_gb">1600</span> GB</b></p>
+          <p class="fcx"><small>fcx, restored</small><b><span data-num="run1.steady_disk_gb" data-suffix=" GB">557 GB</span></b></p>
         </div>
-        <p>fcx unpacks the snapshot while it downloads, so you pay for half the disk.</p>
+        <p>Upstream keeps a shard's chunks (<span data-num="run1.shard1_chunks_gb" data-suffix=" GB">222 GB</span>), archive (<span data-num="run1.shard1_tar_gb" data-suffix=" GB">261 GB</span>) and unpacked copy (<span data-num="run1.shard1_unpacked_gb" data-suffix=" GB">261 GB</span>) until the end. fcx streams chunks straight into tar, so no archive is written. A 1 TB disk is enough.</p>
       </li>
       <li data-wait="stream-restore">
-        <h3>A crash won't start you over</h3>
+        <h3>Picks up where it stopped</h3>
         <div class="vs">
-          <p><small>Official setup</small><b>block 1</b></p>
+          <p><small>Upstream</small><b>block 1</b></p>
           <p class="fcx"><small>fcx</small><b>resumes</b></p>
         </div>
-        <p>Server rebooted or ran out of disk mid-restore? fcx picks up where it stopped. It also opens the ports the node needs and warns you if a shard gets stuck.</p>
+        <p>A half-finished upstream restore quietly syncs the rest from block 1 (<a href="https://github.com/farcasterxyz/snapchain/issues/1044">snapchain#1044</a>). fcx carries on with the restore.</p>
       </li>
       <li>
-        <h3>Your seed phrase stays in your wallet</h3>
+        <h3>No gas, no ETH</h3>
         <div class="vs">
           <p class="fcx"><small>Signatures</small><b><span data-num="run2.login_signatures">2</span></b></p>
           <p class="fcx"><small>Gas</small><b><span data-num="run2.login_gas_usd" data-prefix="$">$0</span></b></p>
         </div>
-        <p>Sign in with MetaMask or Rabby. With wallet sign-in, fcx never sees your seed phrase.</p>
+        <p><span data-num="run2.login_signatures">2</span> wallet signatures add your app key. No Optimism transaction.</p>
       </li>
     </ul>
-    <p class="muted small">Measured on our Vultr run, October 2026 · <a href="notes.html">where we differ from the official docs</a></p>
+    <div class="fixed">
+      <b>Fixed along the way</b>
+      <ul>
+        <li>A fresh keep-mode install exited before starting the node</li>
+        <li>Vultr's <code>ufw</code> blocked gossip on 3382/udp</li>
+        <li>A shard syncing from block 1 now shows in <code>fcx status</code></li>
+      </ul>
+    </div>
   </section>
 
   <section id="wallet" class="split">
     <div>
       <p class="kicker">Signing in</p>
-      <h2 class="big">MetaMask or Rabby signs twice<br>No seed phrase export</h2>
+      <h2 class="big">Your wallet signs twice<br>Your key stays there</h2>
       <ul class="facts">
         <li><b>No gas</b><span>Two signatures, no transaction</span></li>
         <li><b>A key with limits</b><span>It can cast, like and follow. Nothing else</span></li>
         <li><b>On your computer only</b><span>The sign-in page runs on your laptop, behind a one-time link</span></li>
         <li><b>Undo anytime</b><span><code>fcx logout</code> removes it</span></li>
       </ul>
-      <p class="muted small">Use the wallet that holds your Farcaster account's custody address.</p>
     </div>
     <div class="signflow" data-signflow aria-label="Signing in: fcx opens a page, your wallet asks twice, you're logged in">
       <ol>
@@ -154,10 +160,8 @@ RAM:    0 GB used</pre>
     <h2 class="big">Why run your own node</h2>
     <div class="split" style="align-items:flex-start;margin-top:28px">
       <ul class="facts" style="margin:0">
-        <li><b>No API keys</b><span>No provider account to sign up for or pay</span></li>
-        <li><b>Nobody in between</b><span>Your reads and writes go through a node you control</span></li>
-        <li><b>Quick to post</b><span>Our first cast confirmed in <span data-num="run2.cast_s" data-suffix=" s">8 s</span></span></li>
-        <li><b>Filter by app</b><span>See which apps your feed comes from, then keep or hide one</span></li>
+        <li><b>No hub provider, no API keys</b><span>Reads and writes go through your own read node. Our first cast landed on the first try, in <span data-num="run2.cast_s" data-suffix=" s">8 s</span></span></li>
+        <li><b>Filter your feed by app</b><span><code>--only-client</code> and <code>--exclude-client</code> split the feed by the app that posted</span></li>
       </ul>
       <pre aria-label="fcx clients on our run">$ fcx clients
   87  @warpcast (fid 9152)
