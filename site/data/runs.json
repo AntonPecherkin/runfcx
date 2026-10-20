@@ -1,7 +1,10 @@
 {
   "terminal": {
     "status-syncing": "$ fcx status\nPhase:  syncing\nBehind: 103161 blocks\nDisk:   571 GB used, 327 GB free\nRAM:    1 GB used",
-    "status-downloading": "$ fcx status\nPhase:  downloading\nShard:  1  chunk 1156/2672  ETA 0h56m\nDisk:   108 GB used, 790 GB free\nRAM:    0 GB used"
+    "status-downloading": "$ fcx status\nPhase:  downloading\nShard:  1  chunk 1156/2672  ETA 0h56m\nDisk:   108 GB used, 790 GB free\nRAM:    0 GB used",
+    "whoami": "$ fcx whoami\n@aap (FID 381353), app key 0x1d071c05…, added 2026-10-20",
+    "feed": "$ fcx feed --limit 3\n@greg · 1m · via @greg · 0x8ae98f90\n  oh so we're time traveling now?\n\n@aap · 1m · via @aap · 0x26d5d85b\n  Posted from my own Farcaster node. No API keys, no hub provider: a read node on a rented server and a gasless app key. Building it here: antonpecherkin.github.io/fcx-cli\n\n@velveteen · 12m · via @warpcast · reply · 0x66d3c8f4\n  I knew painting dinosaurs in space was the right move!!",
+    "clients": "$ fcx clients\n  87  @warpcast (fid 9152)\n   9  @fireflyapp (fid 16823)\n   3  @cassie (fid 1325)\n   1  @greg (fid 347)"
   },
   "run1": {
     "provider": "vultr",
@@ -15,5 +18,13 @@
     "peak_disk_est_gb": 1600,
     "steady_disk_gb": 557,
     "stream_unpack_shard2_min": 38
+  },
+  "run2": {
+    "provider": "vultr",
+    "feed_cold_s": 32,
+    "feed_warm_s": 20,
+    "cast_s": 8,
+    "cast_tries": 1,
+    "login_lookup_s": 22
   }
 }
