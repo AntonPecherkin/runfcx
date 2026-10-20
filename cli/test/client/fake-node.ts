@@ -120,7 +120,7 @@ export function fakeNode() {
       }
       case "/v1/signersByFid": {
         const a = store.accounts.get(fid)!;
-        const req = q.getAll("requesterFids").map(Number);
+        const req = q.getAll("requesterFids[]").map(Number);
         return ok({ signers: store.keys.filter((k) => k.fid === fid), gaslessSignerCount: 0, gaslessSignerLimit: 1000,
           currentUserNonce: a.nonce, ...(req.length ? { requesterFidNonces: Object.fromEntries(req.map((r) => [String(r), a.appNonces[r] ?? 0])) } : {}) });
       }

@@ -4,7 +4,8 @@
     "status-downloading": "$ fcx status\nPhase:  downloading\nShard:  1  chunk 1156/2672  ETA 0h56m\nDisk:   108 GB used, 790 GB free\nRAM:    0 GB used",
     "whoami": "$ fcx whoami\n@aap (FID 381353), app key 0x1d071c05…, added 2026-10-20",
     "feed": "$ fcx feed --limit 3\n@greg · 1m · via @greg · 0x8ae98f90\n  oh so we're time traveling now?\n\n@aap · 1m · via @aap · 0x26d5d85b\n  Posted from my own Farcaster node. No API keys, no hub provider: a read node on a rented server and a gasless app key. Building it here: antonpecherkin.github.io/fcx-cli\n\n@velveteen · 12m · via @warpcast · reply · 0x66d3c8f4\n  I knew painting dinosaurs in space was the right move!!",
-    "clients": "$ fcx clients\n  87  @warpcast (fid 9152)\n   9  @fireflyapp (fid 16823)\n   3  @cassie (fid 1325)\n   1  @greg (fid 347)"
+    "clients": "$ fcx clients\n  87  @warpcast (fid 9152)\n   9  @fireflyapp (fid 16823)\n   3  @cassie (fid 1325)\n   1  @greg (fid 347)",
+    "logout": "$ runfcx logout\nApp key removed. Logged out."
   },
   "run1": {
     "provider": "vultr",

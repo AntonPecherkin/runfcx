@@ -81,3 +81,20 @@ describe("slow lookups", () => {
     await expect(n.storageUnits(10)).rejects.toThrow("did not answer in time");
   });
 });
+
+describe("requesterFids", () => {
+  it("sends requesterFids[] with literal brackets (a real node ignores %5B%5D and rejects plain or repeated keys)", async () => {
+    const urls: string[] = [];
+    const spy = (async (u: string | URL | Request, init?: RequestInit) => { urls.push(String(u)); return fake.fetch(u, init); }) as typeof fetch;
+    await new NodeClient("http://node", spy).signersByFid(10, 42);
+    expect(urls[0]).toContain("requesterFids[]=42");
+    expect(urls[0]).not.toContain("%5B");
+  });
+});
+
+describe("error text", () => {
+  it("shows a plain-text error body from the node", async () => {
+    const plain = (async () => new Response("Invalid query parameters: expected a sequence", { status: 400 })) as typeof fetch;
+    await expect(new NodeClient("http://node", plain).storageUnits(1)).rejects.toThrow("Invalid query parameters: expected a sequence");
+  });
+});

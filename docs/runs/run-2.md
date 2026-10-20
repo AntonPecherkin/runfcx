@@ -57,3 +57,17 @@ The cast shows `via @aap`: an fcx key names the user's own FID as the requesting
 ```fcx-numbers
 provider=vultr feed_cold_s=32 feed_warm_s=20 cast_s=8 cast_tries=1 login_lookup_s=22 login_signatures=2 login_gas_usd=0
 ```
+
+## Logout (2026-10-21)
+The first `runfcx logout` failed with a bare `HTTP 400`. The node reads `requesterFids` only as
+`requesterFids[]=<fid>` with literal brackets: a plain value is "expected a sequence", a repeated key is
+"multiple values", and URL-encoded brackets are silently ignored. Fixed in the client, plus plain-text
+error bodies are now shown. Then:
+
+```fcx-term logout
+$ runfcx logout
+App key removed. Logged out.
+```
+
+Self-revoking `KEY_REMOVE` confirmed: `/v1/signer` no longer finds the key, `gaslessSignerCount` 0,
+app nonce for FID 381353 went 0 → 1. 9 s end to end.

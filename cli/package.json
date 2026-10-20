@@ -1,6 +1,6 @@
 {
   "name": "runfcx",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "runfcx: run a Farcaster node and client with your agent. Half the disk, no API keys.",
   "license": "MIT",
   "type": "module",

@@ -20,10 +20,13 @@ export class NodeClient {
 
   private async call<T>(path: string, params: Params = {}, init?: RequestInit, slow = false): Promise<T> {
     const u = new URL(path, this.base);
+    const lists: string[] = [];
     for (const [k, v] of Object.entries(params)) {
-      if (Array.isArray(v)) v.forEach((x) => u.searchParams.append(k, String(x)));
+      // The node reads a list only as k[]=a&k[]=b with literal brackets; it ignores %5B%5D.
+      if (Array.isArray(v)) v.forEach((x) => lists.push(`${k}[]=${encodeURIComponent(String(x))}`));
       else if (v !== undefined) u.searchParams.set(k, String(v));
     }
+    if (lists.length) u.search = (u.search ? `${u.search}&` : "?") + lists.join("&");
     // A stalled tunnel or a busy node must not hang the CLI. Writes get a little longer.
     const ms = slow ? (this.o.slowTimeoutMs ?? 60_000) : (this.o.timeoutMs ?? 10_000) * (init?.method === "POST" ? 1.5 : 1);
     let r: Response;
@@ -32,8 +35,10 @@ export class NodeClient {
       if ((e as Error).name === "TimeoutError" || (e as Error).name === "AbortError") throw new Error("Your node did not answer in time. Run: runfcx status");
       throw e;
     }
-    const body = await r.json().catch(() => ({}));
-    if (!r.ok) throw new NodeError(body.details ?? body.error_detail ?? body.error ?? `HTTP ${r.status}`, r.status);
+    const text = await r.text();
+    let body: Record<string, string> = {};
+    try { body = JSON.parse(text); } catch { /* some errors come back as plain text */ }
+    if (!r.ok) throw new NodeError(body.details ?? body.error_detail ?? body.error ?? (text.trim().slice(0, 200) || `HTTP ${r.status}`), r.status);
     return body as T;
   }
   // The node answers "not found" with a 4xx. For lookups that is a normal answer.
