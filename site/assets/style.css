@@ -102,7 +102,7 @@ ol.you b{display:block;font-size:19px}ol.you span{color:var(--muted)}
 .signflow li.on .sf-pop i{animation:tap .5s ease 1s}
 @keyframes tap{50%{transform:scale(.9)}}
 .sf-cap{font-size:14px;color:var(--muted)}
-#found{padding-top:8px}
+#found{padding:8px 0 72px}
 .found{list-style:none;padding:0;margin:28px 0 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
 .found>li{min-width:0;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:22px 20px;display:flex;flex-direction:column}
 .found>li[hidden]{display:none}
