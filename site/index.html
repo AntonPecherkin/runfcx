@@ -11,7 +11,7 @@
 <body>
 <header class="top">
   <a class="brand" href="#top"><span class="mark" aria-hidden="true"></span>fcx</a>
-  <nav><a href="#found">What we found</a><a href="#server">Free server</a><a href="#you">What you do</a><a href="#wallet">Wallet</a><a href="tutorial.html">Tutorial</a><a href="https://github.com/AntonPecherkin/fcx-cli">GitHub</a></nav>
+  <nav><a href="#why">Why fcx</a><a href="#wallet">Wallet</a><a href="#server">Free server</a><a href="#node">Your node</a><a href="tutorial.html">Tutorial</a><a href="https://github.com/AntonPecherkin/fcx-cli">GitHub</a></nav>
 </header>
 
 <main class="wide" id="top">
@@ -23,7 +23,7 @@
         <code id="agent-line">Set up my Farcaster node with https://antonpecherkin.github.io/fcx-cli/agent.md</code>
         <button type="button" data-copy="agent-line">Copy</button>
       </div>
-      <p class="muted" style="font-size:15px">No API keys · <a href="tutorial.html">prefer to type it yourself?</a></p>
+      <p class="under">No API keys · <a href="#server">free with Vultr credit</a> · <a href="tutorial.html">or type it yourself</a></p>
     </div>
     <div class="chat" aria-label="What a session with your agent looks like">
       <div class="me">Set up my Farcaster node with antonpecherkin.github.io/fcx-cli/agent.md</div>
@@ -38,57 +38,59 @@ RAM:    0 GB used</pre>
     </div>
   </section>
 
-  <section id="found">
-    <p class="kicker">Measured on our mainnet runs</p>
-    <h2 class="big">What we found running it</h2>
-    <!-- Waits on feat/stream-restore: check.mjs fails on main (and so blocks the Pages deploy) while a
-         data-wait claim is on the page. Remove data-wait once the streaming restore is merged. -->
+  <section id="why">
+    <p class="kicker">Why fcx</p>
+    <h2 class="big">Why set up your node with fcx</h2>
+    <!-- Cards 1 and 2 wait on feat/stream-restore: check.mjs fails on main (and so blocks the Pages deploy)
+         while a data-wait claim is on the page. Remove data-wait once the streaming restore is merged. -->
     <ul class="wins">
       <li data-wait="stream-restore">
-        <h3>Half the disk</h3>
+        <h3>Rent a 1 TB disk</h3>
         <div class="vs">
-          <p><small>Upstream peak</small><b>~<span data-num="run1.peak_disk_est_gb">1600</span> GB</b></p>
-          <p class="fcx"><small>fcx, restored</small><b><span data-num="run1.steady_disk_gb" data-suffix=" GB">557 GB</span></b></p>
+          <p><small>Official setup</small><b>~<span data-num="run1.peak_disk_est_gb">1600</span> GB</b></p>
+          <p class="fcx"><small>fcx</small><b><span data-num="run1.steady_disk_gb" data-suffix=" GB">557 GB</span></b></p>
         </div>
-        <p>Upstream keeps a shard's chunks (<span data-num="run1.shard1_chunks_gb" data-suffix=" GB">222 GB</span>), archive (<span data-num="run1.shard1_tar_gb" data-suffix=" GB">261 GB</span>) and unpacked copy (<span data-num="run1.shard1_unpacked_gb" data-suffix=" GB">261 GB</span>) until the end. fcx streams chunks straight into tar, so no archive is written. A 1 TB disk is enough.</p>
+        <p>fcx unpacks the snapshot while it downloads, so you pay for half the disk.</p>
       </li>
       <li data-wait="stream-restore">
-        <h3>Picks up where it stopped</h3>
+        <h3>A crash won't start you over</h3>
         <div class="vs">
-          <p><small>Upstream</small><b>block 1</b></p>
+          <p><small>Official setup</small><b>block 1</b></p>
           <p class="fcx"><small>fcx</small><b>resumes</b></p>
         </div>
-        <p>A half-finished upstream restore quietly syncs the rest from block 1 (<a href="https://github.com/farcasterxyz/snapchain/issues/1044">snapchain#1044</a>). fcx carries on with the restore.</p>
+        <p>Server rebooted or ran out of disk mid-restore? fcx picks up where it stopped. It also opens the ports the node needs and warns you if a shard gets stuck.</p>
+      </li>
+      <li>
+        <h3>Your seed phrase stays in your wallet</h3>
+        <div class="vs">
+          <p class="fcx"><small>Signatures</small><b><span data-num="run2.login_signatures">2</span></b></p>
+          <p class="fcx"><small>Gas</small><b><span data-num="run2.login_gas_usd" data-prefix="$">$0</span></b></p>
+        </div>
+        <p>Sign in with MetaMask or Rabby. With wallet sign-in, fcx never sees your seed phrase.</p>
       </li>
     </ul>
-    <ul class="found">
-      <li>
-        <p class="num"><span data-num="run2.login_gas_usd" data-prefix="$">$0</span> <small>gas</small></p>
-        <h3>No gas, no ETH</h3>
-        <p><span data-num="run2.login_signatures">2</span> wallet signatures add your app key. No Optimism transaction.</p>
-      </li>
-      <li>
-        <p class="num"><span data-num="run2.cast_s" data-suffix=" s">8 s</span> <small>to confirm a cast</small></p>
-        <h3>No hub provider, no API keys</h3>
-        <p>Reads and writes go through your own read node. Our first cast landed on the first try.</p>
-      </li>
-      <li>
-        <pre>$ fcx clients
-  87  @warpcast (fid 9152)
-   9  @fireflyapp (fid 16823)
-   3  @cassie (fid 1325)
-   1  @greg (fid 347)</pre>
-        <h3>Filter your feed by app</h3>
-        <p><code>--only-client</code> and <code>--exclude-client</code> split the feed by the app that posted.</p>
-      </li>
-    </ul>
-    <div class="fixed">
-      <b>Fixed along the way</b>
-      <ul>
-        <li>A fresh keep-mode install exited before starting the node</li>
-        <li>Vultr's <code>ufw</code> blocked gossip on 3382/udp</li>
-        <li>A shard syncing from block 1 now shows in <code>fcx status</code></li>
+    <p class="muted small">Measured on our Vultr run, October 2026 · <a href="notes.html">where we differ from the official docs</a></p>
+  </section>
+
+  <section id="wallet" class="split">
+    <div>
+      <p class="kicker">Signing in</p>
+      <h2 class="big">MetaMask or Rabby signs twice<br>No seed phrase export</h2>
+      <ul class="facts">
+        <li><b>No gas</b><span>Two signatures, no transaction</span></li>
+        <li><b>A key with limits</b><span>It can cast, like and follow. Nothing else</span></li>
+        <li><b>On your computer only</b><span>The sign-in page runs on your laptop, behind a one-time link</span></li>
+        <li><b>Undo anytime</b><span><code>fcx logout</code> removes it</span></li>
       </ul>
+      <p class="muted small">Use the wallet that holds your Farcaster account's custody address.</p>
+    </div>
+    <div class="signflow" data-signflow aria-label="Signing in: fcx opens a page, your wallet asks twice, you're logged in">
+      <ol>
+        <li><span class="sf-term">$ fcx login --wallet</span><span class="sf-cap">fcx opens a page on your laptop</span></li>
+        <li><span class="sf-pop"><b>Signature request</b><em>Approve fcx as the app asking for a key</em><i>Approve</i></span><span class="sf-cap">Your wallet asks once</span></li>
+        <li><span class="sf-pop"><b>Signature request</b><em>Add a key that can cast, like and follow · 30 days</em><i>Approve</i></span><span class="sf-cap">and once more</span></li>
+        <li><span class="sf-term ok">Logged in as @you · try: fcx feed</span><span class="sf-cap">Done. No gas spent</span></li>
+      </ol>
     </div>
   </section>
 
@@ -137,32 +139,33 @@ RAM:    0 GB used</pre>
           <li>Never sees your seed phrase, and posts nothing without asking</li>
         </ul>
       </details>
+      <div class="again">
+        <p><b>Ready?</b> Paste this into your agent</p>
+        <div class="prompt">
+          <code id="agent-line-2">Set up my Farcaster node with https://antonpecherkin.github.io/fcx-cli/agent.md</code>
+          <button type="button" data-copy="agent-line-2">Copy</button>
+        </div>
+      </div>
     </div>
   </section>
 
-  <section id="wallet" class="split">
-    <div>
-      <p class="kicker">Signing in</p>
-      <h2 class="big">Your wallet signs twice<br>Your key stays there</h2>
-      <ul class="facts">
-        <li><b>No gas</b><span>Two signatures, no transaction</span></li>
-        <li><b>A key with limits</b><span>It can cast, like and follow. Nothing else</span></li>
-        <li><b>On your computer only</b><span>The sign-in page runs on your laptop, behind a one-time link</span></li>
-        <li><b>Undo anytime</b><span><code>fcx logout</code> removes it</span></li>
+  <section id="node">
+    <p class="kicker">Your own node</p>
+    <h2 class="big">Why run your own node</h2>
+    <div class="split" style="align-items:flex-start;margin-top:28px">
+      <ul class="facts" style="margin:0">
+        <li><b>No API keys</b><span>No provider account to sign up for or pay</span></li>
+        <li><b>Nobody in between</b><span>Your reads and writes go through a node you control</span></li>
+        <li><b>Quick to post</b><span>Our first cast confirmed in <span data-num="run2.cast_s" data-suffix=" s">8 s</span></span></li>
+        <li><b>Filter by app</b><span>See which apps your feed comes from, then keep or hide one</span></li>
       </ul>
+      <pre aria-label="fcx clients on our run">$ fcx clients
+  87  @warpcast (fid 9152)
+   9  @fireflyapp (fid 16823)
+   3  @cassie (fid 1325)
+   1  @greg (fid 347)</pre>
     </div>
-    <div class="signflow" data-signflow aria-label="Signing in: fcx opens a page, your wallet asks twice, you're logged in">
-      <ol>
-        <li><span class="sf-term">$ fcx login --wallet</span><span class="sf-cap">fcx opens a page on your laptop</span></li>
-        <li><span class="sf-pop"><b>Signature request</b><em>Approve fcx as the app asking for a key</em><i>Approve</i></span><span class="sf-cap">Your wallet asks once</span></li>
-        <li><span class="sf-pop"><b>Signature request</b><em>Add a key that can cast, like and follow · 30 days</em><i>Approve</i></span><span class="sf-cap">and once more</span></li>
-        <li><span class="sf-term ok">Logged in as @you · try: fcx feed</span><span class="sf-cap">Done. No gas spent</span></li>
-      </ol>
-    </div>
-  </section>
-
-  <section id="cast" style="padding-top:72px">
-    <h2 class="big">Where a cast goes</h2>
+    <h3 id="cast" class="mid">Where a cast goes</h3>
     <ol class="stops" data-play>
       <li><b>Your laptop</b><span>Your app key signs it</span></li>
       <li><b>Your node</b><span>Checks it, passes it on</span></li>
@@ -171,6 +174,13 @@ RAM:    0 GB used</pre>
       <li class="net"><b>Every feed</b><span>Anyone can read it</span></li>
     </ol>
     <a href="tutorial.html" style="font-weight:600">How it works, step by step →</a>
+    <div class="vouch">
+      <div>
+        <h3>Ran it? Vouch for fcx</h3>
+        <p>Post one cast from your own node and reply to the bounty cast with it.</p>
+      </div>
+      <a class="pill" href="vouch.html">How to vouch</a>
+    </div>
   </section>
 </main>
 
