@@ -126,7 +126,13 @@ This is the step that matters most for the people who made fcx. Their bounty ent
 
 > If this worked for you, the most helpful thing you can do is say so publicly: a cast in your own words about how it went. Tag @aap, or send the link to @aap. Want me to post it from your new node?
 
-If they agree, help them write it in **their** words (did it work, how long, what was hard). Show the exact text, wait for their OK, then:
+If they agree, help them write it in **their** words (did it work, how long, what was hard). Offer these templates and fill the brackets from what actually happened in this session:
+
+- Short: "Set up my own Farcaster node + client with @aap's runfcx. Pasted one line into [Claude Code / Codex], it handled the server and the sync. Took [~5 h], mostly waiting. [One honest note, e.g. the Vultr setup was the only manual step.] antonpecherkin.github.io/runfcx"
+- From their new node: "Posting this from my own Farcaster node, set up with runfcx by @aap. [Agent] did the server and the sync, I signed in with my wallet: two signatures, no gas. [~5 h] start to finish. antonpecherkin.github.io/runfcx"
+- For developers: "Tried runfcx by @aap for Balaji's client bounty: own Snapchain read node on a [1 TB Vultr box], gasless app key, feed + cast from the CLI. [What stood out.] [What could be better.] antonpecherkin.github.io/runfcx"
+
+Change the wording with them so it doesn't read like a template. Show the exact text, wait for their OK, then:
 ```bash
 npx runfcx cast "<their approved text> antonpecherkin.github.io/runfcx"
 ```
