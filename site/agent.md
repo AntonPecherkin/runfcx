@@ -28,7 +28,12 @@ The node needs a server. runfcx rents one on Hetzner with the person's API token
    ```
    (On Linux, `xclip -o -selection clipboard` or `wl-paste` in place of `pbpaste`.) Check it exists with `test -s ~/.config/fcx/hcloud-token && echo saved`, never by printing it.
 
-If they already have an Ubuntu server with 4 CPU, 16 GB RAM and 1000 GB disk (any provider, e.g. Vultr), use that instead: https://antonpecherkin.github.io/runfcx/server.html#other. You'll run `provision --host` in step 3.
+If they already have an Ubuntu server with 4 CPU, 16 GB RAM and 1000 GB disk (any provider, e.g. Vultr), use that instead: https://antonpecherkin.github.io/runfcx/server.html#other. Make the SSH key runfcx uses and show them the public half to put in root's `authorized_keys`:
+```bash
+mkdir -p ~/.fcx && [ -f ~/.fcx/ssh_ed25519 ] || ssh-keygen -q -t ed25519 -N "" -C runfcx -f ~/.fcx/ssh_ed25519
+cat ~/.fcx/ssh_ed25519.pub
+```
+You'll run `provision --host` in step 3.
 
 ## 2. Confirm the cost
 

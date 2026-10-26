@@ -19,8 +19,8 @@
     <h1 class="hero">Your own Farcaster<br><em>read node and client</em></h1>
     <p class="lede">Three commands. No API keys from anyone. No gas.</p>
     <pre class="quick"><span class="c"># first: a Hetzner Cloud API token, 2 minutes (</span><a href="server.html#hetzner">how</a><span class="c">)</span>
-<span class="c"># (0) get a server</span>
-npx runfcx provision
+<span class="c"># (0) get a server (deletes itself after 12 h)</span>
+npx runfcx provision --ttl 12h
 <span class="c"># (1) start a Snapchain read node, wait for sync</span>
 npx runfcx node
 <span class="c"># (2) give the client its own app key, then use it</span>
@@ -28,10 +28,10 @@ npx runfcx login --wallet
 npx runfcx feed · cast · follow · like
 <span class="c"># done? delete the server, billing stops</span>
 npx runfcx destroy</pre>
-    <code id="quick-cmds" hidden>npx runfcx provision
+    <code id="quick-cmds" hidden>npx runfcx provision --ttl 12h
 npx runfcx node
 npx runfcx login --wallet</code>
-    <p class="under"><button type="button" class="btn" data-copy="quick-cmds">Copy</button> &nbsp;About 3 to 5 hours, mostly waiting for the sync · <a href="tutorial.html">what each step does</a></p>
+    <p class="under"><button type="button" class="btn" data-copy="quick-cmds">Copy</button> &nbsp;About 5 to 6 hours, mostly waiting for the sync · <a href="tutorial.html">what each step does</a></p>
     <p class="lede" style="margin-top:32px;font-size:18px">Or hand it to your agent. Paste this into Claude Code or Codex:</p>
     <div class="prompt">
       <code id="agent-line">Set up my Farcaster node with https://antonpecherkin.github.io/runfcx/agent.md</code>
@@ -83,7 +83,7 @@ npx runfcx login --wallet</code>
     <div>
       <p class="kicker">The server</p>
       <h2 class="big">What it costs</h2>
-      <p class="band-lede"><code>provision</code> rents a Hetzner server and a 1 TB volume, and deletes both after 8 hours unless you pass <code>--keep</code>. You pay Hetzner by the hour.</p>
+      <p class="band-lede"><code>provision</code> rents a Hetzner server and a 1 TB volume, and deletes both when the time you gave it runs out (8 hours by default, 12 in the quickstart). <code>runfcx extend</code> adds time. You pay Hetzner by the hour.</p>
       <p class="fine">Already have a server? Any Ubuntu box with 16 GB of RAM and 1 TB of disk works: <a href="server.html#other">provision --host</a></p>
     </div>
     <div>
@@ -96,7 +96,7 @@ npx runfcx login --wallet</code>
         <div class="row"><span>Gas</span><i></i><b>$0</b></div>
         <div class="row"><span>24 h of node</span><i></i><b>~€4.80</b></div>
         <hr>
-        <div class="total"><span>8 H RUN</span><span>~€1.60</span></div>
+        <div class="total"><span>12 H RUN</span><span>~€2.40</span></div>
         <small>ESTIMATE · HETZNER LIST PRICE · OCT 2026</small>
       </div>
     </div>
@@ -104,11 +104,12 @@ npx runfcx login --wallet</code>
 
   <section id="you" class="split" style="align-items:flex-start">
     <div style="flex:1 1 280px">
-      <h2 class="big">You do three things</h2>
+      <h2 class="big">You do four things</h2>
       <p class="muted">The agent does everything else and tells you when it's your turn.</p>
     </div>
     <div style="flex:2 1 520px">
       <ol class="you">
+        <li><div><b>Make a Hetzner token</b><span>2 minutes, <a href="server.html#hetzner">see how</a></span></div></li>
         <li><div><b>Paste the line</b><span>into Claude Code or Codex</span></div></li>
         <li><div><b>Say yes to the price</b><span>it asks before renting anything</span></div></li>
         <li><div><b>Sign in with your wallet</b><span>two clicks, <a href="#wallet">see how</a></span></div></li>

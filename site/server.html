@@ -30,13 +30,16 @@
 <li>Security → API tokens → Generate, with <b>Read &amp; Write</b>. Copy it.</li>
 <li>Save it where runfcx looks (or set <code>HCLOUD_TOKEN</code> instead):
 <pre>mkdir -p ~/.config/fcx &amp;&amp; pbpaste &gt; ~/.config/fcx/hcloud-token &amp;&amp; chmod 600 ~/.config/fcx/hcloud-token</pre></li>
-<li>Run <code>npx runfcx provision</code></li>
+<li>Run <code>npx runfcx provision --ttl 12h</code></li>
 </ol>
 <p><code>provision</code> creates a <code>ccx23</code> server (4 vCPU, 16 GB) in Falkenstein, a 1000 GB volume and a firewall that allows SSH from your IP only and UDP 3382 (gossip) from anywhere. It makes its own SSH key.</p>
-<p>The server deletes itself after 8 hours. Need longer: <code>npx runfcx extend 4h</code>, or start with <code>--keep</code>. When you're done, <code>npx runfcx destroy</code> deletes the server and the volume, and billing stops.</p>
+<p>The server deletes itself when the time runs out: 12 hours here, 8 by default. Setup takes 5 to 6 hours. Need longer: <code>npx runfcx extend 4h</code>, or start with <code>--keep</code>. When you're done, <code>npx runfcx destroy</code> deletes the server and the volume, and billing stops.</p>
 
 <h2 id="other">Any other server</h2>
-<p id="own-box">Any Ubuntu or Debian machine with the spec above works: a box at home, or a server from any cloud. Open SSH (22) from your IP and UDP 3382 from anywhere, put <code>~/.fcx/ssh_ed25519.pub</code> in root's <code>authorized_keys</code>, then:</p>
+<p id="own-box">Any Ubuntu or Debian machine with the spec above works: a box at home, or a server from any cloud. Open SSH (22) from your IP and UDP 3382 from anywhere. Make the SSH key runfcx uses and put the public half in root's <code>authorized_keys</code>:</p>
+<pre>mkdir -p ~/.fcx &amp;&amp; [ -f ~/.fcx/ssh_ed25519 ] || ssh-keygen -t ed25519 -N "" -C runfcx -f ~/.fcx/ssh_ed25519
+cat ~/.fcx/ssh_ed25519.pub</pre>
+<p>Then:</p>
 <pre>npx runfcx provision --host root@YOUR_IP --data-dir /mnt/fcx</pre>
 <h3 id="vultr">Example: Vultr</h3>
 <p>Our first two runs used Vultr. In its dashboard:</p>
