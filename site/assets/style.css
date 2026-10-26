@@ -137,3 +137,6 @@ h3.mid{font-size:24px;margin:56px 0 0}
 .refcode a{color:var(--gold);font-weight:600}.refcode code{color:var(--band-ink);font-size:15px}
 .refcode button{margin-left:auto;border:0;border-radius:8px;background:var(--gold);color:var(--paper-ink);font:600 14px system-ui,sans-serif;padding:0 14px;min-height:36px;cursor:pointer}
 #t1,#t2,#t3{white-space:pre-wrap;margin-bottom:8px}
+.quick{background:var(--chat);color:var(--chat-ink);font-size:15px;padding:18px 20px;border-radius:14px;max-width:44rem;margin:0}
+.quick .c{color:var(--chat-muted)}
+.quick a{color:var(--chat-ink)}
