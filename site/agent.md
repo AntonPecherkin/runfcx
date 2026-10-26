@@ -9,7 +9,7 @@ The node runs on a rented server. The client runs on this machine. No API keys.
 2. **The person runs `runfcx login` themselves.** It needs a human at the keyboard and refuses to run for you.
 3. **Never post, like, recast or follow without the person's OK in this conversation**, for that exact action and text.
 4. **State the cost before anything is rented**, and wait for a yes.
-5. **Before you stop**, remind the person to destroy the server and delete its block storage in Vultr when they're done. A stopped server still bills.
+5. **Before you stop**, remind the person to run `npx runfcx destroy` when they're done (on their own server: also delete the server and its disk in their provider's console). A stopped server still bills.
 
 ## 1. Check the machine
 
@@ -18,34 +18,33 @@ node --version      # needs v20 or newer
 ssh -V              # any OpenSSH
 ```
 
-The node needs a server. Recommend Vultr: new accounts get $300 of credit through this referral link, which covers the whole setup:
-https://www.vultr.com/?ref=9929634-9J (referral code `9929634-9J`, applied by the link)
+The node needs a server. runfcx rents one on Hetzner with the person's API token. The person makes the token (about 2 minutes, https://antonpecherkin.github.io/runfcx/server.html#hetzner):
 
-The person creates it in their Vultr account (about 10 minutes): https://antonpecherkin.github.io/runfcx/server.html#vultr. Do the parts you can for them:
-
-1. Make the SSH key runfcx uses, and show the person the public half to paste into Vultr (Account → SSH Keys):
+1. In Hetzner Cloud, a **new project** just for this (a token controls its whole project).
+2. Security → API tokens → Generate, **Read & Write**, copy it.
+3. They save it themselves, from their clipboard, so it never appears in this chat:
    ```bash
-   mkdir -p ~/.fcx && [ -f ~/.fcx/ssh_ed25519 ] || ssh-keygen -q -t ed25519 -N "" -C runfcx -f ~/.fcx/ssh_ed25519
-   cat ~/.fcx/ssh_ed25519.pub
+   mkdir -p ~/.config/fcx && pbpaste > ~/.config/fcx/hcloud-token && chmod 600 ~/.config/fcx/hcloud-token
    ```
-2. Look up their IP and give them the exact firewall rules (Network → Firewall): SSH 22 from `<their IP>/32`, UDP 3382 from anywhere, nothing else.
-   ```bash
-   curl -s https://api.ipify.org
-   ```
-3. Tell them the rest: Storage → Block Storage, a **bootable** 1000 GB volume with Ubuntu 24.04; then Deploy → Dedicated CPU → `vx1-g-4c-16g` in the same location, with that volume, the `runfcx` SSH key and the firewall; backups off. If Vultr refuses the disk size, a new account needs a support ticket: "Please raise my block storage limit to 1000 GB."
-4. Ask for the server's IP.
+   (On Linux, `xclip -o -selection clipboard` or `wl-paste` in place of `pbpaste`.) Check it exists with `test -s ~/.config/fcx/hcloud-token && echo saved`, never by printing it.
 
-If they already have an Ubuntu server with 4 CPU, 16 GB RAM and 1000 GB disk, use that instead.
+If they already have an Ubuntu server with 4 CPU, 16 GB RAM and 1000 GB disk (any provider, e.g. Vultr), use that instead: https://antonpecherkin.github.io/runfcx/server.html#other. You'll run `provision --host` in step 3.
 
 ## 2. Confirm the cost
 
 Tell the person, in one message:
 
-> The server (4 CPU, 16 GB, 1000 GB disk) costs about $0.26 an hour, so about $6 a day. New Vultr accounts get $300 of credit, so it costs you nothing. The setup takes about 5–6 hours, mostly waiting. OK to start?
+> runfcx will rent a Hetzner server (4 CPU, 16 GB) and a 1000 GB volume, about €0.20 an hour, so about €5 a day (estimate from Hetzner's list price). It deletes itself after 12 hours unless we extend it. The setup takes about 5–6 hours, mostly waiting. OK to start?
 
-Wait for a yes.
+On their own server, say instead that their provider bills them for it. Wait for a yes.
 
-## 3. Take over the server
+## 3. Rent the server
+
+```bash
+npx runfcx provision --ttl 12h
+```
+
+It creates the server, volume and firewall (SSH from this machine's IP only, UDP 3382 open) and its own SSH key. On their own server instead:
 
 ```bash
 npx runfcx provision --host root@<IP> --data-dir /mnt/fcx
@@ -85,7 +84,7 @@ The restore runs on the server by itself. If your session has to end, tell the p
 | `stopped` | the node isn't running | run `npx runfcx node` again |
 | `error` | the status check failed on the server; see `detail` | run `npx runfcx node` again; if it repeats, show the person `detail` |
 
-If `ssh` is `blocked`, the person's IP probably changed. Ask them to update the SSH rule in their Vultr firewall to their new IP.
+If `ssh` is `blocked`, the person's IP probably changed. On Hetzner, run `npx runfcx allow-ip`. On their own server, ask them to update the SSH rule in their provider's firewall to their new IP.
 
 ## 5. Hand over the login
 
@@ -128,9 +127,9 @@ This is the step that matters most for the people who made fcx. Their bounty ent
 
 If they agree, help them write it in **their** words (did it work, how long, what was hard). Offer these templates and fill the brackets from what actually happened in this session:
 
-- Short: "Set up my own Farcaster node + client with @aap's runfcx. Pasted one line into [Claude Code / Codex], it handled the server and the sync. Took [~5 h], mostly waiting. [One honest note, e.g. the Vultr setup was the only manual step.] antonpecherkin.github.io/runfcx"
+- Short: "Set up my own Farcaster node + client with @aap's runfcx. Pasted one line into [Claude Code / Codex], it handled the server and the sync. Took [~5 h], mostly waiting. [One honest note, e.g. the Hetzner token was the only manual step.] antonpecherkin.github.io/runfcx"
 - From their new node: "Posting this from my own Farcaster node, set up with runfcx by @aap. [Agent] did the server and the sync, I signed in with my wallet: two signatures, no gas. [~5 h] start to finish. antonpecherkin.github.io/runfcx"
-- For developers: "Tried runfcx by @aap for Balaji's client bounty: own Snapchain read node on a [1 TB Vultr box], gasless app key, feed + cast from the CLI. [What stood out.] [What could be better.] antonpecherkin.github.io/runfcx"
+- For developers: "Tried runfcx by @aap for Balaji's client bounty: own Snapchain read node on a [1 TB server], gasless app key, feed + cast from the CLI. [What stood out.] [What could be better.] antonpecherkin.github.io/runfcx"
 
 Change the wording with them so it doesn't read like a template. Show the exact text, wait for their OK, then:
 ```bash
@@ -140,14 +139,14 @@ Give them the cast's link and ask them to tag or send it to @aap. Never post wit
 
 ## 9. Finish
 
-Remind the person: when they're done, run `npx runfcx destroy --yes` (stops the node), then destroy the server and delete its block storage in Vultr. A stopped server still bills.
+Remind the person: when they're done, run `npx runfcx destroy --yes`. On Hetzner that deletes the server and the volume. On their own server it stops the node; they then delete the server and its disk in their provider's console. A stopped server still bills.
 
 ## Errors
 
 | message (start) | cause | fix |
 |---|---|---|
 | No server yet. Run: runfcx provision | no run on this machine | step 3 |
-| No Hetzner token. | `provision` ran without `--host` | use `npx runfcx provision --host root@<IP> --data-dir /mnt/fcx` |
+| No Hetzner token. | no token saved yet | person creates one (server.html#hetzner) and saves it to `~/.config/fcx/hcloud-token`; or, with their own server, `npx runfcx provision --host root@<IP> --data-dir /mnt/fcx` |
 | Run '<name>' exists. Use it, or delete it first: runfcx destroy | a run is already set up | use it, or `runfcx destroy` with the person's OK |
 | This Hetzner project already has runfcx resources. Delete them in the console, or use another project. | leftovers from an earlier run | person deletes them in the Hetzner console |
 | Bad --name '<x>'. Use a-z, 0-9 and '-'. | invalid name | fix the flag |
