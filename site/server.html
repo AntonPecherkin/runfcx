@@ -14,9 +14,9 @@
 </header>
 <main>
 <h1 id="top">Renting the server</h1>
-<p class="lede">We use Vultr: new accounts get $300 of credit through <a href="https://www.vultr.com/?ref=9929634-9J" rel="sponsored noopener">our referral link</a>, which covers many runs.</p>
+<p class="lede">runfcx rents the server for you on Hetzner, by the hour. You make one API token; <code>npx runfcx provision</code> does the rest.</p>
 <div class="card">
-<b>Any provider, same spec</b>
+<b>What the node needs, on any provider</b>
 <ul>
 <li>4 vCPU, 16 GB RAM</li>
 <li>1000 GB disk. runfcx unpacks the snapshot one shard at a time and deletes chunks as it goes. Our run ended at 557 GB.</li>
@@ -24,9 +24,22 @@
 </ul>
 </div>
 
+<h2 id="hetzner">Hetzner · 2 minutes</h2>
+<ol>
+<li>In Hetzner Cloud, create a <b>new project</b> just for this. A token controls its whole project.</li>
+<li>Security → API tokens → Generate, with <b>Read &amp; Write</b>. Copy it.</li>
+<li>Save it where runfcx looks (or set <code>HCLOUD_TOKEN</code> instead):
+<pre>mkdir -p ~/.config/fcx &amp;&amp; pbpaste &gt; ~/.config/fcx/hcloud-token &amp;&amp; chmod 600 ~/.config/fcx/hcloud-token</pre></li>
+<li>Run <code>npx runfcx provision</code></li>
+</ol>
+<p><code>provision</code> creates a <code>ccx23</code> server (4 vCPU, 16 GB) in Falkenstein, a 1000 GB volume and a firewall that allows SSH from your IP only and UDP 3382 (gossip) from anywhere. It makes its own SSH key.</p>
+<p>The server deletes itself after 8 hours. Need longer: <code>npx runfcx extend 4h</code>, or start with <code>--keep</code>. When you're done, <code>npx runfcx destroy</code> deletes the server and the volume, and billing stops.</p>
 
-<h2 id="vultr">Vultr · 10 minutes</h2>
-<p>Sign up through <a href="https://www.vultr.com/?ref=9929634-9J" rel="sponsored noopener">our referral link</a> (referral code <code>9929634-9J</code>, applied by the link; we get a small bonus too). You click the server together, then runfcx takes over.</p>
+<h2 id="other">Any other server</h2>
+<p id="own-box">Any Ubuntu or Debian machine with the spec above works: a box at home, or a server from any cloud. Open SSH (22) from your IP and UDP 3382 from anywhere, put <code>~/.fcx/ssh_ed25519.pub</code> in root's <code>authorized_keys</code>, then:</p>
+<pre>npx runfcx provision --host root@YOUR_IP --data-dir /mnt/fcx</pre>
+<h3 id="vultr">Example: Vultr</h3>
+<p>Our first two runs used Vultr. In its dashboard:</p>
 <ol>
 <li>Make the SSH key runfcx uses, and add the public half under Account → SSH Keys:
 <pre>mkdir -p ~/.fcx &amp;&amp; ssh-keygen -t ed25519 -N "" -C runfcx -f ~/.fcx/ssh_ed25519
@@ -34,13 +47,9 @@ cat ~/.fcx/ssh_ed25519.pub</pre></li>
 <li>Network → Firewall: allow SSH (22) from <b>your IP only</b>, and UDP 3382 from anywhere. Nothing else.</li>
 <li>Storage → Block Storage: a <b>bootable</b> 1000 GB volume with Ubuntu 24.04.</li>
 <li>Deploy → Dedicated CPU → <code>vx1-g-4c-16g</code>, in the same location, with that volume, your key and your firewall. Turn off backups.</li>
-<li>Run <code>npx runfcx provision --host root@YOUR_IP --data-dir /mnt/fcx</code></li>
+<li>Run the <code>provision --host</code> line above.</li>
 </ol>
-<p><b>When you're done:</b> destroy the server <b>and</b> delete the block storage. A stopped server still bills.</p>
-
-<h2 id="own-box">Your own box</h2>
-<p>Any Ubuntu or Debian machine with the spec above. Put <code>~/.fcx/ssh_ed25519.pub</code> in root's <code>authorized_keys</code>, open UDP 3382, then:</p>
-<pre>npx runfcx provision --host root@YOUR_IP</pre>
+<p><b>When you're done</b> with your own server: run <code>npx runfcx destroy --yes</code>, then delete the server <b>and</b> its disk in your provider's console. A stopped server still bills.</p>
 </main>
 <footer><span>Made by <a href="https://farcaster.xyz/aap">@aap</a> · MIT · <a href="https://github.com/AntonPecherkin/runfcx">runfcx</a></span><span>Built on Snapchain · no API keys</span></footer>
 </body>

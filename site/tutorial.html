@@ -26,9 +26,10 @@
 
 <section id="compute" data-chapter="compute">
 <h2>0 · Compute</h2>
-<pre>npx runfcx provision --host root@YOUR_IP --data-dir /mnt/fcx</pre>
-<p>You rent one Vultr server with a 1000 GB disk (<a href="server.html#vultr">10 minutes</a>). Its firewall allows SSH from your IP and UDP 3382 from anywhere. Everything else stays closed.</p>
-<p><code>provision</code> logs in with runfcx's own SSH key, checks the CPU, memory and disk, and remembers the server. When you're done, destroy the server and delete its disk in Vultr: a stopped server still bills.</p>
+<pre>npx runfcx provision</pre>
+<p>You need a Hetzner Cloud API token first (<a href="server.html#hetzner">2 minutes</a>). <code>provision</code> creates a server with 4 vCPU and 16 GB, a 1000 GB volume, and a firewall that allows SSH from your IP only and UDP 3382 (gossip) from anywhere. Everything else stays closed.</p>
+<p>The server deletes itself after 8 hours, so a forgotten test run can't bill for a month. <code>npx runfcx extend 4h</code> moves that deadline, and <code>npx runfcx destroy</code> deletes the server and the volume when you're done.</p>
+<p>Have your own server? <code>npx runfcx provision --host root@YOUR_IP --data-dir /mnt/fcx</code> checks its CPU, memory and disk and uses it instead (<a href="server.html#other">requirements</a>).</p>
 </section>
 
 <section id="node" data-chapter="node">
