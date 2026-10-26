@@ -76,3 +76,9 @@ export function agentCoverage(md, phases, errors) {
   for (const e of errors) if (!table.includes(e.slice(0, 30))) out.push(`agent.md: error not covered: ${e.slice(0, 30)}`);
   return out;
 }
+
+// No server referral or credit pitch, and no names from before the rename to runfcx.
+const PROMO = [/ref=\d+/, /9929634/, /referral/i, /\$300/, /vultr credit/i, /free server/i, /fcx-cli/, /\$ fcx\b/];
+export function promo(text) {
+  return PROMO.flatMap((re) => text.match(re) ?? []).map((m) => `promotion or old name: ${m}`);
+}

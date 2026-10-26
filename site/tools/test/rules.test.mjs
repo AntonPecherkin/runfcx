@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { bannedPhrases, structure, cssTokens, links } from "../rules.mjs";
+import { bannedPhrases, structure, cssTokens, links, promo } from "../rules.mjs";
 
 test("banned words and contrasts", () => {
   assert.deepEqual(bannedPhrases("Run the node. It syncs in 3 hours."), []);
@@ -51,4 +51,15 @@ test("claims that wait on a branch are listed", () => {
   assert.deepEqual(waiting(`<li>2 TB</li>`), []);
   assert.deepEqual(waiting(`<li data-wait="stream-restore">1 TB</li><li data-wait="stream-restore">resumes</li>`),
     ["claim waits on stream-restore (remove data-wait once it is merged)"]);
+});
+
+test("promo flags referral, credit pitch and old names", () => {
+  assert.deepEqual(promo("Run with npx runfcx provision. Or any server, e.g. Vultr: --host root@IP"), []);
+  assert.equal(promo('<a href="https://www.vultr.com/?ref=9929634-9J">x</a>').length > 0, true);
+  assert.equal(promo("New accounts get $300 of credit").length > 0, true);
+  assert.equal(promo("Vultr credit −$300").length > 0, true);
+  assert.equal(promo("our referral link").length > 0, true);
+  assert.equal(promo("antonpecherkin.github.io/fcx-cli").length > 0, true);
+  assert.equal(promo("$ fcx status").length > 0, true);
+  assert.deepEqual(promo("$ runfcx status"), []);
 });
