@@ -47,7 +47,7 @@ Result: shard 0 37 GB, shard 1 261 GB, shard 2 259 GB, 557 GB total on a 1000 GB
 The node started at 10:37 and began catching up: 19,230 / 84,353 / 103,100 blocks behind on shards 0 / 1 / 2.
 
 ```fcx-term status-syncing
-$ fcx status
+$ runfcx status
 Phase:  syncing
 Behind: 103161 blocks
 Disk:   571 GB used, 327 GB free
@@ -58,13 +58,13 @@ RAM:    1 GB used
 Prices are Vultr list prices for the recommended setup, which is what this run used: a 1000 GB NVMe block storage disk at $0.10/GB-month ≈ $0.14/h. fcx now does the streamed restore above itself (`cli/remote/restore.sh`), so 1000 GB is enough. Times are filled in when each phase ends.
 
 ```fcx-numbers
-provider=vultr plan=vx1-g-4c-16g server_usd_h=0.12 disk_usd_h=0.14 hourly_usd=0.26 shard1_chunks_gb=222 shard1_tar_gb=261 shard1_unpacked_gb=261 peak_disk_est_gb=1600 steady_disk_gb=557 stream_unpack_shard2_min=38
+provider=vultr plan=vx1-g-4c-16g server_usd_h=0.12 disk_usd_h=0.14 hourly_usd=0.26 monthly_usd=189.8 shard1_chunks_gb=222 shard1_tar_gb=261 shard1_unpacked_gb=261 peak_disk_est_gb=1600 steady_disk_gb=557 stream_unpack_shard2_min=38
 ```
 
 ## Terminal
 
 ```fcx-term status-downloading
-$ fcx status
+$ runfcx status
 Phase:  downloading
 Shard:  1  chunk 1156/2672  ETA 0h56m
 Disk:   108 GB used, 790 GB free

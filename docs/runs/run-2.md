@@ -8,7 +8,7 @@ Account: @aap (FID 381353), custody key imported into MetaMask for the login onl
 submitted through our own node, confirmed via `/v1/signer`.
 
 ```fcx-term whoami
-$ fcx whoami
+$ runfcx whoami
 @aap (FID 381353), app key 0x1d071c05…, added 2026-10-20
 ```
 
@@ -21,19 +21,19 @@ What we learned:
 ## Reads
 
 ```fcx-term feed
-$ fcx feed --limit 3
+$ runfcx feed --limit 3
 @greg · 1m · via @greg · 0x8ae98f90
   oh so we're time traveling now?
 
 @aap · 1m · via @aap · 0x26d5d85b
-  Posted from my own Farcaster node. No API keys, no hub provider: a read node on a rented server and a gasless app key. Building it here: antonpecherkin.github.io/fcx-cli
+  Posted from my own Farcaster node. No API keys, no hub provider: a read node on a rented server and a gasless app key. Building it here: antonpecherkin.github.io/runfcx
 
 @velveteen · 12m · via @warpcast · reply · 0x66d3c8f4
   I knew painting dinosaurs in space was the right move!!
 ```
 
 ```fcx-term clients
-$ fcx clients
+$ runfcx clients
   87  @warpcast (fid 9152)
    9  @fireflyapp (fid 16823)
    3  @cassie (fid 1325)
