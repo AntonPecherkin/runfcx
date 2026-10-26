@@ -3,7 +3,7 @@
 import { readFileSync, readdirSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { bannedPhrases, structure, cssTokens, links, placeholders, waiting, motion, agentCoverage } from "./rules.mjs";
+import { bannedPhrases, structure, cssTokens, links, placeholders, waiting, motion, agentCoverage, promo } from "./rules.mjs";
 import { loadAll, drift } from "./snippets.mjs";
 
 const site = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -19,6 +19,9 @@ for (const [f, h] of pages) {
 }
 const agent = readFileSync(join(site, "agent.md"), "utf8");
 problems.push(...bannedPhrases(agent).map((p) => `agent.md: ${p}`));
+// No server referral or credit pitch, and no pre-rename names, anywhere we publish.
+for (const [f, t] of [...pages, ...["agent.md", "llms.txt", "site.json", "data/runs.json"].map((f) => [f, readFileSync(join(site, f), "utf8")])])
+  problems.push(...promo(t).map((p) => `${f}: ${p}`));
 problems.push(...cssTokens(readFileSync(join(site, "assets/style.css"), "utf8")).map((p) => `style.css: ${p}`));
 problems.push(...links(pages));
 // Every phase fcx status can report, and every error message fcx can print, needs a row in agent.md.
