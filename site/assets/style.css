@@ -140,3 +140,4 @@ h3.mid{font-size:24px;margin:56px 0 0}
 .quick{background:var(--chat);color:var(--chat-ink);font-size:15px;padding:18px 20px;border-radius:14px;max-width:44rem;margin:0}
 .quick .c{color:var(--chat-muted)}
 .quick a{color:var(--chat-ink)}
+@media (max-width:520px){.quick{white-space:pre-wrap;font-size:14px}}
